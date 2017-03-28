@@ -52,3 +52,19 @@ return result;
 
 View绘制流程：
 1. onMeasure()
+	MeasureSpec的specMode,一共三种类型：
+	EXACTLY：一般是设置了明确的值或者是MATCH_PARENT
+	AT_MOST：表示子布局限制在一个最大值内，一般为WARP_CONTENT
+	UNSPECIFIED：表示子布局想要多大就多大，很少使用
+
+setMeasuredDimension():设置view宽高 
+
+invalidate() 视图重绘，但这时measure和layout流程是不会重新执行的
+requestLayout() 视图的绘制流程完整走一遍
+
+
+使用自定义属性：
+TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CustomView);
+defStyleAttr、defStyleRes 默认为0，即不使用系统默认值。
+
+注意：使用自定义属性的时候，要调用a.recycle(),释放对象，方便复用。
