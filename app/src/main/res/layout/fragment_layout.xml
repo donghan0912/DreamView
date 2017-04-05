@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <TextView
+        android:text="都说了开发建设地方了科技时代雷锋精神动力放松多了"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"/>
+    <Button
+        android:text="sdfsdklfjsdlkfj"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"/>
+
+</LinearLayout>

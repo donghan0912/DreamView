@@ -24,6 +24,7 @@ public class SimpleView extends View implements View.OnClickListener{
     private Paint mPaint;
     private Rect mBounds;
     int mCount;
+    private int color;
 
     public SimpleView(Context context) {
         super(context);
@@ -32,6 +33,8 @@ public class SimpleView extends View implements View.OnClickListener{
     public SimpleView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CustomView);
+        color = a.getColor(R.styleable.CustomView_textColor, 0xffffff);
+//        a.recycle();
         mPaint = new Paint();
         // 矩形
         mBounds = new Rect();
@@ -76,7 +79,8 @@ public class SimpleView extends View implements View.OnClickListener{
         int y = getHeight() / 2;
         int radius = x > y ? y : x;
         canvas.drawCircle(x, y, radius, mPaint);
-        mPaint.setColor(Color.WHITE);
+//        mPaint.setColor(Color.WHITE);
+        mPaint.setColor(color);
         mPaint.setTextSize(70);
         String s = String.valueOf(mCount);
         mPaint.getTextBounds(s, 0, s.length(), mBounds);
