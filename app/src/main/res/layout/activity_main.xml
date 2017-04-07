@@ -14,16 +14,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!--<TextView-->
-            <!--android:textSize="20dp"-->
-            <!--android:textColor="#f00"-->
-            <!--android:text="this is the first time"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"/>-->
-        <!--<TextView-->
-            <!--android:text="sdfdsf"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"/>-->
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="44dp"/>
     </com.dream.dreamview.MultiStatusLayout>
 
 </LinearLayout>
