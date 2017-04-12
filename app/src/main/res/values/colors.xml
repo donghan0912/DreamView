@@ -7,4 +7,47 @@
     <color name="secondary_text">#757575</color>
     <color name="icons">#FFFFFF</color>
     <color name="divider">#BDBDBD</color>
+
+
+    <!-- 灰色 调色板 -->
+    <color name="gray">@color/gray_500</color>
+    <color name="gray_50">#FFFFFF</color>
+    <color name="gray_100">#F7F7F7</color>
+    <color name="gray_200">#F4F4F4</color>
+    <color name="gray_300">#D9D9D9</color>
+    <color name="gray_400">#CCCCCC</color>
+    <color name="gray_500">#B2B2B2</color>
+    <color name="gray_600">#A6A6A6</color>
+    <color name="gray_700">#999999</color>
+    <color name="gray_800">#808080</color>
+    <color name="gray_900">#333333</color>
+    <color name="gray_a100">#595959</color>
+    <color name="gray_a200">#FFFFFF</color>
+    <color name="gray_a400">#C1C1C1</color>
+    <color name="gray_a700">#939393</color>
+
+    <!-- 黑色，调色板 -->
+    <color name="black">@color/black_500</color>
+    <color name="black_50">#858585</color>
+    <color name="black_100">#5E5E5E</color>
+    <color name="black_200">#424242</color>
+    <color name="black_300">#1F1F1F</color>
+    <color name="black_400">#0F0F0F</color>
+    <color name="black_500">#000000</color>
+    <color name="black_600">#000000</color>
+    <color name="black_700">#000000</color>
+    <color name="black_800">#000000</color>
+    <color name="black_900">#000000</color>
+    <color name="black_a100">#858585</color>
+    <color name="black_a200">#5E5E5E</color>
+    <color name="black_a400">#0F0F0F</color>
+    <color name="black_a700">#000000</color>
+
+
+    <color name="content_color">#343434</color>
+
+    <color name="tip_color">#6C6C6C</color>
+
+    <color name="retry_color">#C0C0C0</color>
+
 </resources>

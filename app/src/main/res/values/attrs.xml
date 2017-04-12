@@ -8,6 +8,10 @@
     <!--multi status layout-->
     <declare-styleable name="MultiStatusLayout">
         <attr name="loadingLayout" format="reference"/>
-        <!--<attr name="loadingText" format="reference"/>-->
+        <attr name="emptyLayout" format="reference"/>
+        <attr name="errorLayout" format="reference"/>
+        <attr name="loginLayout" format="reference"/>
+        <attr name="noNetworkLayout" format="reference"/>
+        <attr name="timeOutLayout" format="reference"/>
     </declare-styleable>
 </resources>
