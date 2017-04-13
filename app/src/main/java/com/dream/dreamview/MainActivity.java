@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_1:
                 mLayout.showContentView();
                 hide(false);
+                ToolbarActivity.start(this);
                 break;
             case R.id.btn_2:
                 mLayout.showErrorView();

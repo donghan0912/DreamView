@@ -16,8 +16,8 @@
         <!--popupMenu 宽度设置-->
         <item name="android:width">80dp</item>
         <!--popupMenu item中字体颜色设置-->
-        <!--<item name="android:textSize">12sp</item>-->
-        <!--<item name="android:textColor">@color/colorAccent</item>-->
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/gray_900</item>
     </style>
 
     <style name="OverFlowMenu" parent="Widget.AppCompat.PopupMenu.Overflow">

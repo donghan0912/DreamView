@@ -8,16 +8,19 @@
         android:icon：item设置icon后，title就不显示了
     -->
     <item
+        android:id="@+id/setting"
         android:orderInCategory="1"
-        android:icon="@drawable/ic_back"
+        android:icon="@drawable/ic_settings"
         android:title="设置"
-        app:showAsAction="never"/>
+        app:showAsAction="always"/>
 
     <item
+        android:id="@+id/about"
         android:orderInCategory="2"
         android:title="关于"
         app:showAsAction="never"/>
     <item
+        android:id="@+id/contact"
         android:orderInCategory="3"
         android:title="联系我们"
         app:showAsAction="never"/>
