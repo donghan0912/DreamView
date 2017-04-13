@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!--
+        android:orderInCategory作用：item排序，int值，值越小越靠前
+        app:showAsAction作用：是否显示在toolbar上，常用取值always、never
+        android:icon：item设置icon后，title就不显示了
+    -->
+    <item
+        android:orderInCategory="1"
+        android:icon="@drawable/ic_back"
+        android:title="设置"
+        app:showAsAction="never"/>
+
+    <item
+        android:orderInCategory="2"
+        android:title="关于"
+        app:showAsAction="never"/>
+    <item
+        android:orderInCategory="3"
+        android:title="联系我们"
+        app:showAsAction="never"/>
+</menu>

@@ -65,12 +65,20 @@ public class MultiStatusLayout extends FrameLayout {
         showCurrentView(mContentView);
     }
 
+    public View getContentView() {
+        return mContentView;
+    }
+
     public void showLoadingView() {
         if (mLoadingView == null) {
             mLoadingView = mInflater.inflate(mLoadingLayout, null);
             addView(mLoadingView);
         }
         showCurrentView(mLoadingView);
+    }
+
+    public View getLoadingView() {
+        return mLoadingView;
     }
 
     public void showEmptyView() {
@@ -81,12 +89,20 @@ public class MultiStatusLayout extends FrameLayout {
         showCurrentView(mEmptyView);
     }
 
+    public View getEmptyView() {
+        return mEmptyView;
+    }
+
     public void showErrorView() {
         if (mErrorView == null) {
             mErrorView = mInflater.inflate(mErrorLayout, null);
             addView(mErrorView);
         }
         showCurrentView(mErrorView);
+    }
+
+    public View getErrorView() {
+        return mErrorView;
     }
 
     public void showLoginView() {
@@ -97,6 +113,10 @@ public class MultiStatusLayout extends FrameLayout {
         showCurrentView(mLoginView);
     }
 
+    public View getLoginView() {
+        return mLoginView;
+    }
+
     public void showNoNetworkView() {
         if (mNoNetworView == null) {
             mNoNetworView = mInflater.inflate(mNoNetworkLayout, null);
@@ -105,12 +125,20 @@ public class MultiStatusLayout extends FrameLayout {
         showCurrentView(mNoNetworView);
     }
 
+    public View getNoView() {
+        return mNoNetworView;
+    }
+
     public void showTimeOutView() {
         if (mTimeOutView == null) {
             mTimeOutView = mInflater.inflate(mTimeOutLayout, null);
             addView(mTimeOutView);
         }
         showCurrentView(mTimeOutView);
+    }
+
+    public View getTimeOutView() {
+        return mTimeOutView;
     }
 
     private void showCurrentView(View currentView) {

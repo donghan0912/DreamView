@@ -8,4 +8,26 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/gray_100</item>
     </style>
+
+    <style name="ToolbarPopupTheme" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="actionOverflowMenuStyle">@style/OverFlowMenu</item>
+        <!--popupMenu item 点击背景设置-->
+        <item name="android:itemBackground">@drawable/popup_menu_item_slt</item>
+        <!--popupMenu 宽度设置-->
+        <item name="android:width">80dp</item>
+        <!--popupMenu item中字体颜色设置-->
+        <!--<item name="android:textSize">12sp</item>-->
+        <!--<item name="android:textColor">@color/colorAccent</item>-->
+    </style>
+
+    <style name="OverFlowMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <!--false在toolbar下显示-->
+        <item name="android:overlapAnchor">false</item>
+        <!--popupMenu背景-->
+        <item name="android:popupBackground">@color/gray_600</item>
+        <!-- 弹出层水平方向上的偏移，即距离屏幕左边的距离，负值会导致右边出现空隙 -->
+        <item name="android:dropDownHorizontalOffset">0dp</item>
+        <!-- 弹出层垂直方向上的偏移，即在竖直方向上距离Toolbar的距离，值为负则会盖住Toolbar -->
+        <item name="android:dropDownVerticalOffset">0dp</item>
+    </style>
 </resources>

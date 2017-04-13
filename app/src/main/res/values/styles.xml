@@ -31,4 +31,23 @@
         <item name="android:windowExitAnimation">@anim/push_bottom_out</item>
     </style>
 
+
+    <style name="ToolbarPopupTheme" parent="@style/AppTheme">
+        <item name="actionOverflowMenuStyle">@style/OverFlowMenu</item>
+        <item name="android:itemBackground">@drawable/popup_menu_item_slt</item>
+        <item name="android:width">100dp</item>
+        <item name="android:textSize">12sp</item>
+        <!--<item name="android:textColor">@color/colorAccent</item>-->
+    </style>
+
+    <style name="OverFlowMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <!--false在toolbar下显示-->
+        <item name="overlapAnchor">false</item>
+        <item name="android:popupBackground">@color/gray_600</item>
+        <!-- 弹出层水平方向上的偏移，即距离屏幕左边的距离，负值会导致右边出现空隙 -->
+        <item name="android:dropDownHorizontalOffset">0dp</item>
+        <!-- 弹出层垂直方向上的偏移，即在竖直方向上距离Toolbar的距离，值为负则会盖住Toolbar -->
+        <item name="android:dropDownVerticalOffset">0dp</item>
+    </style>
+
 </resources>
