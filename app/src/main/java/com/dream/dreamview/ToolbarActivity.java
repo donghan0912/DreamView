@@ -10,6 +10,7 @@ import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewStub;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,14 +29,18 @@ public class ToolbarActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_toolbar);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        TextView title = (TextView) findViewById(R.id.toolbar_title);
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(false);
-//        actionBar.setDisplayHomeAsUpEnabled(false);
-        title.setText("自定义标题");
-        toolbar.setOverflowIcon(AppCompatResources.getDrawable(this, R.drawable.ic_more));
+        ViewStub stub = (ViewStub) findViewById(R.id.toolbar_stub);
+        ViewStub stub2 = (ViewStub) findViewById(R.id.content_stub);
+//        stub.setLayoutResource(R.layout.activity_main);
+//        stub.inflate();
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        TextView title = (TextView) findViewById(R.id.toolbar_title);
+//        setSupportActionBar(toolbar);
+//        ActionBar actionBar = getSupportActionBar();
+//        actionBar.setDisplayShowTitleEnabled(false);
+////        actionBar.setDisplayHomeAsUpEnabled(false);
+//        title.setText("自定义标题");
+//        toolbar.setOverflowIcon(AppCompatResources.getDrawable(this, R.drawable.ic_more));
     }
 
     @Override
