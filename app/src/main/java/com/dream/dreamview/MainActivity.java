@@ -1,14 +1,10 @@
 package com.dream.dreamview;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -49,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_1:
                 mLayout.showContentView();
                 hide(false);
-                ToolbarActivity.start(this);
+
                 break;
             case R.id.btn_2:
                 mLayout.showErrorView();
