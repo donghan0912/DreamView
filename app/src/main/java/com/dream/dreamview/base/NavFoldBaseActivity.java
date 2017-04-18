@@ -1,5 +1,6 @@
-package com.dream.dreamview;
+package com.dream.dreamview.base;
 
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -17,7 +18,7 @@ import android.view.ViewStub;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import static com.dream.dreamview.R.id.toolbar;
+import com.dream.dreamview.R;
 
 
 /**
@@ -25,15 +26,14 @@ import static com.dream.dreamview.R.id.toolbar;
  * Created by lenovo on 2017/4/13.
  */
 
-public abstract class TTTNavBaseActivity extends AppCompatActivity {
+public abstract class NavFoldBaseActivity extends AppCompatActivity {
     private Toolbar mToolbar;
-    private TextView mTitle;
     private ViewStub mToolbarViewStub;
 
     protected
     @LayoutRes
     int getToolbarView() {
-        return R.layout.base_toolbar;
+        return R.layout.base_toolbar_fold;
     }
 
     protected abstract
@@ -60,13 +60,15 @@ public abstract class TTTNavBaseActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            // 去掉Toolbar标题
-//            actionBar.setDisplayShowTitleEnabled(false);
-//            setDisplayHomeAsUpEnabled(true);
+            setDisplayHomeAsUpEnabled(true);
         }
         // 自定义Toolbar 更多按钮
         if (toolbar != null) {
             toolbar.setOverflowIcon(AppCompatResources.getDrawable(this, R.drawable.ic_more));
+        }
+        CollapsingToolbarLayout toolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
+        if (toolbarLayout != null) {
+            toolbarLayout.setExpandedTitleColor(Color.TRANSPARENT);
         }
     }
 
@@ -74,24 +76,22 @@ public abstract class TTTNavBaseActivity extends AppCompatActivity {
         if (mToolbar == null) {
             mToolbarViewStub.setLayoutResource(getToolbarView());
             View view = mToolbarViewStub.inflate();
-            mToolbar = (Toolbar) view.findViewById(toolbar);
-            mTitle = (TextView) view.findViewById(R.id.toolbar_title);
+            mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
         }
         return mToolbar;
     }
 
     public void setTitle(@StringRes int resid) {
-        if (mTitle != null) {
-            mTitle.setText(resid);
+        if (mToolbar != null) {
+            mToolbar.setTitle(resid);
         }
     }
 
     public void setTitle(CharSequence text) {
-        if (mTitle != null) {
-            mTitle.setText(text);
+        if (mToolbar != null) {
+            mToolbar.setTitle(text);
+            setTitleCenter();
         }
-        mToolbar.setTitle(text);
-        setTitleCenter();
     }
 
     protected void setDisplayHomeAsUpEnabled(boolean enable) {
@@ -105,9 +105,6 @@ public abstract class TTTNavBaseActivity extends AppCompatActivity {
     private int titleMarginStart;
 
     protected void setTitleCenter() {
-        if (mToolbar == null) {
-            return;
-        }
         int childCount = getToolbar().getChildCount();
         // 注意toolbar设置NavigationIcon
         Drawable navigationIcon = mToolbar.getNavigationIcon();

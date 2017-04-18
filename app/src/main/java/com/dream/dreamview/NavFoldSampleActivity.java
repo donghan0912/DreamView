@@ -6,11 +6,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.dream.dreamview.base.NavFoldBaseActivity;
+
 /**
  * Created by Administrator on 2017/4/17.
  */
 
-public class TestActivity extends TTTNavBaseActivity {
+public class NavFoldSampleActivity extends NavFoldBaseActivity {
 
 
     @Override
@@ -19,15 +21,10 @@ public class TestActivity extends TTTNavBaseActivity {
     }
 
     @Override
-    protected int getToolbarView() {
-        return R.layout.base_toolbar_test;
-    }
-
-    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setDisplayHomeAsUpEnabled(false);
-        setTitle("这是自定义标题madf");
+        setDisplayHomeAsUpEnabled(false);
+        setTitle("自定义标题");
     }
 
 

@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.dream.dreamview.base.NavBaseActivity;
+import com.dream.dreamview.widget.MultiStatusLayout;
+
 public class MainActivity extends NavBaseActivity implements View.OnClickListener {
 
     private MultiStatusLayout mLayout;
@@ -34,7 +37,7 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
         switch (v.getId()) {
             case R.id.btn_1:
                 mLayout.showContentView();
-                startActivity(new Intent(this, TestActivity.class));
+                startActivity(new Intent(this, NavFoldSampleActivity.class));
 
                 break;
             case R.id.btn_2:

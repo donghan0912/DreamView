@@ -62,7 +62,7 @@
 
     </RelativeLayout>
 
-    <com.dream.dreamview.MultiStatusLayout
+    <com.dream.dreamview.widget.MultiStatusLayout
         android:id="@+id/status_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -73,6 +73,6 @@
             android:text="@string/text"
             android:textColor="@color/gray_900"
             android:textSize="16sp"/>
-    </com.dream.dreamview.MultiStatusLayout>
+    </com.dream.dreamview.widget.MultiStatusLayout>
 
 </LinearLayout>

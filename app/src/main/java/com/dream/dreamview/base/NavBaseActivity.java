@@ -1,4 +1,4 @@
-package com.dream.dreamview;
+package com.dream.dreamview.base;
 
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -11,6 +11,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.TextView;
+
+import com.dream.dreamview.R;
 
 /**
  * 带Toolbar的基础Activity
