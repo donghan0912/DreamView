@@ -5,7 +5,6 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -19,7 +18,7 @@ import com.dream.dreamview.R;
  * Created by lenovo on 2017/4/13.
  */
 
-public abstract class NavBaseActivity extends AppCompatActivity {
+public abstract class NavBaseActivity extends BaseActivity {
     private Toolbar mToolbar;
     private TextView mTitle;
     private ViewStub mToolbarViewStub;

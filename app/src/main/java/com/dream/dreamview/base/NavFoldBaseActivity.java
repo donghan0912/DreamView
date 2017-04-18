@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -22,11 +21,11 @@ import com.dream.dreamview.R;
 
 
 /**
- * 带Toolbar的基础Activity
+ * 带可折叠Toolbar的基础Activity
  * Created by lenovo on 2017/4/13.
  */
 
-public abstract class NavFoldBaseActivity extends AppCompatActivity {
+public abstract class NavFoldBaseActivity extends BaseActivity {
     private Toolbar mToolbar;
     private ViewStub mToolbarViewStub;
 
