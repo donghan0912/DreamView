@@ -20,6 +20,7 @@ import android.widget.TextView;
 public abstract class NavBaseActivity extends AppCompatActivity {
     private Toolbar mToolbar;
     private TextView mTitle;
+    private ViewStub mToolbarViewStub;
 
     protected @LayoutRes int getToolbarView() {
         return R.layout.base_toolbar;
@@ -31,9 +32,9 @@ public abstract class NavBaseActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.base_activity_nav);
-        ViewStub toolbarViewStub = (ViewStub) findViewById(R.id.toolbar_stub);
-        if (toolbarViewStub != null && getToolbarView() > 0) {
-            setupToolbar(toolbarViewStub);
+        mToolbarViewStub = (ViewStub) findViewById(R.id.toolbar_stub);
+        if (mToolbarViewStub != null && getToolbarView() > 0) {
+            setupToolbar();
         }
         ViewStub contentViewStub = (ViewStub) findViewById(R.id.content_stub);
         if (contentViewStub != null && getContentView() > 0) {
@@ -42,23 +43,25 @@ public abstract class NavBaseActivity extends AppCompatActivity {
         }
     }
 
-    private void setupToolbar(ViewStub viewStub) {
-        Toolbar toolbar = getToolbar(viewStub);
-        setSupportActionBar(toolbar);
+    private void setupToolbar() {
+        Toolbar toolbar = getToolbar();
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            // 自定义Toolbar 更多按钮
+            toolbar.setOverflowIcon(AppCompatResources.getDrawable(this, R.drawable.ic_more));
+        }
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             // 去掉Toolbar标题
             actionBar.setDisplayShowTitleEnabled(false);
             setDisplayHomeAsUpEnabled(true);
         }
-        // 自定义Toolbar 更多按钮
-        toolbar.setOverflowIcon(AppCompatResources.getDrawable(this, R.drawable.ic_more));
     }
 
-    private Toolbar getToolbar(ViewStub viewStub) {
+    protected Toolbar getToolbar() {
         if (mToolbar == null) {
-            viewStub.setLayoutResource(getToolbarView());
-            View view = viewStub.inflate();
+            mToolbarViewStub.setLayoutResource(getToolbarView());
+            View view = mToolbarViewStub.inflate();
             mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
             mTitle = (TextView) view.findViewById(R.id.toolbar_title);
         }

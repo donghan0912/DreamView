@@ -21,6 +21,8 @@
         <activity android:name=".Dialog"
                   android:theme="@style/MyDialogStyleBottom"/>
 
+        <activity android:name=".TestActivity"/>
+
     </application>
 
 </manifest>
