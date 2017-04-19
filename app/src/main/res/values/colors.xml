@@ -48,4 +48,23 @@
 
     <color name="retry_color">#C0C0C0</color>
 
+    <!-- 蓝色 调色板 -->
+    <color name="blue_50">#FFFFFF</color>
+    <color name="blue_100">#FFFFFF</color>
+    <color name="blue_200">#D1E8FF</color>
+    <color name="blue_300">#89C4FF</color>
+    <color name="blue_400">#6BB5FF</color>
+    <color name="blue_500">#4CA6FF</color>
+    <color name="blue_600">#2D97FF</color>
+    <color name="blue_700">#0F88FF</color>
+    <color name="blue_800">#0078EF</color>
+    <color name="blue_900">#0069D1</color>
+    <color name="blue_a100">#FFFFFF</color>
+    <color name="blue_a200">#FFFFFF</color>
+    <color name="blue_a400">#6BB5FF</color>
+    <color name="blue_a700">#0F88FF</color>
+
+    <color name="gray_50_opacity_87">#DEFAFAFA</color>
+    <color name="gray_50_opacity_38">#61FAFAFA</color>
+
 </resources>
