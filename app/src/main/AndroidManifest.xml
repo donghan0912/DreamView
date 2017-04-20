@@ -21,8 +21,8 @@
         <activity android:name=".Dialog"
                   android:theme="@style/MyDialogStyleBottom"/>
 
-        <activity android:name=".NavFoldSampleActivity"/>
-        <activity android:name=".AAA"/>
+        <activity android:name=".sample.NavFoldSampleActivity"/>
+        <activity android:name=".sample.CustomNavFoldSampleActivity"/>
 
     </application>
 

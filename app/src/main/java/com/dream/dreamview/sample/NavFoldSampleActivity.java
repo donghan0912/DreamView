@@ -1,4 +1,4 @@
-package com.dream.dreamview;
+package com.dream.dreamview.sample;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavFoldBaseActivity;
 
 /**
