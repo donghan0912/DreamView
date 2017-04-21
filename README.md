@@ -1,1 +1,2 @@
-this is sample
+WORK PLAN
+retrofit + rxjava;
