@@ -7,6 +7,10 @@ import android.view.View;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.sample.CustomNavFoldSampleActivity;
 import com.dream.dreamview.widget.MultiStatusLayout;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class MainActivity extends NavBaseActivity implements View.OnClickListener {
 
@@ -30,6 +34,15 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
         findViewById(R.id.btn_5).setOnClickListener(this);
         findViewById(R.id.btn_6).setOnClickListener(this);
         findViewById(R.id.btn_7).setOnClickListener(this);
+        T t = new T("hello jackson");
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        try {
+            String json = mapper.writeValueAsString(mapper);
+            System.out.println(json);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
 

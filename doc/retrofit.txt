@@ -1,3 +1,10 @@
 1. Converter.Factory
 2. Interceptor
-��������Ҫ��
+参考资料：
+    http://www.jianshu.com/p/308f3c54abdd
+
+    //这里建议：- Base URL: 总是以/结尾
+    new Retrofit.Builder().baseUrl("http://www.baidu/").build();
+
+moshi-JSON解析库的使用
+    http://www.jianshu.com/p/e7625ce0d419
