@@ -29,4 +29,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
     compile 'com.android.support:design:25.3.1'
+
+    // 网络
+    compile 'com.squareup.retrofit2:retrofit:2.2.0'
 }
