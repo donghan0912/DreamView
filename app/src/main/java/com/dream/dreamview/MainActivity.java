@@ -52,7 +52,8 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
             case R.id.btn_1:
                 mLayout.showContentView();
 //                startActivity(new Intent(this, NavFoldSampleActivity.class));
-                startActivity(new Intent(this, CustomNavFoldSampleActivity.class));
+//                startActivity(new Intent(this, CustomNavFoldSampleActivity.class));
+                startActivity(new Intent(this, SwipActivity.class));
 
                 break;
             case R.id.btn_2:
