@@ -1,4 +1,4 @@
-package com.dream.dreamview.test;
+package com.dream.dreamview.sample;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -8,19 +8,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.ColorUtils;
-import android.support.v4.view.OnApplyWindowInsetsListener;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.WindowInsetsCompat;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.dream.dreamview.R;
@@ -29,12 +23,12 @@ import com.dream.dreamview.R;
  * Created by lenovo on 2017/5/3.
  */
 
-public class TestFragment extends Fragment {
+public class CustomToolbarSapmleFragment extends Fragment {
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.test_fragment_test, null);
+        View view = inflater.inflate(R.layout.sample_fragment_custom_toolbar, null);
         return view;
     }
 

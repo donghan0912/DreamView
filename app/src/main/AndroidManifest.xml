@@ -24,7 +24,7 @@
         <activity android:name=".sample.NavFoldSampleActivity"/>
         <activity android:name=".sample.CustomNavFoldSampleActivity"/>
         <activity android:name=".SwipActivity"/>
-        <activity android:name=".test.TestActivity"/>
+        <activity android:name=".sample.CustomeToolbarSampleActivity"/>
 
     </application>
 

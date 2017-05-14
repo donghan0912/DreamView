@@ -5,8 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.dream.dreamview.base.NavBaseActivity;
-import com.dream.dreamview.sample.CustomNavFoldSampleActivity;
-import com.dream.dreamview.test.TestActivity;
+import com.dream.dreamview.sample.CustomeToolbarSampleActivity;
 import com.dream.dreamview.widget.MultiStatusLayout;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -55,7 +54,7 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
 //                startActivity(new Intent(this, NavFoldSampleActivity.class));
 //                startActivity(new Intent(this, CustomNavFoldSampleActivity.class));
 //                startActivity(new Intent(this, SwipActivity.class));
-                startActivity(new Intent(this, TestActivity.class));
+                startActivity(new Intent(this, CustomeToolbarSampleActivity.class));
 
                 break;
             case R.id.btn_2:
