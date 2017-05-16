@@ -29,7 +29,7 @@ public abstract class NavBaseActivity extends BaseActivity {
 
     protected @LayoutRes int getContentView() {
         return 0;
-    };
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

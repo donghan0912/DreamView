@@ -14,7 +14,9 @@ import android.widget.TextView;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.BaseActivity;
+import com.dream.dreamview.base.BaseViewHolder;
 import com.dream.dreamview.base.NavBaseActivity;
+import com.dream.dreamview.base.QuickAdapter;
 
 import java.util.zip.Inflater;
 
@@ -37,7 +39,13 @@ public class RecyclerViewActivity extends NavBaseActivity {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        recyclerView.setAdapter(new TestAdapter());
+//        recyclerView.setAdapter(new TestAdapter());
+        recyclerView.setAdapter(new QuickAdapter(R.layout.test_activity_recyclerview_item) {
+            @Override
+            public void onBindRecyclerViewHolder(BaseViewHolder holder, int position) {
+                holder.setTitle(R.id.content, "test");
+            }
+        });
     }
 
     public class TestAdapter extends RecyclerView.Adapter<TestAdapter.TestViewHolder> {
