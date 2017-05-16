@@ -27,7 +27,9 @@ public abstract class NavBaseActivity extends BaseActivity {
         return R.layout.base_toolbar;
     }
 
-    protected abstract @LayoutRes int getContentView();
+    protected @LayoutRes int getContentView() {
+        return 0;
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,10 +39,12 @@ public abstract class NavBaseActivity extends BaseActivity {
         if (mToolbarViewStub != null && getToolbarView() > 0) {
             setupToolbar();
         }
-        ViewStub contentViewStub = (ViewStub) findViewById(R.id.content_stub);
-        if (contentViewStub != null && getContentView() > 0) {
-            contentViewStub.setLayoutResource(getContentView());
-            contentViewStub.inflate();
+        if (getContentView() > 0) {
+            ViewStub contentViewStub = (ViewStub) findViewById(R.id.content_stub);
+            if (contentViewStub != null) {
+                contentViewStub.setLayoutResource(getContentView());
+                contentViewStub.inflate();
+            }
         }
     }
 
@@ -55,7 +59,7 @@ public abstract class NavBaseActivity extends BaseActivity {
         if (actionBar != null) {
             // 去掉Toolbar标题
             actionBar.setDisplayShowTitleEnabled(false);
-            setDisplayHomeAsUpEnabled(true);
+            setDisplayHomeAsUpEnabled(false);
         }
     }
 

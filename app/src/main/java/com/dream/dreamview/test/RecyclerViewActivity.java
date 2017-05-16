@@ -14,22 +14,26 @@ import android.widget.TextView;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.BaseActivity;
+import com.dream.dreamview.base.NavBaseActivity;
 
 import java.util.zip.Inflater;
 
 /**
+ * 实现功能：添加、删除、拖拽、点击、长按点击、滑动删除、添加head、footer
  * Created by lenovo on 2017/5/14.
  */
 
-public class RecyclerViewActivity extends BaseActivity {
+public class RecyclerViewActivity extends NavBaseActivity {
+
+    @Override
+    protected int getContentView() {
+        return R.layout.test_activity_recyclerview;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
-        }
-        setContentView(R.layout.test_activity_recyclerview);
+        setTitle("RecyclerView");
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));

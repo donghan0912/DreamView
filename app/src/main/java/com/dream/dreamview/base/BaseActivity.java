@@ -20,8 +20,8 @@ public class BaseActivity extends AppCompatActivity {
         // 由于在them中配置starbar 为透明样式，所以在基类中设置starbar颜色
         // 注：未检查是否影响子类，若影响，可在具体子类中单独设置starbar颜色
         // 实际项目中，可不设置starbar颜色，因为大部分都带有toolbar
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
-        }
+        }*/
     }
 }
