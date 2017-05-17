@@ -39,14 +39,31 @@ public class RecyclerViewActivity extends NavBaseActivity {
         }
         BaseRecyclerViewAdapter adapter = new BaseRecyclerViewAdapter() {
 
+            private static final int TYPE_FIR = 1;
+            private static final int TYPE_SEC = 2;
+
             @Override
-            public int getResourceId() {
-                return R.layout.test_activity_recyclerview_item;
+            public int getLayoutId(int viewType) {
+                if (viewType == TYPE_FIR) {
+                    return R.layout.test_activity_recyclerview_item;
+                } else {
+                    return R.layout.test_activity_recyclerview_item_two;
+                }
+            }
+
+            @Override
+            public int getItemViewType(int position) {
+                if (position % 2 == 0) {
+                    return TYPE_FIR;
+                } else {
+                    return TYPE_SEC;
+                }
             }
 
             @Override
             public void onBindRecyclerViewHolder(BaseViewHolder holder, int position) {
-                holder.setText(R.id.content, (String)getItem(position));
+                holder.setText(R.id.content, (String)getItem(position))
+                      .setText(R.id.content2, getItem(position) + "sss");
             }
         };
         recyclerView.setAdapter(adapter);

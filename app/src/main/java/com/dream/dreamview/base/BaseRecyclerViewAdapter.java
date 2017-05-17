@@ -35,14 +35,14 @@ public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<Ba
     /**
      *
      * @param resource
-     * @param data data source(数据源)
+     * @param data data source
      */
     public BaseRecyclerViewAdapter(@LayoutRes int resource, @Nullable List<T> data) {
         this.mData = data == null ? new ArrayList<T>() : data;
         this.mLayoutResId = resource;
     }
 
-    public @LayoutRes int getResourceId() {
+    public @LayoutRes int getLayoutId(int viewType) {
         return mLayoutResId;
     }
 
@@ -54,7 +54,7 @@ public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<Ba
 
     @Override
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        int resourceId = getResourceId();
+        int resourceId = getLayoutId(viewType);
         if (resourceId <= 0) {
             throw new NotFoundException("Resource ID \"" + resourceId + "\" is not valid, " +
                     "you should override constructor or the method getResourceId()");
@@ -63,7 +63,7 @@ public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<Ba
         if (itemView == null) {
             return null;
         }
-        return new BaseViewHolder(itemView);
+        return new BaseViewHolder(itemView, viewType);
     }
 
     @Override
@@ -81,6 +81,11 @@ public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<Ba
             return mData.get(position);
         }
         return null;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return super.getItemViewType(position);
     }
 
     public abstract void onBindRecyclerViewHolder(BaseViewHolder holder, int position);

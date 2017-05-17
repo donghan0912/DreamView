@@ -15,7 +15,7 @@ public class BaseViewHolder extends RecyclerView.ViewHolder {
     private View mItemView;
     private SparseArray<View> views;
 
-    public BaseViewHolder(View itemView) {
+    public BaseViewHolder(View itemView, int viewType) {
         super(itemView);
         views = new SparseArray<>();
         this.mItemView = itemView;
@@ -39,14 +39,16 @@ public class BaseViewHolder extends RecyclerView.ViewHolder {
         return (T) view;
     }
 
-    public void setText(@IdRes int id, CharSequence text) {
+    public BaseViewHolder setText(@IdRes int id, CharSequence text) {
         TextView textView = findViewById(id);
         textView.setText(text);
+        return this;
     }
 
-    public void setText(@IdRes int id, @StringRes int resid) {
+    public BaseViewHolder setText(@IdRes int id, @StringRes int resid) {
         TextView textView = findViewById(id);
         textView.setText(resid);
+        return this;
     }
 
 }
