@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.BaseRecyclerViewAdapter;
@@ -40,7 +41,7 @@ public class RecyclerViewActivity extends NavBaseActivity {
         BaseRecyclerViewAdapter adapter = new BaseRecyclerViewAdapter() {
 
             private static final int TYPE_FIR = 1;
-            private static final int TYPE_SEC = 2;
+            private static final int TYPE_SEC = 0;
 
             @Override
             public int getLayoutId(int viewType) {
@@ -61,10 +62,19 @@ public class RecyclerViewActivity extends NavBaseActivity {
             }
 
             @Override
-            public void onBindRecyclerViewHolder(BaseViewHolder holder, int position) {
-                holder.setText(R.id.content, (String)getItem(position))
-                      .setText(R.id.content2, getItem(position) + "sss");
+            public void onBindRecyclerViewHolder(BaseViewHolder holder, int position, int itemViewType) {
+                if (itemViewType == TYPE_FIR) {
+                    holder.setText(R.id.content, (String)getItem(position))
+                            .setText(R.id.content2, getItem(position) + "sss");
+                    Log.e("当前item1", holder.itemView.hashCode() + "");
+                } else {
+                    holder.setText(R.id.content3, (String) getItem(position))
+                            .setText(R.id.content4, getItem(position) + "sss");
+                    Log.e("当前item2", holder.itemView.hashCode() + "");
+                    Log.e("十六进制", Integer.toHexString(0));
+                }
             }
+
         };
         recyclerView.setAdapter(adapter);
         adapter.setData(list);

@@ -15,13 +15,14 @@ import java.util.List;
  * Created by Administrator on 2017/5/16.
  */
 
-public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<BaseViewHolder> {
+public class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<BaseViewHolder> {
+    private static final int INITIAL_VALUE = 0x00001001;
     @LayoutRes
     private int mLayoutResId;
     private List<T> mData = new ArrayList<>();
 
     public BaseRecyclerViewAdapter() {
-        this(0,null);
+        this(0, null);
     }
 
     public BaseRecyclerViewAdapter(List<T> data) {
@@ -33,16 +34,16 @@ public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<Ba
     }
 
     /**
-     *
      * @param resource
-     * @param data data source
+     * @param data     data source
      */
     public BaseRecyclerViewAdapter(@LayoutRes int resource, @Nullable List<T> data) {
         this.mData = data == null ? new ArrayList<T>() : data;
         this.mLayoutResId = resource;
     }
 
-    public @LayoutRes int getLayoutId(int viewType) {
+    public @LayoutRes
+    int getLayoutId(int viewType) {
         return mLayoutResId;
     }
 
@@ -68,7 +69,12 @@ public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<Ba
 
     @Override
     public void onBindViewHolder(BaseViewHolder holder, int position) {
-        onBindRecyclerViewHolder(holder, position);
+        int itemViewType = getItemViewType(position);
+        if (INITIAL_VALUE == itemViewType) {
+            onBindRecyclerViewHolder(holder, position);
+        } else {
+            onBindRecyclerViewHolder(holder, position, itemViewType);
+        }
     }
 
     @Override
@@ -85,8 +91,22 @@ public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<Ba
 
     @Override
     public int getItemViewType(int position) {
-        return super.getItemViewType(position);
+        return INITIAL_VALUE;
     }
 
-    public abstract void onBindRecyclerViewHolder(BaseViewHolder holder, int position);
+    /**
+     * when single itemViewType, override this method
+     *
+     * @param holder
+     * @param position
+     * @param itemViewType
+     */
+    public void onBindRecyclerViewHolder(BaseViewHolder holder, int position, int itemViewType) {}
+
+    /**
+     * when multi itemViewType, override this method
+     * @param holder
+     * @param position
+     */
+    public void onBindRecyclerViewHolder(BaseViewHolder holder, int position) {}
 }
