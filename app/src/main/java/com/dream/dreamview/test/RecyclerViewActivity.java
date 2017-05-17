@@ -7,7 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.dream.dreamview.R;
-import com.dream.dreamview.base.BaseAdapter;
+import com.dream.dreamview.base.BaseRecyclerViewAdapter;
 import com.dream.dreamview.base.BaseViewHolder;
 import com.dream.dreamview.base.NavBaseActivity;
 
@@ -37,12 +37,20 @@ public class RecyclerViewActivity extends NavBaseActivity {
         for (int i = 0; i < 20; i++) {
             list.add("第" + i + "数据");
         }
-        recyclerView.setAdapter(new BaseAdapter<String>(R.layout.test_activity_recyclerview_item, list) {
+        BaseRecyclerViewAdapter adapter = new BaseRecyclerViewAdapter() {
+
+            @Override
+            public int getResourceId() {
+                return R.layout.test_activity_recyclerview_item;
+            }
+
             @Override
             public void onBindRecyclerViewHolder(BaseViewHolder holder, int position) {
-                holder.setText(R.id.content, list.get(position));
+                holder.setText(R.id.content, (String)getItem(position));
             }
-        });
+        };
+        recyclerView.setAdapter(adapter);
+        adapter.setData(list);
     }
 
 }

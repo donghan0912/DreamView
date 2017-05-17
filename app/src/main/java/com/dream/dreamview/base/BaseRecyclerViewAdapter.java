@@ -1,15 +1,12 @@
 package com.dream.dreamview.base;
 
+import android.content.res.Resources.NotFoundException;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.dream.dreamview.T;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,21 +15,20 @@ import java.util.List;
  * Created by Administrator on 2017/5/16.
  */
 
-public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseViewHolder> {
+public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<BaseViewHolder> {
     @LayoutRes
-    private int mResource;
+    private int mLayoutResId;
     private List<T> mData = new ArrayList<>();
 
-    // TODO 实现代码自动提示功能
-    public BaseAdapter() {
+    public BaseRecyclerViewAdapter() {
         this(0,null);
     }
 
-    public BaseAdapter(List<T> data) {
+    public BaseRecyclerViewAdapter(List<T> data) {
         this(0, data);
     }
 
-    public BaseAdapter(@LayoutRes int resource) {
+    public BaseRecyclerViewAdapter(@LayoutRes int resource) {
         this(resource, null);
     }
 
@@ -41,17 +37,29 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseViewHolder
      * @param resource
      * @param data data source(数据源)
      */
-    public BaseAdapter(@LayoutRes int resource, @Nullable List<T> data) {
+    public BaseRecyclerViewAdapter(@LayoutRes int resource, @Nullable List<T> data) {
         this.mData = data == null ? new ArrayList<T>() : data;
-        this.mResource = resource;
+        this.mLayoutResId = resource;
+    }
+
+    public @LayoutRes int getResourceId() {
+        return mLayoutResId;
+    }
+
+    public void setData(List<T> data) {
+        this.mData.clear();
+        this.mData = data;
+        notifyDataSetChanged();
     }
 
     @Override
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (mResource <= 0) {
-            return null;
+        int resourceId = getResourceId();
+        if (resourceId <= 0) {
+            throw new NotFoundException("Resource ID \"" + resourceId + "\" is not valid, " +
+                    "you should override constructor or the method getResourceId()");
         }
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(mResource, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(resourceId, parent, false);
         if (itemView == null) {
             return null;
         }
@@ -66,6 +74,13 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseViewHolder
     @Override
     public int getItemCount() {
         return mData.size();
+    }
+
+    public T getItem(int position) {
+        if (position < mData.size()) {
+            return mData.get(position);
+        }
+        return null;
     }
 
     public abstract void onBindRecyclerViewHolder(BaseViewHolder holder, int position);
