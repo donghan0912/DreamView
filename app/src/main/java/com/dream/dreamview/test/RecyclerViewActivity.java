@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.BaseRecyclerViewAdapter;
@@ -67,10 +68,12 @@ public class RecyclerViewActivity extends NavBaseActivity {
             }
 
             @Override
+
             public void onBindRecyclerViewHolder(BaseViewHolder holder, int position) {
 //                holder.setText(R.id.content, (String)getItem(position))
 //                      .setText(R.id.content2, getItem(position) + "sss");
             }
+
         };
 //        recyclerView.setAdapter(adapter);
         adapter.setData(list);
