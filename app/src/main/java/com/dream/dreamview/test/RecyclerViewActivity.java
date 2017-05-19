@@ -41,18 +41,24 @@ public class RecyclerViewActivity extends NavBaseActivity {
 
             private static final int TYPE_FIR = 1;
             private static final int TYPE_SEC = 2;
+            private static final int TYPE_THR = 3;
 
             @Override
             public int getLayoutId(int viewType) {
                 if (viewType == TYPE_FIR) {
                     return R.layout.test_activity_recyclerview_item;
-                } else {
+                } else if (viewType == TYPE_SEC){
                     return R.layout.test_activity_recyclerview_item_two;
+                } else {
+                    return R.layout.test_activity_recyclerview_item_three;
                 }
             }
 
             @Override
             public int getItemViewType(int position) {
+                if (position == 17) {
+                    return TYPE_THR;
+                }
                 if (position % 2 == 0) {
                     return TYPE_FIR;
                 } else {
@@ -62,12 +68,21 @@ public class RecyclerViewActivity extends NavBaseActivity {
 
             @Override
             public void onBindRecyclerViewHolder(BaseViewHolder holder, int position) {
-                holder.setText(R.id.content, (String)getItem(position))
-                      .setText(R.id.content2, getItem(position) + "sss");
+//                holder.setText(R.id.content, (String)getItem(position))
+//                      .setText(R.id.content2, getItem(position) + "sss");
             }
         };
-        recyclerView.setAdapter(adapter);
+//        recyclerView.setAdapter(adapter);
         adapter.setData(list);
+        List<BaseAdapterItem> mData = new ArrayList<>();
+        for (int i = 0; i <10; i++) {
+            mData.add(new TextItem());
+            if (i == 9) {
+                mData.add(new TwoTextItem());
+            }
+        }
+        BaseAdapter textItemBaseAdapter = new BaseAdapter(mData);
+        recyclerView.setAdapter(textItemBaseAdapter);
     }
 
 }
