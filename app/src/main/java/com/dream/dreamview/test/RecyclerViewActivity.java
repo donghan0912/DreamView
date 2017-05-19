@@ -6,6 +6,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.BaseRecyclerViewAdapter;
@@ -35,7 +36,7 @@ public class RecyclerViewActivity extends NavBaseActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         final List<String> list = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 30; i++) {
             list.add("第" + i + "数据");
         }
         BaseRecyclerViewAdapter adapter = new BaseRecyclerViewAdapter() {
@@ -57,14 +58,11 @@ public class RecyclerViewActivity extends NavBaseActivity {
 
             @Override
             public int getItemViewType(int position) {
-                if (position == 17) {
-                    return TYPE_THR;
-                }
-                if (position % 2 == 0) {
-                    return TYPE_FIR;
-                } else {
+                if (position == 9) {
                     return TYPE_SEC;
                 }
+                    return TYPE_FIR;
+
             }
 
             @Override
@@ -78,14 +76,22 @@ public class RecyclerViewActivity extends NavBaseActivity {
 //        recyclerView.setAdapter(adapter);
         adapter.setData(list);
         List<BaseAdapterItem> mData = new ArrayList<>();
-        for (int i = 0; i <10; i++) {
-            mData.add(new TextItem());
+        for (int i = 0; i <30; i++) {
+
             if (i == 9) {
                 mData.add(new TwoTextItem());
+            } else {
+                mData.add(new TextItem());
             }
         }
         BaseAdapter textItemBaseAdapter = new BaseAdapter(mData);
         recyclerView.setAdapter(textItemBaseAdapter);
+
+        SparseArray array = new SparseArray();
+        array.put(1, "sss");
+        array.put(2, "aaa");
+        array.put(1, "dsfjkfdjs");
+        Log.e("=================", array.size() + "");
     }
 
 }

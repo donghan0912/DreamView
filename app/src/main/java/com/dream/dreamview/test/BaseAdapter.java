@@ -1,16 +1,10 @@
 package com.dream.dreamview.test;
 
-import android.content.res.Resources.NotFoundException;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.dream.dreamview.base.BaseViewHolder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,6 +14,7 @@ import java.util.List;
 public class BaseAdapter<T extends BaseAdapterItem> extends RecyclerView.Adapter<BaseViewHolder> {
 
     private final List<T> mData;
+    private int ttt;
 
     public BaseAdapter(List<T> item) {
         this.mData = item;
@@ -27,14 +22,17 @@ public class BaseAdapter<T extends BaseAdapterItem> extends RecyclerView.Adapter
 
     @Override
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        for (int i = 0; i < mData.size(); i++) {
-            if (viewType == mData.get(i).getItemViewType()) {
-                return mData.get(i).onCreateViewHolder(parent, viewType);
-            }
-        }
-        throw new RuntimeException("no view type");
+        BaseViewHolder viewHolder = mData.get(ttt).onCreateViewHolder(parent, viewType);
+        ttt++;
+        return viewHolder;
 
         // TODO 怎么维护类型
+//        for (int i = 0; i < mData.size(); i++) {
+//            if (viewType == mData.get(i).getItemViewType()) {
+//                return mData.get(i).onCreateViewHolder(parent, viewType);
+//            }
+//        }
+//        throw new RuntimeException("sss");
     }
 
     @Override
