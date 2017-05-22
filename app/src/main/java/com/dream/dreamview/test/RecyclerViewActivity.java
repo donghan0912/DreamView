@@ -5,8 +5,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.util.SparseArray;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.BaseRecyclerViewAdapter;
@@ -75,23 +73,19 @@ public class RecyclerViewActivity extends NavBaseActivity {
         };
 //        recyclerView.setAdapter(adapter);
         adapter.setData(list);
-        List<BaseAdapterItem> mData = new ArrayList<>();
+        List<MultiBaseItem> mData = new ArrayList<>();
         for (int i = 0; i <30; i++) {
-
             if (i == 9) {
-                mData.add(new TwoTextItem());
+                List<String> list1 = new ArrayList<>();
+                list1.add("第" + i + "条数据");
+                TwoTextItem twoTextItem = new TwoTextItem(list1);
+                mData.add(twoTextItem);
             } else {
-                mData.add(new TextItem());
+                mData.add(new TextItem("sdfljkf"));
             }
         }
-        BaseAdapter textItemBaseAdapter = new BaseAdapter(mData);
-        recyclerView.setAdapter(textItemBaseAdapter);
-
-        SparseArray array = new SparseArray();
-        array.put(1, "sss");
-        array.put(2, "aaa");
-        array.put(1, "dsfjkfdjs");
-        Log.e("=================", array.size() + "");
+        MultiTypeAdapter textItemMultiTypeAdapter = new MultiTypeAdapter(mData);
+        recyclerView.setAdapter(textItemMultiTypeAdapter);
     }
 
 }
