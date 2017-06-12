@@ -1,91 +1,173 @@
 package com.dream.dreamview.test;
 
+import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.view.View;
+import android.widget.ListView;
 
 import com.dream.dreamview.R;
-import com.dream.dreamview.base.BaseRecyclerViewAdapter;
-import com.dream.dreamview.base.BaseViewHolder;
 import com.dream.dreamview.base.NavBaseActivity;
+import com.tencent.wcdb.database.SQLiteDatabase;
+import com.tencent.wcdb.database.SQLiteOpenHelper;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-/**
- * 实现功能：添加、删除、拖拽、点击、长按点击、滑动删除、添加head、footer
- * Created by lenovo on 2017/5/14.
- */
+import static android.provider.Settings.System.DATE_FORMAT;
+
 
 public class RecyclerViewActivity extends NavBaseActivity {
 
-    @Override
-    protected int getContentView() {
-        return R.layout.test_activity_recyclerview;
-    }
+    private static final String TAG = "WCDB.EncryptDBSample";
+
+    private SQLiteDatabase mDB;
+    private SQLiteOpenHelper mDBHelper;
+    private int mDBVersion;
+
+    private ListView mListView;
+    private SimpleCursorAdapter mAdapter;
+
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("RecyclerView");
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        final List<String> list = new ArrayList<>();
-        for (int i = 0; i < 30; i++) {
-            list.add("第" + i + "数据");
-        }
-        BaseRecyclerViewAdapter adapter = new BaseRecyclerViewAdapter() {
+        setContentView(R.layout.test_activity_recyclerview);
 
-            private static final int TYPE_FIR = 1;
-            private static final int TYPE_SEC = 2;
-            private static final int TYPE_THR = 3;
+        mListView = (ListView) findViewById(R.id.list);
+        mAdapter = new SimpleCursorAdapter(this, R.layout.test_activity_recyclerview_item, null,
+                new String[]{"content", "_id", "sender"},
+                new int[]{R.id.list_tv_content, R.id.list_tv_id, R.id.list_tv_sender},
+                0);
 
-            @Override
-            public int getLayoutId(int viewType) {
-                if (viewType == TYPE_FIR) {
-                    return R.layout.test_activity_recyclerview_item;
-                } else if (viewType == TYPE_SEC){
-                    return R.layout.test_activity_recyclerview_item_two;
-                } else {
-                    return R.layout.test_activity_recyclerview_item_three;
-                }
-            }
+        mListView.setAdapter(mAdapter);
+
+
+        findViewById(R.id.btn_init_plain).setOnClickListener(new View.OnClickListener() {
+            // Init plain-text button pressed.
+            // Create or open database in version 1, then refresh adapter.
 
             @Override
-            public int getItemViewType(int position) {
-                if (position == 9) {
-                    return TYPE_SEC;
-                }
-                    return TYPE_FIR;
+            public void onClick(View v) {
+                new AsyncTask<Void, Void, Cursor>() {
+                    @Override
+                    protected void onPreExecute() {
+                        mAdapter.changeCursor(null);
+                    }
 
+                    @Override
+                    protected Cursor doInBackground(Void... params) {
+                        if (mDBHelper != null && mDB != null && mDB.isOpen()) {
+                            mDBHelper.close();
+                            mDBHelper = null;
+                            mDB = null;
+                        }
+
+                        mDBHelper = new PlainTextDBHelper(RecyclerViewActivity.this);
+                        mDBHelper.setWriteAheadLoggingEnabled(true);
+                        mDB = mDBHelper.getWritableDatabase();
+                        mDBVersion = mDB.getVersion();
+                        return mDB.rawQuery("SELECT rowid as _id, content, '???' as sender FROM message;",
+                                null);
+                    }
+
+                    @Override
+                    protected void onPostExecute(Cursor cursor) {
+                        mAdapter.changeCursor(cursor);
+                    }
+                }.execute();
             }
+        });
+
+        findViewById(R.id.btn_init_encrypted).setOnClickListener(new View.OnClickListener() {
+            // Init encrypted button pressed.
+            // Create or open database in version 2, then refresh adapter.
+            // If plain-text database exists and encrypted one does not, transfer all
+            // data from the plain-text database (which in version 1), then upgrade it
+            // to version 2.
+
+            // See EncryptedDBHelper.java for details about data transfer and schema upgrade.
 
             @Override
+            public void onClick(View v) {
+                new AsyncTask<Void, Void, Cursor>() {
+                    @Override
+                    protected void onPreExecute() {
+                        mAdapter.changeCursor(null);
+                    }
 
-            public void onBindRecyclerViewHolder(BaseViewHolder holder, int position) {
-//                holder.setText(R.id.content, (String)getItem(position))
-//                      .setText(R.id.content2, getItem(position) + "sss");
-            }
+                    @Override
+                    protected Cursor doInBackground(Void... params) {
+                        if (mDBHelper != null && mDB != null && mDB.isOpen()) {
+                            mDBHelper.close();
+                            mDBHelper = null;
+                            mDB = null;
+                        }
 
-        };
-//        recyclerView.setAdapter(adapter);
-        adapter.setData(list);
-        List<MultiBaseItem> mData = new ArrayList<>();
-        for (int i = 0; i <30; i++) {
-            if (i == 9) {
-                List<String> list1 = new ArrayList<>();
-                list1.add("第" + i + "条数据");
-                TwoTextItem twoTextItem = new TwoTextItem(list1);
-                mData.add(twoTextItem);
-            } else {
-                mData.add(new TextItem("sdfljkf"));
+                        String passphrase = "passphrase";
+                        mDBHelper = new EncryptedDBHelper(RecyclerViewActivity.this, passphrase);
+                        mDBHelper.setWriteAheadLoggingEnabled(true);
+                        mDB = mDBHelper.getWritableDatabase();
+                        mDBVersion = mDB.getVersion();
+                        return mDB.rawQuery("SELECT rowid as _id, content, sender FROM message;",
+                                null);
+                    }
+
+                    @Override
+                    protected void onPostExecute(Cursor cursor) {
+                        mAdapter.changeCursor(cursor);
+                    }
+                }.execute();
             }
-        }
-        MultiTypeAdapter textItemMultiTypeAdapter = new MultiTypeAdapter(mData);
-        recyclerView.setAdapter(textItemMultiTypeAdapter);
+        });
+
+        findViewById(R.id.btn_insert).setOnClickListener(new View.OnClickListener() {
+            // Insert button pressed.
+            // Insert a message to the database.
+
+            // To test data transfer, init plain-text database, insert messages,
+            // then init encrypted database.
+
+            final DateFormat DATE_FORMAT = SimpleDateFormat.getDateTimeInstance();
+
+            @Override
+            public void onClick(View v) {
+                new AsyncTask<Void, Void, Cursor>() {
+                    @Override
+                    protected void onPreExecute() {
+                        mAdapter.changeCursor(null);
+                    }
+
+                    @Override
+                    protected Cursor doInBackground(Void... params) {
+                        if (mDB == null || !mDB.isOpen())
+                            return null;
+
+                        String message = "Message inserted on " + DATE_FORMAT.format(new Date());
+
+                        if (mDBVersion == 1) {
+                            mDB.execSQL("INSERT INTO message VALUES (?);",
+                                    new Object[]{message});
+                            return mDB.rawQuery("SELECT rowid as _id, content, '???' as sender FROM message;",
+                                    null);
+                        } else {
+                            mDB.execSQL("INSERT INTO message VALUES (?, ?);",
+                                    new Object[]{message, "Me"});
+                            return mDB.rawQuery("SELECT rowid as _id, content, sender FROM message;",
+                                    null);
+                        }
+                    }
+
+                    @Override
+                    protected void onPostExecute(Cursor cursor) {
+                        if (cursor == null)
+                            return;
+                        mAdapter.changeCursor(cursor);
+                    }
+                }.execute();
+            }
+        });
     }
-
 }
