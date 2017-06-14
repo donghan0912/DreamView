@@ -2,6 +2,8 @@
 <manifest package="com.dream.dreamview"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:name=".DreamViewApplication"
         android:allowBackup="true"
@@ -26,6 +28,7 @@
         <activity android:name=".SwipActivity"/>
         <activity android:name=".sample.CustomeToolbarSampleActivity"/>
         <activity android:name=".test.RecyclerViewActivity"/>
+        <activity android:name=".test.RetrofitActivity"/>
 
     </application>
 

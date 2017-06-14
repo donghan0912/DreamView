@@ -6,6 +6,7 @@ import android.view.View;
 
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.test.RecyclerViewActivity;
+import com.dream.dreamview.test.RetrofitActivity;
 import com.dream.dreamview.widget.MultiStatusLayout;
 
 public class MainActivity extends NavBaseActivity implements View.OnClickListener {
@@ -43,7 +44,7 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
 //                startActivity(new Intent(this, CustomNavFoldSampleActivity.class));
 //                startActivity(new Intent(this, SwipActivity.class));
 //                startActivity(new Intent(this, CustomeToolbarSampleActivity.class));
-                startActivity(new Intent(this, RecyclerViewActivity.class));
+                startActivity(new Intent(this, RetrofitActivity.class));
 
                 break;
             case R.id.btn_2:
