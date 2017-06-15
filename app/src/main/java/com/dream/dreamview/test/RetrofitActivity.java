@@ -6,11 +6,23 @@ import android.util.Log;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+
+
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.Subject;
 import okhttp3.Authenticator;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -21,6 +33,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
@@ -67,12 +80,32 @@ public class RetrofitActivity extends NavBaseActivity {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(API_URL)
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .client(client)
                 .build();
 
 
         // Create an instance of our GitHub API interface.
         GitHub github = retrofit.create(GitHub.class);
+
+        // Gson使用
+        List list = new ArrayList();
+        list.add("11111");
+        list.add("2222");
+        Map map = new HashMap();
+        map.put("key", list);
+        Gson gson = new Gson();
+        String abc = gson.toJson("abc");
+        String s = gson.toJson(abc);
+        String s1 = gson.toJson(list);
+        Log.e("======", abc + "|--------|" + s + "|--------|" + s1);
+
+        String json1 = "{\"code\":\"0\",\"message\":\"success\",\"data\":{}}";
+        String json2 = "{\"code\":\"0\",\"message\":\"success\",\"data\":[]}";
+        D d = gson.fromJson(json1, D.class);
+//        D[] d2 = gson.fromJson(json2, D[].class);
+        Log.e("======", d.code + "|--------|" + d.messge + "|--------|" + d.data);
+//        Log.e("======", d2.code + "|--------|" + d2.messge + "|--------|" + d2.data);
 
         // Create a call instance for looking up Retrofit contributors.
         final Call<List<Contributor>> call = github.contributors("square", "retrofit");
@@ -96,17 +129,64 @@ public class RetrofitActivity extends NavBaseActivity {
 //        new Thread(runnable).start();
 
 
-        call.enqueue(new Callback<List<Contributor>>() {
-            @Override
-            public void onResponse(Call<List<Contributor>> call, Response<List<Contributor>> response) {
-                Log.e("============", response.body().toString());
-            }
+//        call.enqueue(new Callback<List<Contributor>>() {
+//            @Override
+//            public void onResponse(Call<List<Contributor>> call, Response<List<Contributor>> response) {
+//                Log.e("============", response.body().toString());
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<Contributor>> call, Throwable t) {
+//
+//            }
+//        });
+        github.contributor("square", "retrofit")
+                .subscribe(new Subject<List<Contributor>>() {
+                    @Override
+                    public boolean hasObservers() {
+                        return false;
+                    }
 
-            @Override
-            public void onFailure(Call<List<Contributor>> call, Throwable t) {
+                    @Override
+                    public boolean hasThrowable() {
+                        return false;
+                    }
 
-            }
-        });
+                    @Override
+                    public boolean hasComplete() {
+                        return false;
+                    }
+
+                    @Override
+                    public Throwable getThrowable() {
+                        return null;
+                    }
+
+                    @Override
+                    protected void subscribeActual(Observer<? super List<Contributor>> observer) {
+
+                    }
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(List<Contributor> value) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
 
     }
 
@@ -127,5 +207,17 @@ public class RetrofitActivity extends NavBaseActivity {
         Call<List<Contributor>> contributors(
                 @Path("owner") String owner,
                 @Path("repo") String repo);
+
+        @GET("/repos/{owner}/{repo}/contributors")
+        Observable<List<Contributor>> contributor(
+                @Path("owner") String owner,
+                @Path("repo") String repo);
+    }
+
+    class D {
+        public int code;
+        public String messge;
+        @SerializedName("data")
+        public String data;
     }
 }

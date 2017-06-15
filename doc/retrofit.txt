@@ -11,3 +11,25 @@ moshi-JSON解析库的使用
 
 RxJava 常用操作符
  http://mp.weixin.qq.com/s?__biz=MzIwMzYwMTk1NA==&mid=2247484203&idx=1&sn=6c98747e0c2d3bd4a7001d2db45df6d8&chksm=96cda266a1ba2b7086f38adb26135009a59dd42c58be4f9c60ed0e56b37952b2d5919173d783&mpshare=1&scene=23&srcid=0503Ebcn1jR7ClZdRYwR8nxb#rd
+
+
+OKHttp Interceptor拦截器：
+ 1. 作用：添加头信息、刷新token，以及一些其他操作
+ 2. HttpLoggingInterceptor 是由OkHttp提供的一个打印网络请求log拦截器
+
+OkHttp 刷新token:
+    1. 利用Authenticator接口，当HTTP返回码为401时，会调用该接口
+    2. 利用Interceptor拦截器，
+        new Interceptor() {
+            @Override
+            public okhttp3.Response intercept(Chain chain) throws IOException {
+                Request request = chain.request();
+                okhttp3.Response response = chain.proceed(request);
+                // 1. 通过http状态码，即response.code()判断是否需要刷新token
+                // 2. 通过返回内容的code判断是否需要刷新(response.body().string()，这个是返回字符串)
+                Log.e("++++++++++", response.code() + "");
+                Log.e("++++++++++", response.body().string());
+                return chain.proceed(chain.request().newBuilder().header("t", "newToken").build());
+            }
+        }
+
