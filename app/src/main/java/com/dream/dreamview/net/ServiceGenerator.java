@@ -41,7 +41,7 @@ public class ServiceGenerator {
                 .readTimeout(5000, TimeUnit.MILLISECONDS).build();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(CustomConverterFactory.create())
                 .client(client)
                 .build();
     }

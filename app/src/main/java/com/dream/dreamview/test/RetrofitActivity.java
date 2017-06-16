@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
+import com.dream.dreamview.net.CustomConverterFactory;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
@@ -79,7 +80,7 @@ public class RetrofitActivity extends NavBaseActivity {
                 .readTimeout(5000, TimeUnit.MILLISECONDS).build();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(CustomConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .client(client)
                 .build();
@@ -102,9 +103,10 @@ public class RetrofitActivity extends NavBaseActivity {
 
         String json1 = "{\"code\":\"0\",\"message\":\"success\",\"data\":{}}";
         String json2 = "{\"code\":\"0\",\"message\":\"success\",\"data\":[]}";
-        D d = gson.fromJson(json1, D.class);
+//        D d = gson.fromJson(json1, D.class);
+
 //        D[] d2 = gson.fromJson(json2, D[].class);
-        Log.e("======", d.code + "|--------|" + d.messge + "|--------|" + d.data);
+//        Log.e("======", d.code + "|--------|" + d.messge + "|--------|" + d.data);
 //        Log.e("======", d2.code + "|--------|" + d2.messge + "|--------|" + d2.data);
 
         // Create a call instance for looking up Retrofit contributors.
@@ -164,7 +166,6 @@ public class RetrofitActivity extends NavBaseActivity {
 
                     @Override
                     protected void subscribeActual(Observer<? super List<Contributor>> observer) {
-
                     }
 
                     @Override
@@ -173,8 +174,10 @@ public class RetrofitActivity extends NavBaseActivity {
                     }
 
                     @Override
-                    public void onNext(List<Contributor> value) {
-
+                    public void onNext(List<Contributor> values) {
+                        for (Contributor value : values) {
+                            Log.e("======", value.login);
+                        }
                     }
 
                     @Override
@@ -193,8 +196,9 @@ public class RetrofitActivity extends NavBaseActivity {
     public static final String API_URL = "https://api.github.com";
 
     public static class Contributor {
-        public final String login;
-        public final int contributions;
+        public String login;
+        public int contributions;
+        public int s;
 
         public Contributor(String login, int contributions) {
             this.login = login;

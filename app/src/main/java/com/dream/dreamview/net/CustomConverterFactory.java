@@ -16,12 +16,12 @@ import retrofit2.Retrofit;
  * Created by Administrator on 2017/6/13
  */
 
-public class GsonConverterFactory extends Converter.Factory {
+public class CustomConverterFactory extends Converter.Factory {
     /**
      * Create an instance using a default {@link Gson} instance for conversion. Encoding to JSON and
      * decoding from JSON (when no charset is specified by a header) will use UTF-8.
      */
-    public static GsonConverterFactory create() {
+    public static CustomConverterFactory create() {
         return create(new Gson());
     }
 
@@ -30,14 +30,14 @@ public class GsonConverterFactory extends Converter.Factory {
      * decoding from JSON (when no charset is specified by a header) will use UTF-8.
      */
     @SuppressWarnings("ConstantConditions") // Guarding public API nullability.
-    public static GsonConverterFactory create(Gson gson) {
+    public static CustomConverterFactory create(Gson gson) {
         if (gson == null) throw new NullPointerException("gson == null");
-        return new GsonConverterFactory(gson);
+        return new CustomConverterFactory(gson);
     }
 
     private final Gson gson;
 
-    private GsonConverterFactory(Gson gson) {
+    private CustomConverterFactory(Gson gson) {
         this.gson = gson;
     }
 
