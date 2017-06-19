@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.alibaba.fastjson.JSON;
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.net.CustomConverterFactory;
@@ -103,10 +104,11 @@ public class RetrofitActivity extends NavBaseActivity {
 
         String json1 = "{\"code\":\"0\",\"message\":\"success\",\"data\":{}}";
         String json2 = "{\"code\":\"0\",\"message\":\"success\",\"data\":[]}";
+//        D d = JSON.parseObject(json1, D.class);
 //        D d = gson.fromJson(json1, D.class);
 
+
 //        D[] d2 = gson.fromJson(json2, D[].class);
-//        Log.e("======", d.code + "|--------|" + d.messge + "|--------|" + d.data);
 //        Log.e("======", d2.code + "|--------|" + d2.messge + "|--------|" + d2.data);
 
         // Create a call instance for looking up Retrofit contributors.
@@ -142,8 +144,8 @@ public class RetrofitActivity extends NavBaseActivity {
 //
 //            }
 //        });
-        github.contributor("square", "retrofit")
-                .subscribe(new Subject<List<Contributor>>() {
+        github.contributor()
+                .subscribe(new Subject<BaseRes<List<M>>>() {
                     @Override
                     public boolean hasObservers() {
                         return false;
@@ -165,7 +167,8 @@ public class RetrofitActivity extends NavBaseActivity {
                     }
 
                     @Override
-                    protected void subscribeActual(Observer<? super List<Contributor>> observer) {
+                    protected void subscribeActual(Observer<? super BaseRes<List<M>>> observer) {
+
                     }
 
                     @Override
@@ -174,10 +177,8 @@ public class RetrofitActivity extends NavBaseActivity {
                     }
 
                     @Override
-                    public void onNext(List<Contributor> values) {
-                        for (Contributor value : values) {
-                            Log.e("======", value.login);
-                        }
+                    public void onNext(BaseRes<List<M>> value) {
+
                     }
 
                     @Override
@@ -212,16 +213,25 @@ public class RetrofitActivity extends NavBaseActivity {
                 @Path("owner") String owner,
                 @Path("repo") String repo);
 
-        @GET("/repos/{owner}/{repo}/contributors")
-        Observable<List<Contributor>> contributor(
-                @Path("owner") String owner,
-                @Path("repo") String repo);
+        @GET("http://tj.nineton.cn/Heart/index/future24h/?city=CHSH000000")
+        Observable<BaseRes<List<M>>> contributor();
     }
 
     class D {
-        public int code;
-        public String messge;
         @SerializedName("data")
         public String data;
+    }
+
+    class BaseRes<T> {
+
+        public String status;
+        public T hourly;
+    }
+
+    class M {
+        public String text;
+        public String code;
+        public String temperature;
+        public String time;
     }
 }
