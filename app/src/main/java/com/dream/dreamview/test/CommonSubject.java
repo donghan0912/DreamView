@@ -5,10 +5,12 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.Subject;
 
 /**
- * Created by Administrator on 2017/6/19.
+ * Created by Administrator on 2017/6/19
  */
 
-public class CommonSubject extends Subject<RetrofitActivity.BaseRes> {
+public abstract class CommonSubject<T> extends Subject<CommonResponse<T>> {
+    // TODO 天狗云开放平台
+
     @Override
     public boolean hasObservers() {
         return false;
@@ -30,7 +32,7 @@ public class CommonSubject extends Subject<RetrofitActivity.BaseRes> {
     }
 
     @Override
-    protected void subscribeActual(Observer<? super RetrofitActivity.BaseRes> observer) {
+    protected void subscribeActual(Observer<? super CommonResponse<T>> observer) {
 
     }
 
@@ -40,7 +42,7 @@ public class CommonSubject extends Subject<RetrofitActivity.BaseRes> {
     }
 
     @Override
-    public void onNext(RetrofitActivity.BaseRes value) {
+    public void onNext(CommonResponse<T> value) {
 
     }
 
@@ -53,4 +55,6 @@ public class CommonSubject extends Subject<RetrofitActivity.BaseRes> {
     public void onComplete() {
 
     }
+
+    abstract void next(T value);
 }

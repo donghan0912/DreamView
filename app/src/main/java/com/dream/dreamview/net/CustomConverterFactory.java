@@ -17,19 +17,11 @@ import retrofit2.Retrofit;
  */
 
 public class CustomConverterFactory extends Converter.Factory {
-    /**
-     * Create an instance using a default {@link Gson} instance for conversion. Encoding to JSON and
-     * decoding from JSON (when no charset is specified by a header) will use UTF-8.
-     */
+
     public static CustomConverterFactory create() {
         return create(new Gson());
     }
 
-    /**
-     * Create an instance using {@code gson} for conversion. Encoding to JSON and
-     * decoding from JSON (when no charset is specified by a header) will use UTF-8.
-     */
-    @SuppressWarnings("ConstantConditions") // Guarding public API nullability.
     public static CustomConverterFactory create(Gson gson) {
         if (gson == null) throw new NullPointerException("gson == null");
         return new CustomConverterFactory(gson);

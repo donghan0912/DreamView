@@ -144,53 +144,55 @@ public class RetrofitActivity extends NavBaseActivity {
 //
 //            }
 //        });
-        github.contributor()
-                .subscribe(new Subject<BaseRes<List<M>>>() {
-                    @Override
-                    public boolean hasObservers() {
-                        return false;
-                    }
+        github.contributor().subscribe(new Subject<CommonResponse<List<M>>>() {
+            @Override
+            public boolean hasObservers() {
+                return false;
+            }
 
-                    @Override
-                    public boolean hasThrowable() {
-                        return false;
-                    }
+            @Override
+            public boolean hasThrowable() {
+                return false;
+            }
 
-                    @Override
-                    public boolean hasComplete() {
-                        return false;
-                    }
+            @Override
+            public boolean hasComplete() {
+                return false;
+            }
 
-                    @Override
-                    public Throwable getThrowable() {
-                        return null;
-                    }
+            @Override
+            public Throwable getThrowable() {
+                return null;
+            }
 
-                    @Override
-                    protected void subscribeActual(Observer<? super BaseRes<List<M>>> observer) {
+            @Override
+            protected void subscribeActual(Observer<? super CommonResponse<List<M>>> observer) {
 
-                    }
+            }
 
-                    @Override
-                    public void onSubscribe(Disposable d) {
+            @Override
+            public void onSubscribe(Disposable d) {
 
-                    }
+            }
 
-                    @Override
-                    public void onNext(BaseRes<List<M>> value) {
+            @Override
+            public void onNext(CommonResponse<List<M>> value) {
+                List<M> hourly = value.hourly;
+                for (M v : hourly) {
+                    Log.e("code: ", v.code);
+                }
+            }
 
-                    }
+            @Override
+            public void onError(Throwable e) {
 
-                    @Override
-                    public void onError(Throwable e) {
+            }
 
-                    }
+            @Override
+            public void onComplete() {
 
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
+            }
+        });
 
     }
 
@@ -214,7 +216,7 @@ public class RetrofitActivity extends NavBaseActivity {
                 @Path("repo") String repo);
 
         @GET("http://tj.nineton.cn/Heart/index/future24h/?city=CHSH000000")
-        Observable<BaseRes<List<M>>> contributor();
+        Observable<CommonResponse<List<M>>> contributor();
     }
 
     class D {
