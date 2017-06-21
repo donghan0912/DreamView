@@ -1,61 +1,55 @@
 package com.dream.dreamview.net;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
+import com.dream.dreamview.Constant;
 import com.dream.dreamview.test.CommonResponse;
+import com.dream.dreamview.util.LogUtil;
 import com.google.gson.Gson;
-import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
 
 import java.io.IOException;
-import java.util.List;
+import java.lang.reflect.Type;
 
 import okhttp3.ResponseBody;
 import retrofit2.Converter;
-
-import static android.R.attr.value;
-import static android.os.Build.VERSION_CODES.N;
 
 /**
  * Created by Administrator on 2017/6/13
  */
 
 class GsonResponseBodyConverter<T> implements Converter<ResponseBody, T> {
-//    private final Gson gson;
-//    private final TypeAdapter<T> adapter;
+    private Type type;
 
-    GsonResponseBodyConverter(Gson gson, TypeAdapter<T> adapter) {
-//        this.gson = gson;
-//        this.adapter = adapter;
+    GsonResponseBodyConverter(Type type) {
+        this.type = type;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public T convert(@Nullable ResponseBody value) throws IOException {
         String json;
-        CommonResponse response;
         if (value != null) {
             json = value.string();
+            if (Constant.DEBUG) {
+                LogUtil.d("接口返回数据: " + json);
+            }
         } else {
-            response = new CommonResponse();
-            return (T) response;
+            if (Constant.DEBUG) {
+                LogUtil.d("接口返回数据: ResponseBody is null");
+            }
+            return null;
         }
-        // TODO DUBG，打印log，不过要考虑release版本能打印
-        Log.e("接口返回", json);
-
         try {
             Gson gson = new Gson();
-            response = gson.fromJson(json, CommonResponse.class);
-//            response = gson.fromJson(json, new TypeToken<>(){}.getType());
-            return (T) response;
-        } catch (Exception e) {
-            e.printStackTrace();
-            response = new CommonResponse();
-            return (T) response;
-        }finally {
+            CommonResponse<T> response = gson.fromJson(json, new TypeToken<CommonResponse<T>>() {}.getType());
+            if (!"OK".equals(response.status)) {
+                return gson.fromJson(gson.toJson(response.hourly), type);
+            } else {
+                throw new ResponseException(2, "no data found");
+            }
+//            return new Gson().fromJson(json, type);
+        } finally {
             value.close();
         }
     }

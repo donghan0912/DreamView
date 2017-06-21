@@ -3,11 +3,12 @@ package com.dream.dreamview.test;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
-import com.alibaba.fastjson.JSON;
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.net.CustomConverterFactory;
+import com.dream.dreamview.net.ResponseException;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
@@ -20,11 +21,9 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-
-
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.Subject;
 import okhttp3.Authenticator;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -32,11 +31,8 @@ import okhttp3.Request;
 import okhttp3.Route;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 
@@ -52,7 +48,7 @@ public class RetrofitActivity extends NavBaseActivity {
     }
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState){
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
@@ -114,85 +110,39 @@ public class RetrofitActivity extends NavBaseActivity {
         // Create a call instance for looking up Retrofit contributors.
         final Call<List<Contributor>> call = github.contributors("square", "retrofit");
 
-        // Fetch and print a list of the contributors to the library.
+        github.contributor()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<M>>() {
+                               @Override
+                               public void onSubscribe(Disposable d) {
 
-//
-//        Runnable runnable = new Runnable() {
-//            public void run() {
-//                List<Contributor> contributors = null;
-//                try {
-//                    contributors = call.execute().body();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                for (Contributor contributor : contributors) {
-//                    Log.e("============", contributor.login + " (" + contributor.contributions + ")");
-//                }
-//            }
-//        };
-//        new Thread(runnable).start();
+                               }
 
+                               @Override
+                               public void onNext(List<M> value) {
+                                   for (M m : value) {
+                                       Log.e("code=================: ", m.code);
+                                   }
+                               }
 
-//        call.enqueue(new Callback<List<Contributor>>() {
-//            @Override
-//            public void onResponse(Call<List<Contributor>> call, Response<List<Contributor>> response) {
-//                Log.e("============", response.body().toString());
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<Contributor>> call, Throwable t) {
-//
-//            }
-//        });
-        github.contributor().subscribe(new Subject<CommonResponse<List<M>>>() {
-            @Override
-            public boolean hasObservers() {
-                return false;
-            }
+                               @Override
+                               public void onError(Throwable e) {
+                                   if (e != null) {
+                                       if (e instanceof ResponseException) {
+                                           ResponseException exception = (ResponseException) e;
+                                           Toast.makeText(getApplicationContext(), exception.message, Toast.LENGTH_SHORT).show();
+                                       } else {
+                                           Toast.makeText(getApplicationContext(), "网络异常，请检查网络", Toast.LENGTH_SHORT).show();
+                                       }
+                                   }
+                               }
 
-            @Override
-            public boolean hasThrowable() {
-                return false;
-            }
+                               @Override
+                               public void onComplete() {
 
-            @Override
-            public boolean hasComplete() {
-                return false;
-            }
-
-            @Override
-            public Throwable getThrowable() {
-                return null;
-            }
-
-            @Override
-            protected void subscribeActual(Observer<? super CommonResponse<List<M>>> observer) {
-
-            }
-
-            @Override
-            public void onSubscribe(Disposable d) {
-
-            }
-
-            @Override
-            public void onNext(CommonResponse<List<M>> value) {
-                List<M> hourly = value.hourly;
-                for (M v : hourly) {
-                    Log.e("code: ", v.code);
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
+                               }
+                           }
+                );
 
     }
 
@@ -216,7 +166,7 @@ public class RetrofitActivity extends NavBaseActivity {
                 @Path("repo") String repo);
 
         @GET("http://tj.nineton.cn/Heart/index/future24h/?city=CHSH000000")
-        Observable<CommonResponse<List<M>>> contributor();
+        Observable<List<M>> contributor();
     }
 
     class D {

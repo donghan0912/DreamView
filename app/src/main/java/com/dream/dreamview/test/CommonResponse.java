@@ -8,6 +8,6 @@ public class CommonResponse<T> {
 //    public int code;
 //    public String message;
 //    public T data;
-    public String status;
+    public String status = "";
     public T hourly;
 }
