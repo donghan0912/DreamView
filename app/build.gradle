@@ -50,4 +50,6 @@ dependencies {
     // 图片处理 glide可高斯模糊
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.tencent.wcdb:wcdb-android:1.0.0'
+
+    compile 'com.hpu:base-adapter:0.0.2'
 }
