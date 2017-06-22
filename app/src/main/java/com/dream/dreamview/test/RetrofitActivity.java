@@ -9,17 +9,15 @@ import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.net.CustomConverterFactory;
 import com.dream.dreamview.net.ResponseException;
-import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -86,30 +84,8 @@ public class RetrofitActivity extends NavBaseActivity {
         // Create an instance of our GitHub API interface.
         GitHub github = retrofit.create(GitHub.class);
 
-        // Gson使用
-        List list = new ArrayList();
-        list.add("11111");
-        list.add("2222");
-        Map map = new HashMap();
-        map.put("key", list);
-        Gson gson = new Gson();
-        String abc = gson.toJson("abc");
-        String s = gson.toJson(abc);
-        String s1 = gson.toJson(list);
-        Log.e("======", abc + "|--------|" + s + "|--------|" + s1);
-
-        String json1 = "{\"code\":\"0\",\"message\":\"success\",\"data\":{}}";
-        String json2 = "{\"code\":\"0\",\"message\":\"success\",\"data\":[]}";
-//        D d = JSON.parseObject(json1, D.class);
-//        D d = gson.fromJson(json1, D.class);
-
-
-//        D[] d2 = gson.fromJson(json2, D[].class);
-//        Log.e("======", d2.code + "|--------|" + d2.messge + "|--------|" + d2.data);
-
         // Create a call instance for looking up Retrofit contributors.
         final Call<List<Contributor>> call = github.contributors("square", "retrofit");
-
         github.contributor()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<M>>() {
@@ -143,7 +119,6 @@ public class RetrofitActivity extends NavBaseActivity {
                                }
                            }
                 );
-
     }
 
     public static final String API_URL = "https://api.github.com";
