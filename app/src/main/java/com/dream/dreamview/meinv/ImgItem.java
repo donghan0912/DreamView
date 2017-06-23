@@ -5,6 +5,7 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.dream.dreamview.R;
+import com.dream.dreamview.util.LogUtil;
 import com.hpu.baserecyclerviewadapter.BaseItem;
 import com.hpu.baserecyclerviewadapter.BaseViewHolder;
 
@@ -27,10 +28,12 @@ public class ImgItem extends BaseItem<Gallery> {
 
     @Override
     public void onBindViewHolder(BaseViewHolder holder, int position) {
+        holder.setText(R.id.desc, mData.desc);
         ImageView imageView = holder.findViewById(img);
         ViewGroup.LayoutParams params = imageView.getLayoutParams();
         params.height = mData.height;
         imageView.setLayoutParams(params);
-        Glide.with(imageView.getContext()).load("http://tnfs.tngou.net/image" + mData.img).into(imageView);
+        Glide.with(imageView.getContext()).load(mData.url).into(imageView);
+//        Glide.with(imageView.getContext()).load(R.mipmap.luoluo).into(imageView);
     }
 }
