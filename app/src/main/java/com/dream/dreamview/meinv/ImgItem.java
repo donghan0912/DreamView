@@ -3,6 +3,8 @@ package com.dream.dreamview.meinv;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,7 +20,8 @@ import com.hpu.baserecyclerviewadapter.BaseViewHolder;
  */
 
 public class ImgItem extends BaseItem<Gallery> {
-    private int selectPos = -1;
+    private int selectPos1 = -1;
+    private int selectPos2 = -1;
 
     public ImgItem(Gallery gallery) {
         super(gallery);
@@ -34,6 +37,7 @@ public class ImgItem extends BaseItem<Gallery> {
         holder.setText(R.id.desc, mData.desc);
         final ImageView imageView = holder.findViewById(R.id.img);
         final TextView textView = holder.findViewById(R.id.desc);
+        final CheckBox like = holder.findViewById(R.id.like);
         ViewGroup.LayoutParams params = imageView.getLayoutParams();
         params.height = mData.height;
         imageView.setLayoutParams(params);
@@ -44,7 +48,7 @@ public class ImgItem extends BaseItem<Gallery> {
 //                LargeActivity.start(imageView.getContext(), mData.largeUrl);
 //            }
 //        });
-        if (selectPos == position) {
+        if (selectPos1 == position) {
             textView.setTextColor(ContextCompat.getColor(imageView.getContext(), R.color.blue_500));
         } else {
             textView.setTextColor(ContextCompat.getColor(imageView.getContext(), R.color.white));
@@ -52,8 +56,24 @@ public class ImgItem extends BaseItem<Gallery> {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectPos = position;
+                selectPos1 = position;
                 textView.setTextColor(ContextCompat.getColor(imageView.getContext(), R.color.blue_500));
+            }
+        });
+        if (selectPos2 == position) {
+            like.setChecked(true);
+        } else {
+            like.setChecked(false);
+        }
+        like.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                selectPos2 = position;
+                if (isChecked) {
+                    like.setBackgroundResource(R.drawable.ic_like_fill);
+                } else {
+                    like.setBackgroundResource(R.drawable.ic_like);
+                }
             }
         });
     }
