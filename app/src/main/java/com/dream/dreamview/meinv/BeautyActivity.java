@@ -1,5 +1,7 @@
 package com.dream.dreamview.meinv;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -48,8 +50,6 @@ import retrofit2.http.Query;
  */
 
 public class BeautyActivity extends NavBaseActivity{
-
-
     private BaseRecyclerViewAdapter adapter;
     private RecyclerView recyclerView;
     private int index = 0;
@@ -65,7 +65,6 @@ public class BeautyActivity extends NavBaseActivity{
         super.onCreate(savedInstanceState);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-//        manager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
         recyclerView.setLayoutManager(manager);
 
         adapter = new BaseRecyclerViewAdapter();
@@ -74,8 +73,8 @@ public class BeautyActivity extends NavBaseActivity{
         adapter.setStatusItem(new SimpleItem(R.layout.layout_loading) {
             @Override
             public void onBindViewHolder(BaseViewHolder holder, int position) {
-//                StaggeredGridLayoutManager.LayoutParams p = (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
-//                p.setFullSpan(true);
+                StaggeredGridLayoutManager.LayoutParams p = (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
+                p.setFullSpan(true);
             }
         });
 
@@ -103,6 +102,14 @@ public class BeautyActivity extends NavBaseActivity{
                 getData(++index);
             }
         });
+
+        adapter.setOnItemClickListener(new BaseRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                LargeActivity.start(BeautyActivity.this, ((Gallery) (adapter.getItem(position).mData)).largeUrl);
+                adapter.notifyItemChanged(position);
+            }
+        });
     }
 
     public void getData(int p) {
@@ -116,7 +123,7 @@ public class BeautyActivity extends NavBaseActivity{
 
                     @Override
                     public void onNext(Response value) {
-                        List<BaseItem> list = new ArrayList<>();
+                        List<ImgItem> list = new ArrayList<>();
                         for (Gallery v : value.imgs) {
                             if (!TextUtils.isEmpty(v.url)) {
                                 v.height = getRandomHeight();
