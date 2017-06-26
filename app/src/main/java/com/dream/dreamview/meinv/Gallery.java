@@ -72,6 +72,7 @@ public class Gallery {
     public String fashion;
     public String title;
     public int height;
+    public boolean isChecked = false;
 
     class Owner {
         public String userName;

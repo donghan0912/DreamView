@@ -16,6 +16,9 @@ import com.dream.dreamview.R;
 import com.dream.dreamview.RequestConstant;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.net.CustomConverterFactory;
+import com.dream.dreamview.util.LogUtil;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.hpu.baserecyclerviewadapter.BaseItem;
 import com.hpu.baserecyclerviewadapter.BaseRecyclerViewAdapter;
 import com.hpu.baserecyclerviewadapter.BaseViewHolder;
@@ -23,6 +26,7 @@ import com.hpu.baserecyclerviewadapter.EndlessRecyclerOnScrollListener;
 import com.hpu.baserecyclerviewadapter.SimpleItem;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -107,9 +111,28 @@ public class BeautyActivity extends NavBaseActivity{
             @Override
             public void onItemClick(View view, int position) {
                 LargeActivity.start(BeautyActivity.this, ((Gallery) (adapter.getItem(position).mData)).largeUrl);
-                adapter.notifyItemChanged(position);
+                int itemViewType = adapter.getItemViewType(position);
+                ImgItem item = (ImgItem) adapter.getItem(position);
+//                item.mData.
             }
         });
+
+
+        String json = "{\"message\":\"success\",\"status\":200,\"data\":[{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}}]}";
+        Gson gson = new Gson();
+        Test test = gson.fromJson(json, Test.class);
+        List<M> data = test.data;
+        for(M m : data) {
+            if (m.type == 1) {
+                Type type = new TypeToken<P>() {}.getType();
+                P p = gson.fromJson(gson.toJson(m.data), type);
+                LogUtil.d("结果P：" + p.text);
+            } else {
+                Type type = new TypeToken<N>() {}.getType();
+                N n = gson.fromJson(gson.toJson(m.data), type);
+                LogUtil.d("结果N：" + n.url);
+            }
+        }
     }
 
     public void getData(int p) {
@@ -127,7 +150,7 @@ public class BeautyActivity extends NavBaseActivity{
                         for (Gallery v : value.imgs) {
                             if (!TextUtils.isEmpty(v.url)) {
                                 v.height = getRandomHeight();
-                                list.add(new ImgItem(v));
+                                list.add(new ImgItem(BeautyActivity.this, v));
                             }
                         }
                         adapter.removeStatusItem();
@@ -186,4 +209,43 @@ public class BeautyActivity extends NavBaseActivity{
     private int getRandomHeight() {
         return (int) (400 + Math.random() * 100);
     }
+
+    class Test {
+      public List<M> data;
+    }
+    class M<T> {
+        public int type;
+        public T data;
+    }
+    class N {
+        public String url;
+    }
+    class P {
+        public String text;
+    }
+    private static final String JSON_FROM_SERVICE =
+            "[\n" +
+                    "    {\n" +
+                    "        \"content\":{\n" +
+                    "            \"text\":\"A simple text Weibo: JSON_FROM_SERVICE.\",\n" +
+                    "            \"content_type\":\"simple_text\"\n" +
+                    "        },\n" +
+                    "        \"createTime\":\"Just now\",\n" +
+                    "        \"user\":{\n" +
+                    "            \"avatar\":2130903040,\n" +
+                    "            \"name\":\"drakeet\"\n" +
+                    "        }\n" +
+                    "    },\n" +
+                    "    {\n" +
+                    "        \"content\":{\n" +
+                    "            \"resId\":2130837591,\n" +
+                    "            \"content_type\":\"simple_image\"\n" +
+                    "        },\n" +
+                    "        \"createTime\":\"Just now(JSON_FROM_SERVICE)\",\n" +
+                    "        \"user\":{\n" +
+                    "            \"avatar\":2130903040,\n" +
+                    "            \"name\":\"drakeet\"\n" +
+                    "        }\n" +
+                    "    }\n" +
+                    "]";
 }
