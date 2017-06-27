@@ -29,8 +29,9 @@
         <activity android:name=".sample.CustomeToolbarSampleActivity"/>
         <activity android:name=".test.RecyclerViewActivity"/>
         <activity android:name=".test.RetrofitActivity"/>
-        <activity android:name=".meinv.BeautyActivity"/>
+        <activity android:name=".meinv.BeautyActivity" android:process=":test"/>
         <activity android:name=".meinv.LargeActivity"/>
+        <activity android:name=".meinv.TestActivity"/>
 
     </application>
 

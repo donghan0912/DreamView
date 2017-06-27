@@ -36,7 +36,8 @@ public class CustomConverterFactory extends Converter.Factory {
     @Override
     public Converter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations,
                                                             Retrofit retrofit) {
-        return new GsonResponseBodyConverter<>(type);
+//        return new GsonResponseBodyConverter<>(type);
+        return new TestGsonResponseBodyConverter<>(type);
     }
 
     @Override
