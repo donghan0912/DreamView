@@ -57,7 +57,7 @@ dependencies {
     compile 'com.tencent.wcdb:wcdb-android:1.0.0'
 
 //    compile 'com.hpu:base-adapter:0.0.3'
-    compile(name: 'adapter', ext: 'aar')
+    compile(name: 'library-release', ext: 'aar')
     compile 'com.github.chrisbanes:PhotoView:2.0.0'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'

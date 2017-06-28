@@ -31,12 +31,12 @@ public class DreamViewApplication extends Application {
     public void onCreate() {
         super.onCreate();
         refWatcher = LeakCanary.install(this);
-        LogUtil.d("我被调用了");
-
-//        if (!TextUtils.isEmpty(processName) && processName.equals(this.getPackageName())) {//判断进程名，保证只有主进程运行
-//            //主进程初始化逻辑
-//
-//        }
+        String processName = getProcessName();
+        // 每新建一个进程Application 的onCreate(）方法都将被调用一次
+        if (!TextUtils.isEmpty(processName) && processName.equals(this.getPackageName())) {//判断进程名，保证只有主进程运行
+            //主进程初始化逻辑
+            LogUtil.d("我被调用了");
+        }
 
     }
 

@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Toast;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.RequestConstant;
@@ -16,6 +15,7 @@ import com.dream.dreamview.meinv.bean.N;
 import com.dream.dreamview.meinv.bean.P;
 import com.dream.dreamview.meinv.bean.SecItem;
 import com.dream.dreamview.net.CustomConverterFactory;
+import com.dream.dreamview.net.MultiTypeConverterFactory;
 import com.dream.dreamview.util.ToastUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -37,19 +37,18 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 /**
- * Created by Administrator on 2017/6/27.
+ * Created by Administrator on 2017/6/27
  */
 
 public class TestActivity extends NavBaseActivity {
     private MeiNv nv;
     private int index = 0;
     private RecyclerView recyclerView;
-    private BaseRecyclerViewAdapter adapter;
+    private BaseRecyclerViewAdapter<BaseItem> adapter;
 
     @Override
     protected int getContentView() {
@@ -61,7 +60,7 @@ public class TestActivity extends NavBaseActivity {
         super.onCreate(savedInstanceState);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new BaseRecyclerViewAdapter();
+        adapter = new BaseRecyclerViewAdapter<>();
         recyclerView.setAdapter(adapter);
         getData();
     }
@@ -75,7 +74,7 @@ public class TestActivity extends NavBaseActivity {
                 .readTimeout(5000, TimeUnit.MILLISECONDS).build();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://www.test")
-                .addConverterFactory(CustomConverterFactory.create())
+                .addConverterFactory(MultiTypeConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .client(client)
                 .build();
@@ -102,7 +101,7 @@ public class TestActivity extends NavBaseActivity {
         });
 
 
-        String json = "{\"message\":\"success\",\"status\":200,\"data\":[{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}}]}";
+//        String json = "{\"message\":\"success\",\"status\":200,\"data\":[{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}}]}";
 //        Gson gson = new Gson();
 //        Test test = gson.fromJson(json, Test.class);
 //        List<M> data = test.data;
@@ -131,7 +130,7 @@ public class TestActivity extends NavBaseActivity {
                     @Override
                     public void onNext(List<M> value) {
                         Gson gson = new Gson();
-                        List<BaseItem> list = new ArrayList<BaseItem>();
+                        List<BaseItem> list = new ArrayList<>();
                         for(M m : value) {
                             if (m.type == 1) {
                                 Type type = new TypeToken<P>() {}.getType();
@@ -158,7 +157,7 @@ public class TestActivity extends NavBaseActivity {
                 });
     }
 
-    public interface MeiNv {
+    interface MeiNv {
         @GET(RequestConstant.IMG_LIST)
         Observable<List<M>> getPic(@Query("col") String col, @Query("tag") String tag,
                                    @Query("sort") int sort, @Query("pn") int pn,

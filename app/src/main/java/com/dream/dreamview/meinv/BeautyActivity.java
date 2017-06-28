@@ -1,35 +1,20 @@
 package com.dream.dreamview.meinv;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.RequestConstant;
 import com.dream.dreamview.base.NavBaseActivity;
-import com.dream.dreamview.meinv.bean.M;
-import com.dream.dreamview.meinv.bean.N;
-import com.dream.dreamview.meinv.bean.P;
-import com.dream.dreamview.net.CustomConverterFactory;
-import com.dream.dreamview.util.LogUtil;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.hpu.baserecyclerviewadapter.BaseItem;
 import com.hpu.baserecyclerviewadapter.BaseRecyclerViewAdapter;
 import com.hpu.baserecyclerviewadapter.BaseViewHolder;
 import com.hpu.baserecyclerviewadapter.EndlessRecyclerOnScrollListener;
 import com.hpu.baserecyclerviewadapter.SimpleItem;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -39,17 +24,12 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.Authenticator;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Route;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -57,7 +37,7 @@ import retrofit2.http.Query;
  */
 
 public class BeautyActivity extends NavBaseActivity{
-    private BaseRecyclerViewAdapter adapter;
+    private BaseRecyclerViewAdapter<ImgItem> adapter;
     private RecyclerView recyclerView;
     private int index = 0;
     private MeiNv nv;
@@ -74,7 +54,7 @@ public class BeautyActivity extends NavBaseActivity{
         StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(manager);
 
-        adapter = new BaseRecyclerViewAdapter();
+        adapter = new BaseRecyclerViewAdapter<>();
         recyclerView.setAdapter(adapter);
         getData();
         adapter.setStatusItem(new SimpleItem(R.layout.layout_loading) {
@@ -113,15 +93,12 @@ public class BeautyActivity extends NavBaseActivity{
         adapter.setOnItemClickListener(new BaseRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                LargeActivity.start(BeautyActivity.this, ((Gallery) (adapter.getItem(position).mData)).largeUrl);
-                int itemViewType = adapter.getItemViewType(position);
-                ImgItem item = (ImgItem) adapter.getItem(position);
-//                item.mData.
+                LargeActivity.start(BeautyActivity.this, adapter.getItem(position).mData.largeUrl);
             }
         });
 
 
-        String json = "{\"message\":\"success\",\"status\":200,\"data\":[{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}}]}";
+//        String json = "{\"message\":\"success\",\"status\":200,\"data\":[{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}}]}";
 //        Gson gson = new Gson();
 //        Test test = gson.fromJson(json, Test.class);
 //        List<M> data = test.data;
@@ -177,7 +154,7 @@ public class BeautyActivity extends NavBaseActivity{
                                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        getData(0);
+                                        BeautyActivity.this.getData(0);
                                     }
                                 });
                             }
@@ -191,7 +168,7 @@ public class BeautyActivity extends NavBaseActivity{
                 });
     }
 
-    public interface MeiNv {
+    interface MeiNv {
         @GET(RequestConstant.IMG_LIST)
         Observable<Response> getPic(@Query("col") String col, @Query("tag") String tag,
                                     @Query("sort") int sort, @Query("pn") int pn,
@@ -199,13 +176,13 @@ public class BeautyActivity extends NavBaseActivity{
     }
 
     class Response {
-        public String col;
-        public String tag;
-        public String tag3;
-        public String sort;
-        public int totalNum;
-        public int startIndex;
-        public int returnNumber;
+//        public String col;
+//        public String tag;
+//        public String tag3;
+//        public String sort;
+//        public int totalNum;
+//        public int startIndex;
+//        public int returnNumber;
         public List<Gallery> imgs;
     }
 
