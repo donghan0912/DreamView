@@ -1,4 +1,4 @@
-package com.dream.dreamview.meinv.bean;
+package com.dream.dreamview.module.multi.api;
 
 import java.util.List;
 
@@ -6,6 +6,6 @@ import java.util.List;
  * Created by Administrator on 2017/6/27.
  */
 
-public class Test {
+public class Multi {
     public List<M> data;
 }

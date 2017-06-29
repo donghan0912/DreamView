@@ -1,18 +1,13 @@
-package com.dream.dreamview.net;
+package com.dream.dreamview.module.multi.api;
 
 import android.support.annotation.Nullable;
 
 import com.dream.dreamview.Constant;
-import com.dream.dreamview.meinv.bean.Test;
 import com.dream.dreamview.util.LogUtil;
 import com.google.gson.Gson;
-import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
@@ -20,11 +15,11 @@ import java.nio.charset.Charset;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import okio.Buffer;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 
 /**
+ * 模拟多类型Type json数据处理
  * Created by Administrator on 2017/6/13
  */
 
@@ -50,8 +45,7 @@ public class MultiTypeConverterFactory extends Converter.Factory {
     @Override
     public Converter<?, RequestBody> requestBodyConverter(Type type,
                                                           Annotation[] parameterAnnotations, Annotation[] methodAnnotations, Retrofit retrofit) {
-        TypeAdapter<?> adapter = gson.getAdapter(TypeToken.get(type));
-        return new RequestBodyConverter<>(gson, adapter);
+        return new RequestBodyConverter<>(gson);
     }
 
     class ResponseBodyConverter<T> implements Converter<ResponseBody, T> {
@@ -79,7 +73,7 @@ public class MultiTypeConverterFactory extends Converter.Factory {
             }
             try {
                 Gson gson = new Gson();
-                Test response = gson.fromJson(json, new TypeToken<Test>() {}.getType());
+                Multi response = gson.fromJson(json, new TypeToken<Multi>() {}.getType());
                 return gson.fromJson(gson.toJson(response.data), type);
             } finally {
                 value.close();
@@ -90,26 +84,17 @@ public class MultiTypeConverterFactory extends Converter.Factory {
     class RequestBodyConverter<T> implements Converter<T, RequestBody> {
 
         private final Gson gson;
-        private final TypeAdapter<T> adapter;
 
-        RequestBodyConverter(Gson gson, TypeAdapter<T> adapter) {
+        RequestBodyConverter(Gson gson) {
             this.gson = gson;
-            this.adapter = adapter;
         }
 
         @Override public RequestBody convert(T value) throws IOException {
-            Buffer buffer = new Buffer();
-//            Writer writer = new OutputStreamWriter(buffer.outputStream(), UTF_8);
-//            JsonWriter jsonWriter = gson.newJsonWriter(writer);
-//            adapter.write(jsonWriter, value);
-//            jsonWriter.close();
-            Gson gson = new Gson();
+            String json = gson.toJson(value);
             if(Constant.DEBUG) {
-                String json = gson.toJson(value);
-                LogUtil.d("参数：" + json);
+                LogUtil.d("请求参数：" + json);
             }
-//            return RequestBody.create(MEDIA_TYPE, buffer.readByteString());
-            return RequestBody.create(MEDIA_TYPE, gson.toJson(value));
+            return RequestBody.create(MEDIA_TYPE, json);
         }
     }
 }

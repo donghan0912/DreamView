@@ -1,4 +1,4 @@
-package com.dream.dreamview.meinv;
+package com.dream.dreamview.module.multi;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,19 +9,17 @@ import android.view.View;
 import com.dream.dreamview.R;
 import com.dream.dreamview.RequestConstant;
 import com.dream.dreamview.base.NavBaseActivity;
-import com.dream.dreamview.meinv.bean.FirstItem;
-import com.dream.dreamview.meinv.bean.M;
-import com.dream.dreamview.meinv.bean.N;
-import com.dream.dreamview.meinv.bean.P;
-import com.dream.dreamview.meinv.bean.SecItem;
-import com.dream.dreamview.net.CustomConverterFactory;
-import com.dream.dreamview.net.MultiTypeConverterFactory;
+import com.dream.dreamview.module.multi.api.FirstItem;
+import com.dream.dreamview.module.multi.api.M;
+import com.dream.dreamview.module.multi.api.N;
+import com.dream.dreamview.module.multi.api.P;
+import com.dream.dreamview.module.multi.api.SecItem;
+import com.dream.dreamview.module.multi.api.MultiTypeConverterFactory;
 import com.dream.dreamview.util.ToastUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hpu.baserecyclerviewadapter.BaseItem;
 import com.hpu.baserecyclerviewadapter.BaseRecyclerViewAdapter;
-import com.hpu.baserecyclerviewadapter.EndlessRecyclerOnScrollListener;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -41,24 +39,24 @@ import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 /**
+ * multiType recyclerview sample
+ * 以及返回数据封装
  * Created by Administrator on 2017/6/27
  */
 
-public class TestActivity extends NavBaseActivity {
+public class MultiTypeActivity extends NavBaseActivity {
     private MeiNv nv;
-    private int index = 0;
-    private RecyclerView recyclerView;
     private BaseRecyclerViewAdapter<BaseItem> adapter;
 
     @Override
     protected int getContentView() {
-        return R.layout.meinv_activity_beauty;
+        return R.layout.meinv_activity_multi_type;
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new BaseRecyclerViewAdapter<>();
         recyclerView.setAdapter(adapter);
@@ -80,30 +78,22 @@ public class TestActivity extends NavBaseActivity {
                 .build();
 
         nv = retrofit.create(MeiNv.class);
-        getData(index);
-        recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
-            @Override
-            public void onLoadMore() {
-                getData(++index);
-            }
-        });
-
+        getData(0);
         adapter.setOnItemClickListener(new BaseRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 BaseItem item = adapter.getItem(position);
                 if (item instanceof FirstItem) {
-                    ToastUtil.showShortToast(TestActivity.this, ((FirstItem)item).mData);
+                    ToastUtil.showShortToast(MultiTypeActivity.this, ((FirstItem) item).mData);
                 } else if (item instanceof SecItem) {
-                    ToastUtil.showShortToast(TestActivity.this, ((SecItem)item).mData);
+                    ToastUtil.showShortToast(MultiTypeActivity.this, ((SecItem) item).mData);
                 }
             }
         });
 
-
 //        String json = "{\"message\":\"success\",\"status\":200,\"data\":[{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}}]}";
 //        Gson gson = new Gson();
-//        Test test = gson.fromJson(json, Test.class);
+//        Multi test = gson.fromJson(json, Multi.class);
 //        List<M> data = test.data;
 //        for(M m : data) {
 //            if (m.type == 1) {
@@ -131,13 +121,15 @@ public class TestActivity extends NavBaseActivity {
                     public void onNext(List<M> value) {
                         Gson gson = new Gson();
                         List<BaseItem> list = new ArrayList<>();
-                        for(M m : value) {
+                        for (M m : value) {
                             if (m.type == 1) {
-                                Type type = new TypeToken<P>() {}.getType();
+                                Type type = new TypeToken<P>() {
+                                }.getType();
                                 P p = gson.fromJson(gson.toJson(m.data), type);
                                 list.add(new FirstItem(p.text));
                             } else {
-                                Type type = new TypeToken<N>() {}.getType();
+                                Type type = new TypeToken<N>() {
+                                }.getType();
                                 N n = gson.fromJson(gson.toJson(m.data), type);
                                 list.add(new SecItem(n.url));
                             }

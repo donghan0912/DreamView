@@ -1,4 +1,4 @@
-package com.dream.dreamview.meinv;
+package com.dream.dreamview.module.meinv;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -93,26 +93,10 @@ public class BeautyActivity extends NavBaseActivity{
         adapter.setOnItemClickListener(new BaseRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                LargeActivity.start(BeautyActivity.this, adapter.getItem(position).mData.largeUrl);
+                FullScreenActivity.start(BeautyActivity.this, adapter.getItem(position).mData.largeUrl);
             }
         });
 
-
-//        String json = "{\"message\":\"success\",\"status\":200,\"data\":[{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}}]}";
-//        Gson gson = new Gson();
-//        Test test = gson.fromJson(json, Test.class);
-//        List<M> data = test.data;
-//        for(M m : data) {
-//            if (m.type == 1) {
-//                Type type = new TypeToken<P>() {}.getType();
-//                P p = gson.fromJson(gson.toJson(m.data), type);
-//                LogUtil.d("结果P：" + p.text);
-//            } else {
-//                Type type = new TypeToken<N>() {}.getType();
-//                N n = gson.fromJson(gson.toJson(m.data), type);
-//                LogUtil.d("结果N：" + n.url);
-//            }
-//        }
     }
 
     public void getData(int p) {
@@ -189,21 +173,6 @@ public class BeautyActivity extends NavBaseActivity{
     private int getRandomHeight() {
         return (int) (400 + Math.random() * 100);
     }
-
-//    class Test {
-//      public List<M> data;
-//    }
-//    class M<T> {
-//        public int type;
-//        public T data;
-//    }
-//    class N {
-//        public String url;
-//    }
-//    class P {
-//        public String text;
-//    }
-
 
     @Override
     protected void onDestroy() {

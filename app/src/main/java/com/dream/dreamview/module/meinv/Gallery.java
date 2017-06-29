@@ -1,8 +1,7 @@
-package com.dream.dreamview.meinv;
+package com.dream.dreamview.module.meinv;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.security.acl.Owner;
 import java.util.List;
 
 /**

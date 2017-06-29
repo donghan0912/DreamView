@@ -80,12 +80,7 @@ public class RetrofitActivity extends NavBaseActivity {
                 .client(client)
                 .build();
 
-
-        // Create an instance of our GitHub API interface.
         GitHub github = retrofit.create(GitHub.class);
-
-        // Create a call instance for looking up Retrofit contributors.
-        final Call<List<Contributor>> call = github.contributors("square", "retrofit");
         github.contributor()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<M>>() {

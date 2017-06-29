@@ -1,4 +1,4 @@
-package com.dream.dreamview.meinv.bean;
+package com.dream.dreamview.module.multi.api;
 
 import com.dream.dreamview.R;
 import com.hpu.baserecyclerviewadapter.BaseItem;

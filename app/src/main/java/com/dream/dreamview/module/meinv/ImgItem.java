@@ -1,17 +1,15 @@
-package com.dream.dreamview.meinv;
+package com.dream.dreamview.module.meinv;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.dream.dreamview.R;
-import com.dream.dreamview.util.LogUtil;
 import com.hpu.baserecyclerviewadapter.BaseItem;
 import com.hpu.baserecyclerviewadapter.BaseViewHolder;
 
@@ -53,7 +51,7 @@ public class ImgItem extends BaseItem<Gallery> {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LargeActivity.start(context, gallery.largeUrl);
+                FullScreenActivity.start(context, gallery.largeUrl);
             }
         });
         if (selectPos1 == position) {
