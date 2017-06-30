@@ -17,10 +17,10 @@ import java.io.FileReader;
  * Created by Administrator on 2017/3/28.
  */
 
-public class DreamViewApplication extends Application {
+public class MyApplication extends Application {
 
     public static RefWatcher getRefWatcher(Context context) {
-        DreamViewApplication application = (DreamViewApplication) context.getApplicationContext();
+        MyApplication application = (MyApplication) context.getApplicationContext();
         return application.refWatcher;
     }
 

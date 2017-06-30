@@ -8,8 +8,9 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.dream.dreamview.R;
+import com.dream.dreamview.net.GlideApp;
 import com.hpu.baserecyclerviewadapter.BaseItem;
 import com.hpu.baserecyclerviewadapter.BaseViewHolder;
 
@@ -47,7 +48,11 @@ public class ImgItem extends BaseItem<Gallery> {
         ViewGroup.LayoutParams params = imageView.getLayoutParams();
         params.height = gallery.height;
         imageView.setLayoutParams(params);
-        Glide.with(context).load(gallery.url).into(imageView);
+        GlideApp.with(context)
+                .load(gallery.url)
+//                .circleCrop() //  圆形头像，v4.0新增功能
+                .transform(new RoundedCorners(10)) // 圆角 4.0新增功能
+                .into(imageView);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
