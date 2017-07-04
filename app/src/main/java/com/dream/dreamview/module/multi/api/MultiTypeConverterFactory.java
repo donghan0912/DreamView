@@ -2,7 +2,7 @@ package com.dream.dreamview.module.multi.api;
 
 import android.support.annotation.Nullable;
 
-import com.dream.dreamview.Constant;
+import com.dream.dreamview.AppConstant;
 import com.dream.dreamview.util.LogUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -62,11 +62,11 @@ public class MultiTypeConverterFactory extends Converter.Factory {
             String json;
             if (value != null) {
                 json = "{\"message\":\"success\",\"status\":200,\"data\":[{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}},{\"type\":1,\"data\":{\"text\":\"text1111\"}},{\"type\":2,\"data\":{\"url\":\"url222222\"}}]}";
-                if (Constant.DEBUG) {
+                if (AppConstant.DEBUG) {
                     LogUtil.d("接口返回数据: " + json);
                 }
             } else {
-                if (Constant.DEBUG) {
+                if (AppConstant.DEBUG) {
                     LogUtil.d("接口返回数据: ResponseBody is null");
                 }
                 return null;
@@ -91,7 +91,7 @@ public class MultiTypeConverterFactory extends Converter.Factory {
 
         @Override public RequestBody convert(T value) throws IOException {
             String json = gson.toJson(value);
-            if(Constant.DEBUG) {
+            if(AppConstant.DEBUG) {
                 LogUtil.d("请求参数：" + json);
             }
             return RequestBody.create(MEDIA_TYPE, json);

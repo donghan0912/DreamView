@@ -2,7 +2,7 @@ package com.dream.dreamview.net;
 
 import android.support.annotation.Nullable;
 
-import com.dream.dreamview.Constant;
+import com.dream.dreamview.AppConstant;
 import com.dream.dreamview.test.CommonResponse;
 import com.dream.dreamview.util.LogUtil;
 import com.google.gson.Gson;
@@ -31,11 +31,11 @@ class GsonResponseBodyConverter<T> implements Converter<ResponseBody, T> {
         String json;
         if (value != null) {
             json = value.string();
-            if (Constant.DEBUG) {
+            if (AppConstant.DEBUG) {
                 LogUtil.d("接口返回数据: " + json);
             }
         } else {
-            if (Constant.DEBUG) {
+            if (AppConstant.DEBUG) {
                 LogUtil.d("接口返回数据: ResponseBody is null");
             }
             return null;

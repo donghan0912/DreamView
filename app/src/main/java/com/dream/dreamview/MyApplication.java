@@ -18,6 +18,15 @@ import java.io.FileReader;
  */
 
 public class MyApplication extends Application {
+    private static MyApplication instance;
+
+    public static MyApplication getInstance() {
+        return instance;
+    }
+
+    public static Context getContext() {
+        return instance.getApplicationContext();
+    }
 
     public static RefWatcher getRefWatcher(Context context) {
         MyApplication application = (MyApplication) context.getApplicationContext();
@@ -36,6 +45,9 @@ public class MyApplication extends Application {
         if (!TextUtils.isEmpty(processName) && processName.equals(this.getPackageName())) {//判断进程名，保证只有主进程运行
             //主进程初始化逻辑
             LogUtil.d("我被调用了");
+            instance = this;
+
+
         }
 
     }

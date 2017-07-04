@@ -11,14 +11,40 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    signingConfigs {
+
+        release {
+            storeFile file('dreamview.jks')
+            storePassword 'dreamview'
+            keyAlias '正式版'
+            keyPassword '123456'
+        }
+
+        debug {
+            storeFile file('dreamview.jks')
+            storePassword 'dreamview'
+            keyAlias '测试版'
+            keyPassword '123456'
+        }
+    }
+
     buildTypes {
         release {
+            // 配置是否可以调试(Android Studio 默认release版不能调试)
+            debuggable false
             minifyEnabled false
+            // 配置签名
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField("boolean", "DV_DEBUG", "false")
+            buildConfigField "boolean", "DV_DEBUG", "false"
+            buildConfigField "String", "API_BASE_URL", "\"https://api.github.com\""
         }
         debug {
-            buildConfigField("boolean", "DV_DEBUG", "true")
+            debuggable false
+            signingConfig signingConfigs.debug
+            buildConfigField "boolean", "DV_DEBUG", "true"
+            buildConfigField "String", "API_BASE_URL", "\"https://api.github.com\""
         }
     }
 
