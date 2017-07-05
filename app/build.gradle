@@ -81,4 +81,6 @@ dependencies {
     compile 'com.github.chrisbanes:PhotoView:2.0.0'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
+
+    compile 'com.google.android.exoplayer:exoplayer:r2.4.3'
 }
