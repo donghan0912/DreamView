@@ -32,9 +32,13 @@ public class RecyclerViewActivity extends NavBaseActivity {
 
 
     @Override
+    protected int getContentView() {
+        return R.layout.test_activity_recyclerview;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.test_activity_recyclerview);
 
         mListView = (ListView) findViewById(R.id.list);
         mAdapter = new SimpleCursorAdapter(this, R.layout.test_activity_recyclerview_item, null,

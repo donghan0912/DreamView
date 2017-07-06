@@ -23,20 +23,28 @@ public abstract class NavBaseActivity extends BaseActivity {
     private TextView mTitle;
     private ViewStub mToolbarViewStub;
 
-    protected @LayoutRes int getToolbarView() {
+    // 可通过重写该方法，自定义toolbar layout
+    // 然后通过findViewById 获取自定义layout中的控件
+    // 注意：自定义layout中toolbar的id，应尽量和当前基类中的id保持一致，避免重新设置toolbar
+    /**
+     * 如果不需要toolbar,可重写该方法，retrun 0 即可
+     **/
+    protected
+    @LayoutRes
+    int getToolbarLayout() {
         return R.layout.base_toolbar;
     }
 
-    protected @LayoutRes int getContentView() {
-        return 0;
-    }
+    protected abstract
+    @LayoutRes
+    int getContentView();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.base_activity_nav);
         mToolbarViewStub = (ViewStub) findViewById(R.id.toolbar_stub);
-        if (mToolbarViewStub != null && getToolbarView() > 0) {
+        if (mToolbarViewStub != null && getToolbarLayout() > 0) {
             setupToolbar();
         }
         if (getContentView() > 0) {
@@ -65,7 +73,7 @@ public abstract class NavBaseActivity extends BaseActivity {
 
     protected Toolbar getToolbar() {
         if (mToolbar == null) {
-            mToolbarViewStub.setLayoutResource(getToolbarView());
+            mToolbarViewStub.setLayoutResource(getToolbarLayout());
             View view = mToolbarViewStub.inflate();
             mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
             mTitle = (TextView) view.findViewById(R.id.toolbar_title);
