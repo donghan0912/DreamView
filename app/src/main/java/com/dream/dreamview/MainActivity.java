@@ -5,12 +5,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.dream.dreamview.base.NavBaseActivity;
-import com.dream.dreamview.module.meinv.BeautyActivity;
-import com.dream.dreamview.sample.CustomeToolbarSampleActivity;
-import com.dream.dreamview.sample.NavFoldSampleActivity;
+import com.dream.dreamview.module.video.VideoActivity;
 import com.dream.dreamview.util.ToastUtil;
 import com.dream.dreamview.widget.MultiStatusLayout;
 
@@ -45,14 +42,14 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
         switch (v.getId()) {
             case R.id.btn_1:
                 mLayout.showContentView();
-                startActivity(new Intent(this, NavFoldSampleActivity.class));
+//                startActivity(new Intent(this, NavFoldSampleActivity.class));
 //                startActivity(new Intent(this, CustomNavFoldSampleActivity.class));
 //                startActivity(new Intent(this, SwipActivity.class));
 //                startActivity(new Intent(this, CustomeToolbarSampleActivity.class));
 //                startActivity(new Intent(this, RetrofitActivity.class));
 //                startActivity(new Intent(this, BeautyActivity.class));
 //                startActivity(new Intent(this, MultiTypeActivity.class));
-
+                startActivity(new Intent(this, VideoActivity.class));
                 break;
             case R.id.btn_2:
                 mLayout.showErrorView();
