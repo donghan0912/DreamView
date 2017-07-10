@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.EventLog;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
@@ -32,6 +34,8 @@ import com.google.android.exoplayer2.util.Util;
 
 public class VideoActivity extends NavBaseActivity {
 
+    private SimpleExoPlayer player;
+
     @Override
     protected int getContentView() {
         return R.layout.video_activity_video;
@@ -54,8 +58,7 @@ public class VideoActivity extends NavBaseActivity {
                 new DefaultTrackSelector(videoTrackSelectionFactory);
 
         // 2. Create the player
-        SimpleExoPlayer player =
-                ExoPlayerFactory.newSimpleInstance(this, trackSelector);
+        player = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
 
         SimpleExoPlayerView simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.exoplayer_view);
         simpleExoPlayerView.setPlayer(player);
@@ -77,6 +80,13 @@ public class VideoActivity extends NavBaseActivity {
 
         // Prepare the player with the source.
         player.prepare(hlsMediaSource);
+        player.setPlayWhenReady(true);
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        player.release();
     }
 }
