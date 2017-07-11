@@ -25,7 +25,7 @@ import com.dream.dreamview.R;
  * Created by lenovo on 2017/4/13.
  */
 
-public abstract class NavFoldBaseActivity extends BaseActivity {
+public abstract class NavFoldBaseActivity extends SlideBaseActivity {
     private Toolbar mToolbar;
     private ViewStub mToolbarViewStub;
 

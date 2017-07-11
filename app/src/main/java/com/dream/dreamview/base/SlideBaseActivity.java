@@ -19,29 +19,28 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
 import com.dream.dreamview.R;
+import com.dream.dreamview.module.common.CommonPreferences;
 import com.dream.dreamview.util.LogUtil;
 
 /**
- * 滑动关闭页面基类，使用时继承此类并使用BlankTheme主题即可
+ * https://github.com/NashLegend/SwipetoFinishActivity
+ * 滑动关闭页面基类
  */
 public class SlideBaseActivity extends BaseActivity {
 
     private SwipeLayout swipeLayout;
 
     /**
-     * 是否可以滑动关闭页面
+     * 是否开启滑动关闭页面功能
+     * true 开启 false 关闭
      */
-    protected boolean swipeEnabled = true;
+    protected boolean slideEnabled = true;
 
     /**
      * false 左侧边缘滑动关闭
      * true 任意位置右滑关闭
      */
-    protected boolean swipeAnyWhere = true;
-
-    public SlideBaseActivity() {
-
-    }
+    protected boolean LeftSlideEnabled = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,22 +48,13 @@ public class SlideBaseActivity extends BaseActivity {
         swipeLayout = new SwipeLayout(this);
     }
 
-    public void setSwipeAnyWhere(boolean swipeAnyWhere) {
-        this.swipeAnyWhere = swipeAnyWhere;
+    public void setLeftSlideEnabled(boolean LeftSlideEnabled) {
+        this.LeftSlideEnabled = LeftSlideEnabled;
     }
 
-    public boolean isSwipeAnyWhere() {
-        return swipeAnyWhere;
+    public void setSlideEnabled(boolean slideEnabled) {
+        this.slideEnabled = slideEnabled;
     }
-
-    public void setSwipeEnabled(boolean swipeEnabled) {
-        this.swipeEnabled = swipeEnabled;
-    }
-
-    public boolean isSwipeEnabled() {
-        return swipeEnabled;
-    }
-
 
     @Override
     protected void onResume() {
@@ -74,15 +64,18 @@ public class SlideBaseActivity extends BaseActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        swipeLayout.replaceLayer(this);
+        int screenWidth = CommonPreferences.getScreenWidth();
+        int width = screenWidth > 0 ? screenWidth : getScreenWidth();
+        swipeLayout.replaceLayer(this, width);
     }
 
-    public static int getScreenWidth(Context context) {
-        DisplayMetrics metrics = new DisplayMetrics();
-        WindowManager manager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
-        manager.getDefaultDisplay().getMetrics(metrics);
-        LogUtil.e("屏幕宽度2：" + metrics.widthPixels);
-        return metrics.widthPixels;
+    public int getScreenWidth() {
+        DisplayMetrics dm = new DisplayMetrics();
+        WindowManager manager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        manager.getDefaultDisplay().getMetrics(dm);
+        int width = dm.widthPixels;
+        CommonPreferences.setScreenWidth(width);
+        return width;
     }
 
     private boolean swipeFinished = false;
@@ -118,12 +111,12 @@ public class SlideBaseActivity extends BaseActivity {
             super(context, attrs, defStyleAttr);
         }
 
-        public void replaceLayer(Activity activity) {
-            leftShadow = activity.getResources().getDrawable(R.drawable.left_shadow);
+        public void replaceLayer(Activity activity, int width) {
+            leftShadow = activity.getResources().getDrawable(R.drawable.slide_left_shadow);
             touchSlop = (int) (touchSlopDP * activity.getResources().getDisplayMetrics().density);
             sideWidth = (int) (sideWidthInDP * activity.getResources().getDisplayMetrics().density);
             mActivity = activity;
-            screenWidth = getScreenWidth(activity);
+            screenWidth = width;
             setClickable(true);
             final ViewGroup root = (ViewGroup) activity.getWindow().getDecorView();
             content = root.getChildAt(0);
@@ -167,8 +160,8 @@ public class SlideBaseActivity extends BaseActivity {
 
         @Override
         public boolean dispatchTouchEvent(@NonNull MotionEvent ev) {
-            if (swipeEnabled && !canSwipe && !ignoreSwipe) {
-                if (swipeAnyWhere) {
+            if (slideEnabled && !canSwipe && !ignoreSwipe) {
+                if (LeftSlideEnabled) {
                     switch (ev.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             downX = ev.getX();

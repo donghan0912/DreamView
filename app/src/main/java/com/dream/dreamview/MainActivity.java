@@ -9,6 +9,7 @@ import android.view.View;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.module.multi.MultiTypeActivity;
 import com.dream.dreamview.module.video.VideoActivity;
+import com.dream.dreamview.sample.NavFoldSampleActivity;
 import com.dream.dreamview.test.RetrofitActivity;
 import com.dream.dreamview.util.ToastUtil;
 import com.dream.dreamview.widget.MultiStatusLayout;
@@ -25,7 +26,7 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setSwipeEnabled(false);
+        setSlideEnabled(false);
         setTitle("首页");
         setDisplayHomeAsUpEnabled(true);
         mLayout = (MultiStatusLayout) findViewById(R.id.status_layout);

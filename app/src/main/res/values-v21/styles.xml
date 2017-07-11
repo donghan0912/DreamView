@@ -12,7 +12,8 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="MainActivityTheme" parent="AppTheme">
+    <style name="NoTranslucentTheme" parent="AppTheme">
+        <item name="android:windowBackground">@color/gray_100</item>
         <item name="android:windowIsTranslucent">false</item>
     </style>
 

@@ -2,6 +2,7 @@ package com.dream.dreamview.base;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v4.util.LruCache;
 
 import com.dream.dreamview.AppConstant;
 import com.dream.dreamview.MyApplication;
@@ -13,8 +14,10 @@ import com.dream.dreamview.util.LogUtil;
  */
 
 public class BasePreferences {
+    private static final int CACHE_COUNT = 20;
     private static final boolean DEBUG = AppConstant.DEBUG;
     private final SharedPreferences mPreferences;
+    private final LruCache<String, Object> mCache;
 
     private static class BasePreferencesLoader {
         private static final BasePreferences INSTANCE = new BasePreferences();
@@ -26,32 +29,43 @@ public class BasePreferences {
 
     private BasePreferences() {
         mPreferences = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
+        mCache = new LruCache<>(CACHE_COUNT);
     }
 
     public void setString(String key, String value) {
         if (DEBUG) {
             LogUtil.e(key + ":" + value);
         }
+        mCache.put(key, value);
         mPreferences.edit().putString(key, value).apply();
     }
 
     public String getString(String key) {
-        String value = mPreferences.getString(key, "");
+        Object obj = mCache.get(key);
+        if (obj == null) {
+            obj = mPreferences.getString(key, "");
+        }
+        String value = (String) obj;
         if (DEBUG) {
             LogUtil.e(key + ":" + value);
         }
-        return value;
+        return (String) obj;
     }
 
     public void setInt(String key, int value) {
         if (DEBUG) {
             LogUtil.e(key + ":" + value);
         }
+        mCache.put(key, value);
         mPreferences.edit().putInt(key, value).apply();
     }
 
     public int getInt(String key) {
-        int value = mPreferences.getInt(key, 0);
+        Object obj = mCache.get(key);
+        if (obj == null) {
+            obj = mPreferences.getInt(key, 0);
+        }
+        int value = (int) obj;
         if (DEBUG) {
             LogUtil.e(key + ":" + value);
         }
@@ -62,11 +76,16 @@ public class BasePreferences {
         if (DEBUG) {
             LogUtil.e(key + ":" + value);
         }
+        mCache.put(key, value);
         mPreferences.edit().putLong(key, value);
     }
 
     public long getLong(String key) {
-        long value = mPreferences.getLong(key, 0L);
+        Object obj = mCache.get(key);
+        if (obj == null) {
+            obj = mPreferences.getLong(key, 0L);
+        }
+        long value = (long) obj;
         if (DEBUG) {
             LogUtil.e(key + ":" + value);
         }
@@ -77,11 +96,16 @@ public class BasePreferences {
         if (DEBUG) {
             LogUtil.e(key + ":" + value);
         }
+        mCache.put(key, value);
         mPreferences.edit().putBoolean(key, value);
     }
 
     public boolean getBoolean(String key) {
-        boolean value = mPreferences.getBoolean(key, false);
+        Object obj = mCache.get(key);
+        if (obj == null) {
+            obj = mPreferences.getBoolean(key, false);
+        }
+        boolean value = (boolean) obj;
         if (DEBUG) {
             LogUtil.e(key + ":" + value);
         }

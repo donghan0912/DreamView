@@ -7,7 +7,13 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <style name="NoTranslucentTheme" parent="AppTheme">
         <item name="android:windowBackground">@color/gray_100</item>
+        <item name="android:windowIsTranslucent">false</item>
     </style>
 
     <style name="MyDialogStyleBottom" parent="Theme.AppCompat.Light.Dialog.Alert">
