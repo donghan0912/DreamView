@@ -12,7 +12,8 @@
         android:roundIcon="@drawable/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:theme="@style/MainActivityTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -27,7 +28,6 @@
         <activity android:name=".sample.CustomNavFoldSampleActivity"/>
         <activity android:name=".SwipActivity"/>
         <activity android:name=".sample.CustomeToolbarSampleActivity"/>
-        <activity android:name=".test.RecyclerViewActivity"/>
         <activity android:name=".test.RetrofitActivity"/>
         <activity android:name=".module.meinv.BeautyActivity" android:process=":test"/>
         <activity android:name=".module.meinv.FullScreenActivity"/>

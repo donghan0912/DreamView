@@ -6,9 +6,14 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowBackground">@color/gray_100</item>
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
         <!-- 状态栏透明 -->
         <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="MainActivityTheme" parent="AppTheme">
+        <item name="android:windowIsTranslucent">false</item>
     </style>
 
     <style name="ToolbarPopupTheme" parent="ThemeOverlay.AppCompat.Dark">
