@@ -33,6 +33,7 @@
         <activity android:name=".module.meinv.FullScreenActivity"/>
         <activity android:name=".module.multi.MultiTypeActivity"/>
         <activity android:name=".module.video.VideoActivity"/>
+        <activity android:name=".module.anim.AnimationActivity"/>
 
     </application>
 
