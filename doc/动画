@@ -8,3 +8,26 @@ Android 动画
 视图动画和属性动画区别：
      视图动画：对View 的控件实例起作用
      属性动画：作用于控件属性，比如改变控件的颜色
+
+
+AnimatorSet 联合动画
+    1. playSequentially 顺序播放动画
+    2. playTogether>    同时播放动画
+AnimatorSet.Builder 自由设置动画顺序
+    ObjectAnimator animator1;
+    ObjectAnimator animator2;
+    ObjectAnimator animator3;
+    // 两种使用方式
+    // 方式1：
+    AnimatorSet.Builder builder = animatorSet.play(animator1);
+    builder.with(animator2);
+    builder.after(animator3);
+    // 方式2：
+    animatorSet.play(animator1).with(animator2).after(animator3);
+
+AnimatorSet 添加监听
+    public void addListener(AnimatorListener listener);
+        注：AnimatorSet 中没有设置循环的函数，所以 AnimatorSet 监听器中永远无法执行
+        onAnimationRepeat()方法
+
+
