@@ -51,9 +51,6 @@ public class MyApplication extends Application {
             LogUtil.d("我被调用了");
             instance = this;
 
-            int width = getResources().getDisplayMetrics().widthPixels;
-            CommonPreferences.setScreenWidth(width);
-
         }
 
     }

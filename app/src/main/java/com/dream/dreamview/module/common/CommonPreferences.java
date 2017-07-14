@@ -8,6 +8,7 @@ import com.dream.dreamview.base.BasePreferences;
 
 public class CommonPreferences {
     public static final String KEY_SCREEN_WIDTH = "key_screen_width";
+    public static final String KEY_SCREEN_HEIGHT = "key_screen_height";
 
     public static void setScreenWidth(int value) {
         BasePreferences.getInstance().setInt(KEY_SCREEN_WIDTH, value);

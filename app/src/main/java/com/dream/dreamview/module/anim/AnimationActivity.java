@@ -6,8 +6,10 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.BounceInterpolator;
@@ -21,7 +23,11 @@ import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.util.LogUtil;
 
+import static android.R.attr.width;
+import static android.R.attr.x;
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 import static com.dream.dreamview.R.id.img;
+import static com.dream.dreamview.R.id.view;
 
 /**
  * Created by Administrator on 2017/7/12
@@ -36,8 +42,8 @@ public class AnimationActivity extends NavBaseActivity {
     private ImageView img4;
     private ImageView img5;
     private LinearLayout layout;
-    private ImageView bg1;
-    private ImageView bg2;
+    private TestView bg1;
+    private TestView bg2;
 
     @Override
     protected int getContentView() {
@@ -48,7 +54,14 @@ public class AnimationActivity extends NavBaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Button btn = (Button) findViewById(R.id.start);
-        textView = (TextView) findViewById(R.id.view);
+
+        textView = (TextView) findViewById(view);
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sss();
+            }
+        });
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,6 +69,7 @@ public class AnimationActivity extends NavBaseActivity {
 //                start();
 //                scale();
                 s();
+//                T();
             }
         });
         img1 = (ImageView) findViewById(R.id.img1);
@@ -66,8 +80,58 @@ public class AnimationActivity extends NavBaseActivity {
 
         layout = (LinearLayout) findViewById(R.id.layout);
 
-        bg1 = (ImageView) findViewById(R.id.bg1);
-        bg2 = (ImageView) findViewById(R.id.bg2);
+        bg1 = (TestView) findViewById(R.id.bg1);
+        bg2 = (TestView) findViewById(R.id.bg2);
+        bg2.setCallBack(new TestView.CallBack() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void Move(int dx) {
+//                int i = -dx + 20;
+                LogUtil.e(dx + "======");
+//                bg1.setTranslationZ(i);
+
+//                bg1.setRotationY(xxx);
+                if (dx == 0) {
+                    return;
+                }
+                bg1.setTranslationX(-dx);
+                bg1.setTranslationY(-dx);
+                bg1.setScaleX(0.9f);
+                bg1.setScaleY(0.9f);
+
+//                bg1.layout(dx );
+            }
+
+        });
+//        bg1.setTranslationX(100);
+//        bg1.setTranslationY(100);
+
+        bg1.post(new Runnable() {
+            @Override
+            public void run() {
+                int top = bg1.getTop();
+                int left = bg1.getLeft();
+                int right = bg1.getRight();
+                int bottom = bg1.getBottom();
+                LogUtil.e("宽高：" + top + "/" + bottom);
+                bg1.layout(left + 100, top + 100, 100 + right, 100 + bottom);
+//                int height = bg1.getHeight();
+//                int width = bg1.getWidth();
+//                LogUtil.e("宽高：" + height + "/" + width);
+//                bg1.layout(0, 0, 100 + width, 100 + height);
+            }
+        });
+
+//        bg1.setScaleX(0.9f);
+//        bg1.setScaleY(0.9f);
+    }
+    private int xxx = -10;
+
+    private void T() {
+//        ObjectAnimator scaleX = ObjectAnimator.ofFloat(bg1, "rotationY", -5);
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(bg1, "translationZ", -5, 1);
+        scaleX.setDuration(3000);
+        scaleX.start();
     }
 
     private void s() {
@@ -75,6 +139,16 @@ public class AnimationActivity extends NavBaseActivity {
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(bg1, "scaleY", 1f, 0.9f);
         ObjectAnimator translationX = ObjectAnimator.ofFloat(bg1, "translationX", 0, 100);
         ObjectAnimator translationY = ObjectAnimator.ofFloat(bg1, "translationY", 0, 100);
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(scaleX, scaleY, translationX, translationY);
+        animatorSet.start();
+    }
+
+    private void sss() {
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(bg1, "scaleX", 1f, 1.2f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(bg1, "scaleY", 1f, 1.2f);
+        ObjectAnimator translationX = ObjectAnimator.ofFloat(bg1, "translationX", 0, -100);
+        ObjectAnimator translationY = ObjectAnimator.ofFloat(bg1, "translationY", 0, -100);
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.playTogether(scaleX, scaleY, translationX, translationY);
         animatorSet.start();
