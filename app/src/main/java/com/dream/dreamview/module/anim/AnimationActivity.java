@@ -44,15 +44,21 @@ public class AnimationActivity extends NavBaseActivity {
     private LinearLayout layout;
     private TestView bg1;
     private TestView bg2;
+    private int i = 5;
+    private float j = 0.95f;
+    private float z = -5000;
+    private float m = -10;
 
     @Override
     protected int getContentView() {
         return R.layout.anim_activity_animation;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        setSlideEnabled(false);
         Button btn = (Button) findViewById(R.id.start);
 
         textView = (TextView) findViewById(view);
@@ -68,8 +74,15 @@ public class AnimationActivity extends NavBaseActivity {
 //                startAnim();
 //                start();
 //                scale();
-                s();
-//                T();
+//                s();
+                i = i -1;
+                j = j + 0.01f;
+                LogUtil.e("===========" + j);
+//                bg1.setTranslationX(i);
+//                bg1.setTranslationY(i);
+//                bg1.setScaleX(j);
+//                bg1.setScaleY(j);
+                T();
             }
         });
         img1 = (ImageView) findViewById(R.id.img1);
@@ -91,20 +104,39 @@ public class AnimationActivity extends NavBaseActivity {
 //                bg1.setTranslationZ(i);
 
 //                bg1.setRotationY(xxx);
-                if (dx == 0) {
-                    return;
+
+//                bg1.setTranslationX(-dx);
+//                bg1.setTranslationY(-dx);
+//                bg1.setScaleX(0.9f);
+//                bg1.setScaleY(0.9f);
+
+                i = i - 5/600 * dx;
+                j = j + (1 - j)/ 18000 * dx;
+                z = z + z/1000 * dx;
+                m = m - m / 10000 * dx;
+                LogUtil.e("===========" + j);
+                if (i >= 0) {
+//                    bg1.setTranslationX(i);
+//                    bg1.setTranslationY(i);
                 }
-                bg1.setTranslationX(-dx);
-                bg1.setTranslationY(-dx);
-                bg1.setScaleX(0.9f);
-                bg1.setScaleY(0.9f);
+                if (j <= 1.0f) {
+                    bg1.setScaleX(j);
+                    bg1.setScaleY(j);
+                }
+                if (z <= 0) {
+//                    bg1.setTranslationZ(z);
+//                    bg1.setElevation(z);
+                }
+
+                if (m <= 0) {
+//                    bg1.setRotationY(m);
+                }
 
 //                bg1.layout(dx );
             }
 
         });
-//        bg1.setTranslationX(100);
-//        bg1.setTranslationY(100);
+
 
         bg1.post(new Runnable() {
             @Override
@@ -114,7 +146,7 @@ public class AnimationActivity extends NavBaseActivity {
                 int right = bg1.getRight();
                 int bottom = bg1.getBottom();
                 LogUtil.e("宽高：" + top + "/" + bottom);
-                bg1.layout(left + 100, top + 100, 100 + right, 100 + bottom);
+//                bg1.layout(left + 100, top + 100, 100 + right, 100 + bottom);
 //                int height = bg1.getHeight();
 //                int width = bg1.getWidth();
 //                LogUtil.e("宽高：" + height + "/" + width);
@@ -122,14 +154,19 @@ public class AnimationActivity extends NavBaseActivity {
             }
         });
 
-//        bg1.setScaleX(0.9f);
-//        bg1.setScaleY(0.9f);
+        bg1.setScaleX(j);
+        bg1.setScaleY(j);
+//        bg1.setTranslationX(5);
+//        bg1.setTranslationY(5);
+//        bg1.setTranslationZ(z);
+//        bg1.setElevation(z);
+//        bg1.setRotationY(m);
     }
     private int xxx = -10;
 
     private void T() {
 //        ObjectAnimator scaleX = ObjectAnimator.ofFloat(bg1, "rotationY", -5);
-        ObjectAnimator scaleX = ObjectAnimator.ofFloat(bg1, "translationZ", -5, 1);
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(bg1, "translationZ", -55, 0);
         scaleX.setDuration(3000);
         scaleX.start();
     }

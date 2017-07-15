@@ -28,7 +28,7 @@ import com.dream.dreamview.util.LogUtil;
  */
 public class SlideBaseActivity extends BaseActivity {
 
-    private SwipeLayout swipeLayout;
+    public SwipeLayout swipeLayout;
 
     /**
      * 是否开启滑动关闭页面功能
@@ -222,6 +222,11 @@ public class SlideBaseActivity extends BaseActivity {
                         lastX = downX;
                         break;
                     case MotionEvent.ACTION_MOVE:
+                        // TODO 将上一个activity 的根view 缩放
+                        Activity nextActivity = ActivityStackManager.getInstance().getStackTopParent();
+                        ((SlideBaseActivity)nextActivity).swipeLayout.setScaleX(0.95f);
+                        ((SlideBaseActivity)nextActivity).swipeLayout.setScaleY(0.95f);
+
                         currentX = event.getX();
                         currentY = event.getY();
                         float dx = currentX - lastX;
@@ -238,6 +243,11 @@ public class SlideBaseActivity extends BaseActivity {
                         break;
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL:
+                        // TODO 将上一个activity 的根view 恢复正常大小
+                        Activity nextActivity2 = ActivityStackManager.getInstance().getStackTopParent();
+                        ((SlideBaseActivity)nextActivity2).swipeLayout.setScaleX(1.0f);
+                        ((SlideBaseActivity)nextActivity2).swipeLayout.setScaleY(1.0f);
+
                         tracker.computeCurrentVelocity(10000);
                         tracker.computeCurrentVelocity(1000, 20000);
                         canSwipe = false;

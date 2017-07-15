@@ -48,17 +48,17 @@ public class TestView extends View {
                 int dx = (int) (event.getRawX() - lastX);
                 int dy = (int) (event.getRawY() - lastY);
                 int left = getLeft() + dx;
-                int top = getTop() + dy;
+                int top = getTop();
                 int right = getRight() + dx;
-                int bottom = getBottom() + dy;
+                int bottom = getBottom() ;
                 if(left < 0){
                     left = 0;
                     right = left + getWidth();
                 }
-                if(right > screenWidth){
-                    right = screenWidth;
-                    left = right - getWidth();
-                }
+//                if(right > screenWidth){
+//                    right = screenWidth;
+//                    left = right - getWidth();
+//                }
                 if(top < 0){
                     top = 0;
                     bottom = top + getHeight();

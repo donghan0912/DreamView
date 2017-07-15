@@ -1,9 +1,12 @@
 package com.dream.dreamview;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.dream.dreamview.base.ActivityStackManager;
 import com.dream.dreamview.base.BasePreferences;
 import com.dream.dreamview.module.common.CommonPreferences;
 import com.dream.dreamview.util.LogUtil;
@@ -21,7 +24,7 @@ import static android.R.attr.width;
  * Created by Administrator on 2017/3/28.
  */
 
-public class MyApplication extends Application {
+public class MyApplication extends Application implements Application.ActivityLifecycleCallbacks{
     private static MyApplication instance;
 
     public static MyApplication getInstance() {
@@ -50,7 +53,7 @@ public class MyApplication extends Application {
             //主进程初始化逻辑
             LogUtil.d("我被调用了");
             instance = this;
-
+            registerActivityLifecycleCallbacks(this);
         }
 
     }
@@ -68,5 +71,51 @@ public class MyApplication extends Application {
         }
     }
 
+
+    @Override
+    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+        ActivityStackManager.getInstance().addStack(activity);
+    }
+
+    @Override
+    public void onActivityStarted(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivityResumed(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivityPaused(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivityStopped(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+    }
+
+    @Override
+    public void onActivityDestroyed(Activity activity) {
+        ActivityStackManager.getInstance().removeStack(activity);
+    }
+
+    /**
+     * 完全退出应用.
+     */
+    public void finishAllActivity() {
+        if (AppConstant.DEBUG) {
+            LogUtil.d("AppExit.");
+        }
+
+        ActivityStackManager.getInstance().finishAllActivity();
+    }
 }
 
