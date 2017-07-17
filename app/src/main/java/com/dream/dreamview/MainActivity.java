@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.module.anim.AnimationActivity;
+import com.dream.dreamview.module.anim.TestAc;
 import com.dream.dreamview.module.multi.MultiTypeActivity;
 import com.dream.dreamview.module.video.VideoActivity;
 import com.dream.dreamview.sample.NavFoldSampleActivity;
@@ -55,7 +56,8 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
 //                startActivity(new Intent(this, BeautyActivity.class));
 //                startActivity(new Intent(this, MultiTypeActivity.class));
 //                startActivity(new Intent(this, VideoActivity.class));
-                startActivity(new Intent(this, AnimationActivity.class));
+//                startActivity(new Intent(this, AnimationActivity.class));
+                startActivity(new Intent(this, TestAc.class));
                 break;
             case R.id.btn_2:
                 mLayout.showErrorView();
