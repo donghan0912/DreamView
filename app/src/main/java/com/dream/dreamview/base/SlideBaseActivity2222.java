@@ -3,7 +3,6 @@ package com.dream.dreamview.base;
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -23,13 +22,12 @@ import android.widget.FrameLayout;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.module.common.CommonPreferences;
-import com.dream.dreamview.util.LogUtil;
 
 /**
  * https://github.com/NashLegend/SwipetoFinishActivity
  * 滑动关闭页面基类
  */
-public class SlideBaseActivity extends BaseActivity {
+public class SlideBaseActivity2222 extends BaseActivity {
 
     public SwipeLayout swipeLayout;
 
@@ -233,8 +231,8 @@ public class SlideBaseActivity extends BaseActivity {
                         // 可以考虑在actionDown 事件中设置背景色，避免滑动的时候，重复设置背景色
                         nextActivity.getWindow().getDecorView().setBackgroundResource(R.color.black);
 
-                        ((SlideBaseActivity)nextActivity).swipeLayout.setScaleX(0.98f);
-                        ((SlideBaseActivity)nextActivity).swipeLayout.setScaleY(0.98f);
+                        ((SlideBaseActivity2222)nextActivity).swipeLayout.setScaleX(0.98f);
+                        ((SlideBaseActivity2222)nextActivity).swipeLayout.setScaleY(0.98f);
 
                         currentX = event.getX();
                         currentY = event.getY();
@@ -255,8 +253,8 @@ public class SlideBaseActivity extends BaseActivity {
                     case MotionEvent.ACTION_CANCEL:
                         // TODO 将上一个activity 的根view 恢复正常大小
                         Activity nextActivity2 = ActivityStackManager.getInstance().getStackTopParent();
-                        ((SlideBaseActivity)nextActivity2).swipeLayout.setScaleX(1.0f);
-                        ((SlideBaseActivity)nextActivity2).swipeLayout.setScaleY(1.0f);
+                        ((SlideBaseActivity2222)nextActivity2).swipeLayout.setScaleX(1.0f);
+                        ((SlideBaseActivity2222)nextActivity2).swipeLayout.setScaleY(1.0f);
 
                         tracker.computeCurrentVelocity(10000);
                         tracker.computeCurrentVelocity(1000, 20000);
