@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.util.LogUtil;
@@ -52,7 +53,7 @@ class SlideView extends FrameLayout {
 
 
     private ViewDragHelper viewDragHelper;
-    private View parentView;
+    private TextView parentView;
 
     public SlideView(Context context) {
         super(context);
@@ -77,14 +78,17 @@ class SlideView extends FrameLayout {
     }
 
     @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        parentView = this.getChildAt(0);
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        parentView = (TextView) getChildAt(0);
+//        parentView.setClickable(true);
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return viewDragHelper.shouldInterceptTouchEvent(ev);
+        boolean interceptTouchEvent = viewDragHelper.shouldInterceptTouchEvent(ev);
+        LogUtil.e("是否拦截事件：" + interceptTouchEvent);
+        return interceptTouchEvent;
     }
 
     @Override
@@ -95,25 +99,34 @@ class SlideView extends FrameLayout {
 
     class MyViewDragHelper extends ViewDragHelper.Callback {
 
+        /**
+         * 指定 哪些子元素可以移动
+         * @param child
+         * @param pointerId
+         * @return
+         */
         @Override
         public boolean tryCaptureView(View child, int pointerId) {
-            return true;
+            // return true 所有子元素都可以拖拽移动
+            return child == parentView;
         }
 
+        /**
+         *
+         * @param child 滑动的子view
+         * @param left x轴方向的移动位置(相对于原始位置，往左滑，该值为负，右滑，值为正)
+         * @param dx
+         * @return
+         */
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
-            LogUtil.e("=============" + left);
+            LogUtil.e("=============" + left + "/" + dx);
             return left;
         }
 
         @Override
         public int getViewHorizontalDragRange(View child) {
             return 0;
-        }
-
-        @Override
-        public boolean onEdgeLock(int edgeFlags) {
-            return super.onEdgeLock(edgeFlags);
         }
 
         @Override
@@ -124,7 +137,7 @@ class SlideView extends FrameLayout {
         @Override
         public void onEdgeDragStarted(int edgeFlags, int pointerId) {
             super.onEdgeDragStarted(edgeFlags, pointerId);
-            viewDragHelper.captureChildView(parentView, pointerId);
+//            viewDragHelper.captureChildView(parentView, pointerId);
         }
 
         /**

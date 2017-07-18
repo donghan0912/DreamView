@@ -305,11 +305,7 @@ public class ViewDragLayout extends LinearLayout {
      */
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-        try {
-            mViewDragHelper.processTouchEvent(e);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        mViewDragHelper.processTouchEvent(e);
         return false;
     }
 }
