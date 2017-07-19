@@ -1,24 +1,6 @@
-package com.dream.dreamview.test;
+ ViewDragHelper源码 {
 
-import android.support.v4.view.MotionEventCompat;
-import android.support.v4.view.VelocityTrackerCompat;
-import android.support.v4.view.ViewCompat;
-import android.view.MotionEvent;
-import android.view.VelocityTracker;
-import android.view.View;
-
-import static android.R.attr.x;
-import static android.R.attr.y;
-import static android.support.v4.widget.ViewDragHelper.INVALID_POINTER;
-
-/**
- * 参考文章：https://github.com/LittleFriendsGroup/AndroidSdkSourceAnalysis/blob/master/article/ViewDragHelper源码分析.md
- * Created by Administrator on 2017/7/18
- */
-
-public class ViewDragHelper源码 {
-
-    /*STATE_IDLE      空闲状态
+    STATE_IDLE      空闲状态
     STATE_DRAGGING  拖动状态
     STATE_SETTLING  安置状态(自动滚动过程)
 
@@ -444,5 +426,23 @@ public class ViewDragHelper源码 {
             //releasedChild : 被释放的View
             //xvel : 释放View的x方向上的加速度
             //yvel : 释放View的y方向上的加速度
-*/
-}
+	8. public int getViewHorizontalDragRange(View child) {
+            return 0;
+        }
+		当拖拽的子View可以直接消费处理触摸事件时，这个方法必须要重写，且返回值要大于0
+		注意：这个值，并不是允许拖拽的区域
+			private int computeAxisDuration(int delta, int velocity, int motionRange) {// motionRange就是getViewHorizontalDragRange()返回值
+        省略代码...
+        int duration;
+        velocity = Math.abs(velocity);
+        if (velocity > 0) {
+            duration = 4 * Math.round(1000 * Math.abs(distance / velocity));
+        } else {
+			// 这个返回值得作用，仅仅是当velocity速率为0的时候，
+				// startScroll执行的时间
+            final float range = (float) Math.abs(delta) / motionRange;
+            duration = (int) ((range + 1) * BASE_SETTLE_DURATION);
+        }
+        return Math.min(duration, MAX_SETTLE_DURATION);
+    }
+

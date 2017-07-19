@@ -7,6 +7,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -108,7 +109,7 @@ class SlideView extends FrameLayout {
         @Override
         public boolean tryCaptureView(View child, int pointerId) {
             // return true 所有子元素都可以拖拽移动
-            return child == parentView;
+            return true;
         }
 
         /**
@@ -126,7 +127,7 @@ class SlideView extends FrameLayout {
 
         @Override
         public int getViewHorizontalDragRange(View child) {
-            return 0;
+            return 5;
         }
 
         @Override
@@ -149,6 +150,16 @@ class SlideView extends FrameLayout {
         @Override
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
             super.onViewReleased(releasedChild, xvel, yvel);
+            viewDragHelper.settleCapturedViewAt(200, 20);
+            invalidate();
+        }
+    }
+
+    @Override
+    public void computeScroll() {
+        super.computeScroll();
+        if (viewDragHelper.continueSettling(true)) {
+            ViewCompat.postInvalidateOnAnimation(this);
         }
     }
 }
