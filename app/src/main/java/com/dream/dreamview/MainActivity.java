@@ -23,7 +23,7 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setSwipeEnabled(false);
+        closeSwipe();
         setTitle("首页");
         setDisplayHomeAsUpEnabled(true);
         mLayout = (MultiStatusLayout) findViewById(R.id.status_layout);

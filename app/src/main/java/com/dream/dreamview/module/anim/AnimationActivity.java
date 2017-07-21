@@ -61,7 +61,8 @@ public class AnimationActivity extends NavBaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setFullScreenEnabled(true);
+//        openFullScreenSwipe();
+        openEdgeSwipe();
         Button btn = (Button) findViewById(R.id.start);
         btn2 = (Button) findViewById(R.id.start2);
         btn2.setOnClickListener(new View.OnClickListener() {

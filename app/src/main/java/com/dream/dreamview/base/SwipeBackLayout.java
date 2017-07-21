@@ -40,7 +40,7 @@ public class SwipeBackLayout extends FrameLayout {
     private int mEndColor;
     private boolean mBgEnabled;
     private boolean mEdgeEnabled;
-    private boolean mFullScreenEnabled = true;
+    private boolean mFullScreenEnabled;
 
     public SwipeBackLayout(Context context) {
         super(context);
@@ -61,7 +61,7 @@ public class SwipeBackLayout extends FrameLayout {
         viewDragHelper = ViewDragHelper.create(this, new SwipeViewDragHelper());
     }
 
-    public void replace(Activity activity) {
+    public SwipeBackLayout replace(Activity activity) {
         mPercent = DEFAULT_PERCENT;
         mScreenWidth = mScreenWidth > 0 ? mScreenWidth : getScreenWidth();
         ViewGroup root = (ViewGroup) activity.getWindow().getDecorView();
@@ -70,21 +70,24 @@ public class SwipeBackLayout extends FrameLayout {
         this.addView(content);
         root.addView(this);
         setContentView(content);
+        return this;
     }
 
-    public int getScreenWidth() {
+    private int getScreenWidth() {
         return getResources().getDisplayMetrics().widthPixels;
     }
 
-    public void setShadow(Drawable shadow) {
+    public SwipeBackLayout setShadow(Drawable shadow) {
         this.mLeftShadow = shadow;
         this.mShadowWidth = DEFAULT_SHADOW_WIDTH;
+        return this;
     }
 
     @SuppressWarnings("unused")
-    public void setShadow(Drawable shadow, @IntRange(from = 1) int shadowWidth) {
+    public SwipeBackLayout setShadow(Drawable shadow, @IntRange(from = 1) int shadowWidth) {
         this.mLeftShadow = shadow;
         this.mShadowWidth = shadowWidth;
+        return this;
     }
 
     public void setSwipeListener(SwipeBackListener listener) {
@@ -204,27 +207,29 @@ public class SwipeBackLayout extends FrameLayout {
         this.setBackgroundColor(evaluate);
     }
 
-    public void setGradientColor(@ColorInt int startColor, @ColorInt int endColor) {
+    public SwipeBackLayout setGradientColor(@ColorInt int startColor, @ColorInt int endColor) {
         this.mBgEnabled = true;
         this.mStartColor = startColor;
         this.mEndColor = endColor;
+        return this;
     }
 
-    public void setEdgeEnabled(boolean enabled) {
-        this.mEdgeEnabled = enabled;
-        this.mFullScreenEnabled = !enabled;
-        if (enabled) {
-            viewDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
-        }
+    public SwipeBackLayout openEdgeSwipe() {
+        this.mEdgeEnabled = true;
+        this.mFullScreenEnabled = false;
+        viewDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
+        return this;
     }
 
-    public void setFullScreenEnabled(boolean enabled) {
-        this.mFullScreenEnabled = enabled;
-        this.mEdgeEnabled = !enabled;
-    }
-
-    public void setSwipeEnabled(boolean enabled) {
+    public SwipeBackLayout openFullScreenSwipe() {
+        this.mFullScreenEnabled = true;
         this.mEdgeEnabled = false;
-        this.mFullScreenEnabled = enabled;
+        return this;
+    }
+
+    public SwipeBackLayout closeSwipe() {
+        this.mEdgeEnabled = false;
+        this.mFullScreenEnabled = false;
+        return this;
     }
 }
