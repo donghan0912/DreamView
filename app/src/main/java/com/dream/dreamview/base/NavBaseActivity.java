@@ -12,13 +12,14 @@ import android.view.ViewStub;
 import android.widget.TextView;
 
 import com.dream.dreamview.R;
+import com.dream.dreamview.module.anim.SwipeBackActivity;
 
 /**
  * 带Toolbar的基础Activity
  * Created by lenovo on 2017/4/13.
  */
 
-public abstract class NavBaseActivity extends SlideBaseActivity {
+public abstract class NavBaseActivity extends SwipeBackActivity {
     private Toolbar mToolbar;
     private TextView mTitle;
     private ViewStub mToolbarViewStub;

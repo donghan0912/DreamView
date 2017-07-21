@@ -7,4 +7,5 @@ package com.dream.dreamview.base;
 public interface SwipeBackListener {
     void back();
     void resume();
+    void move(int dx);
 }

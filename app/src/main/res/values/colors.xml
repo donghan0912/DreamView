@@ -6,6 +6,7 @@
     <color name="textColorPrimary">#ffffff</color>
     <color name="white">#ffffff</color>
     <color name="transparent">#00000000</color>
+    <color name="translucent">#7f000000</color>
 
 
     <!-- 灰色 调色板 -->

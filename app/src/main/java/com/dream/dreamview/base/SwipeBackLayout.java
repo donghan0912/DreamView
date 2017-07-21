@@ -1,9 +1,11 @@
 package com.dream.dreamview.base;
 
+import android.animation.ArgbEvaluator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorInt;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
@@ -22,37 +24,41 @@ import com.dream.dreamview.util.LogUtil;
  */
 
 public class SwipeBackLayout extends FrameLayout {
-    private static final int DEFAULT_SHADOW_WIDTH = 40;
+    private static final int DEFAULT_SHADOW_WIDTH = 26;
     private static final float DEFAULT_PERCENT = 0.5f;
 
     private ViewDragHelper viewDragHelper;
     private int mScreenWidth;
     private int currentX;
-    private View mParentView;
+    private View mContentView;
     private Drawable mLeftShadow;
     private int mShadowWidth;
     private SwipeBackListener mSwipeListener;
     private float mPercent;
+    private ArgbEvaluator mEvaluator;
+    private int mStartColor;
+    private int mEndColor;
+    private boolean mBgEnabled;
+    private boolean mEdgeEnabled;
+    private boolean mFullScreenEnabled = true;
 
     public SwipeBackLayout(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public SwipeBackLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
     public SwipeBackLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        init();
     }
 
-    private void init(Context context) {
-        viewDragHelper = ViewDragHelper.create(this, new MyViewDragHelper());
-        // 设置左侧边缘滑动
-//        viewDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
+    private void init() {
+        viewDragHelper = ViewDragHelper.create(this, new SwipeViewDragHelper());
     }
 
     public void replace(Activity activity) {
@@ -75,6 +81,7 @@ public class SwipeBackLayout extends FrameLayout {
         this.mShadowWidth = DEFAULT_SHADOW_WIDTH;
     }
 
+    @SuppressWarnings("unused")
     public void setShadow(Drawable shadow, @IntRange(from = 1) int shadowWidth) {
         this.mLeftShadow = shadow;
         this.mShadowWidth = shadowWidth;
@@ -85,14 +92,14 @@ public class SwipeBackLayout extends FrameLayout {
     }
 
     private void setContentView(View view) {
-        this.mParentView = view;
+        this.mContentView = view;
     }
 
     @Override
     protected boolean drawChild(@NonNull Canvas canvas, @NonNull View child, long drawingTime) {
         boolean result = super.drawChild(canvas, child, drawingTime);
-        if (mLeftShadow != null && mParentView != null) {
-            mLeftShadow.setBounds(mParentView.getLeft() - mShadowWidth, 0, mParentView.getLeft(), getHeight());
+        if (mLeftShadow != null && mContentView != null) {
+            mLeftShadow.setBounds(mContentView.getLeft() - mShadowWidth, 0, mContentView.getLeft(), getHeight());
             mLeftShadow.draw(canvas);
         }
         return result;
@@ -109,49 +116,40 @@ public class SwipeBackLayout extends FrameLayout {
         return true;
     }
 
-    class MyViewDragHelper extends ViewDragHelper.Callback {
+    private class SwipeViewDragHelper extends ViewDragHelper.Callback {
 
-        /**
-         * 指定 哪些子元素可以移动
-         * @param child
-         * @param pointerId
-         * @return
-         */
         @Override
         public boolean tryCaptureView(View child, int pointerId) {
-            // return true 所有子元素都可以拖拽移动
-            return true;
+            return !(mEdgeEnabled || !mFullScreenEnabled);
         }
 
         /**
-         *
          * @param child 滑动的子view
-         * @param left x轴方向的移动位置(相对于原始位置，往左滑，该值为负，右滑，值为正)
-         * @param dx
-         * @return
+         * @param left  x轴方向的移动位置(相对于原始位置，往左滑，该值为负，右滑，值为正)
          */
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
             currentX = left;
-            LogUtil.e("当前" + currentX);
+            LogUtil.e("当前: " + currentX);
             return left < 0 ? 0 : left;
         }
 
         @Override
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
-            super.onViewPositionChanged(changedView, left, top, dx, dy);
-            LogUtil.e("当前getLeft()值：" + left);
+            LogUtil.e("当前getLeft()值：" + left + "/" + dx);
 
             if (mLeftShadow != null) {
                 invalidate();
             }
             if (mSwipeListener != null) {
-                if (left >= mScreenWidth + mShadowWidth) {
+                if (left >= mScreenWidth) {
                     mSwipeListener.back();
                 } else if (left <= 0) {
                     mSwipeListener.resume();
                 }
+                mSwipeListener.move(left);
             }
+            refreshBackgroundColor(left);
         }
 
         @Override
@@ -167,20 +165,19 @@ public class SwipeBackLayout extends FrameLayout {
         @Override
         public void onEdgeDragStarted(int edgeFlags, int pointerId) {
             super.onEdgeDragStarted(edgeFlags, pointerId);
-//            viewDragHelper.captureChildView(parentView, pointerId);
+            if (mEdgeEnabled) {
+                viewDragHelper.captureChildView(mContentView, pointerId);
+            }
         }
 
         /**
-         *
-         * @param releasedChild
          * @param xvel 水平方向的速度 向右为正
          * @param yvel 垂直方向的速度，向下为正
          */
         @Override
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
-            super.onViewReleased(releasedChild, xvel, yvel);
-            if (currentX >= mScreenWidth * mPercent) {
-                viewDragHelper.settleCapturedViewAt(mScreenWidth + mShadowWidth, 0);
+            if (currentX >= mScreenWidth * mPercent || xvel > 200) {
+                viewDragHelper.settleCapturedViewAt(mScreenWidth, 0);
             } else {
                 viewDragHelper.settleCapturedViewAt(0, 0);
             }
@@ -194,5 +191,40 @@ public class SwipeBackLayout extends FrameLayout {
         if (viewDragHelper.continueSettling(true)) {
             ViewCompat.postInvalidateOnAnimation(this);
         }
+    }
+
+    private void refreshBackgroundColor(float x) {
+        if (!mBgEnabled) {
+            return;
+        }
+        if (mEvaluator == null) {
+            mEvaluator = new ArgbEvaluator();
+        }
+        int evaluate = (int) mEvaluator.evaluate(x / mScreenWidth, mStartColor, mEndColor);
+        this.setBackgroundColor(evaluate);
+    }
+
+    public void setGradientColor(@ColorInt int startColor, @ColorInt int endColor) {
+        this.mBgEnabled = true;
+        this.mStartColor = startColor;
+        this.mEndColor = endColor;
+    }
+
+    public void setEdgeEnabled(boolean enabled) {
+        this.mEdgeEnabled = enabled;
+        this.mFullScreenEnabled = !enabled;
+        if (enabled) {
+            viewDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
+        }
+    }
+
+    public void setFullScreenEnabled(boolean enabled) {
+        this.mFullScreenEnabled = enabled;
+        this.mEdgeEnabled = !enabled;
+    }
+
+    public void setSwipeEnabled(boolean enabled) {
+        this.mEdgeEnabled = false;
+        this.mFullScreenEnabled = enabled;
     }
 }

@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.BounceInterpolator;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.util.LogUtil;
+import com.dream.dreamview.util.ToastUtil;
 
 import static android.R.attr.width;
 import static android.R.attr.x;
@@ -48,6 +50,7 @@ public class AnimationActivity extends NavBaseActivity {
     private float j = 0.95f;
     private float z = -5000;
     private float m = -10;
+    private Button btn2;
 
     @Override
     protected int getContentView() {
@@ -58,8 +61,15 @@ public class AnimationActivity extends NavBaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setSlideEnabled(false);
+        setFullScreenEnabled(true);
         Button btn = (Button) findViewById(R.id.start);
+        btn2 = (Button) findViewById(R.id.start2);
+        btn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ToastUtil.showShortToast(getApplicationContext(), "hhhhh");
+            }
+        });
 
         textView = (TextView) findViewById(view);
         textView.setOnClickListener(new View.OnClickListener() {
@@ -82,7 +92,10 @@ public class AnimationActivity extends NavBaseActivity {
 //                bg1.setTranslationY(i);
 //                bg1.setScaleX(j);
 //                bg1.setScaleY(j);
-                T();
+                int left = btn2.getLeft();
+                ViewCompat.offsetLeftAndRight(btn2, 10);
+                int left1 = btn2.getLeft();
+                LogUtil.e("hhhhhh"+ left + "/" + left1);
             }
         });
         img1 = (ImageView) findViewById(R.id.img1);

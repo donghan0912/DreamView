@@ -5,7 +5,18 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
+    <Button
+        android:id="@+id/btn"
+        android:text="dian"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
+    <Button
+        android:layout_marginLeft="50dp"
+        android:id="@+id/btn2"
+        android:text="dian"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
     <com.dream.dreamview.test.ViewDragLayout
         android:visibility="gone"

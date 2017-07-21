@@ -34,7 +34,6 @@
         <activity android:name=".module.multi.MultiTypeActivity"/>
         <activity android:name=".module.video.VideoActivity"/>
         <activity android:name=".module.anim.AnimationActivity"/>
-        <activity android:name=".module.anim.TestAc"/>
 
     </application>
 

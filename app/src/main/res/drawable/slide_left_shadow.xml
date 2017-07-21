@@ -5,6 +5,6 @@
     <!--<size android:width="8dp" android:height="10dp"/>-->
     <!--颜色渐变范围-->
     <gradient
-        android:endColor="#79000000"
+        android:endColor="#20000000"
         android:startColor="#00000000" />
 </shape>

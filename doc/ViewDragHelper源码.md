@@ -401,9 +401,9 @@
     2. 手指移动的时候，会调用callback中的
             getViewHorizontalDragRange()和getViewVerticalDragRange()方法
     3. 当手指移动为拖动行为时，会调用callback中的
-            // toCapture 当前拖拽View，targetLeft: 当前左右方向拖拽位置的偏移量(相对于原始位置) dx: x轴偏移量(注意是手指前后两次触摸的偏移量，实际开发中基本用不到)
+            // toCapture 当前拖拽View，targetLeft: getLeft()值 dx: x轴偏移量(注意是手指前后两次触摸的偏移量，实际开发中基本用不到)
             clampViewPositionHorizontal(toCapture, targetLeft,(int) dx)
-            // toCapture 当前拖拽View，targetTop: 当前上下方向拖拽位置的偏移量(相对于原始位置) dy: y轴偏移量
+            // toCapture 当前拖拽View，targetTop: getLeft()值 dy: y轴偏移量
             clampViewPositionVertical(toCapture, targetTop,(int) dy)
             注意：这两个方法的返回值最终决定，当前view是否能移动，能移动的位置
                     1. 如果返回的是view.getLeft()值，那么将导致view不能移动，可以在shouldInterceptTouchEvent MOVE事件源码中看结果
