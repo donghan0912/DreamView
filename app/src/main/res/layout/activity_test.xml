@@ -12,6 +12,6 @@
         android:layout_height="match_parent"
         android:gravity="center_horizontal"
         android:padding="120dp"
-        android:text="sdflklsdjfdfsjdsflksdfdfs"
+        android:text="sdflklsddsfdsdfdsfdfdsjfdfsjdsflksdfdfssdflklsdjfdfsjdsflksdfdfssdflklsdjfdfsjdsflksdfdfs"
         android:textSize="60sp"/>
 </android.support.v4.widget.NestedScrollView>

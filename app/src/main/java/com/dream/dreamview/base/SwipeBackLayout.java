@@ -8,9 +8,11 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,24 +43,33 @@ public class SwipeBackLayout extends FrameLayout {
     private boolean mBgEnabled;
     private boolean mEdgeEnabled;
     private boolean mFullScreenEnabled;
+    private GestureDetectorCompat mGestureDetectorCompat;
 
     public SwipeBackLayout(Context context) {
         super(context);
-        init();
+        init(context);
     }
 
     public SwipeBackLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(context);
     }
 
     public SwipeBackLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(context);
     }
 
-    private void init() {
+    private void init(Context context) {
         viewDragHelper = ViewDragHelper.create(this, new SwipeViewDragHelper());
+        mGestureDetectorCompat = new GestureDetectorCompat(context, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                return Math.abs(distanceX) > Math.abs(distanceY);
+            }
+        });
+
+
     }
 
     public SwipeBackLayout replace(Activity activity) {
@@ -108,9 +119,29 @@ public class SwipeBackLayout extends FrameLayout {
         return result;
     }
 
+    float lastX = 0;
+    float lastY = 0;
+    boolean a = false;
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return viewDragHelper.shouldInterceptTouchEvent(ev);
+
+        int action = ev.getAction();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                lastX =  ev.getX();
+                lastY =  ev.getY();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float dx = Math.abs(ev.getX() - lastX);
+                float dy = Math.abs(ev.getY() - lastY);
+                if (dx * 0.5f > dy) {
+                    a = true;
+                } else {
+                    a = false;
+                }
+                break;
+        }
+        return viewDragHelper.shouldInterceptTouchEvent(ev) && a;
     }
 
     @Override

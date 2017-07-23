@@ -12,7 +12,6 @@ import android.view.ViewStub;
 import android.widget.TextView;
 
 import com.dream.dreamview.R;
-import com.dream.dreamview.module.anim.SwipeBackActivity;
 
 /**
  * 带Toolbar的基础Activity

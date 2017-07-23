@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.module.anim.AnimationActivity;
+import com.dream.dreamview.test.TestActivity;
 import com.dream.dreamview.util.ToastUtil;
 import com.dream.dreamview.widget.MultiStatusLayout;
 
@@ -51,7 +52,8 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
 //                startActivity(new Intent(this, BeautyActivity.class));
 //                startActivity(new Intent(this, MultiTypeActivity.class));
 //                startActivity(new Intent(this, VideoActivity.class));
-                startActivity(new Intent(this, AnimationActivity.class));
+//                startActivity(new Intent(this, AnimationActivity.class));
+                startActivity(new Intent(this, TestActivity.class));
                 break;
             case R.id.btn_2:
                 mLayout.showErrorView();

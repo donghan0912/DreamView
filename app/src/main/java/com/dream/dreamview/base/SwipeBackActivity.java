@@ -1,4 +1,4 @@
-package com.dream.dreamview.module.anim;
+package com.dream.dreamview.base;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
@@ -7,10 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 
 import com.dream.dreamview.R;
-import com.dream.dreamview.base.ActivityStackManager;
-import com.dream.dreamview.base.BaseActivity;
-import com.dream.dreamview.base.SwipeBackLayout;
-import com.dream.dreamview.base.SwipeBackListener;
 
 /**
  * Created by Administrator on 2017/7/17
@@ -18,6 +14,7 @@ import com.dream.dreamview.base.SwipeBackListener;
 
 public class SwipeBackActivity extends BaseActivity {
     public SwipeBackLayout mSwipeBackLayout;
+    // TODO 利用 GestureDetector 手势探测器 监测是否是水平或垂直滑动
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
