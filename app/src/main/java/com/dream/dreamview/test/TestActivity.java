@@ -2,6 +2,7 @@ package com.dream.dreamview.test;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewPager;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
@@ -19,6 +20,8 @@ public class TestActivity extends NavBaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        closeSwipe();
+        ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
 
     }
 }
