@@ -8,22 +8,15 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
-import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.dream.dreamview.util.LogUtil;
-
-import static android.R.attr.action;
-import static android.R.attr.breadCrumbShortTitle;
-import static android.R.attr.x;
 
 
 /**
@@ -48,33 +41,29 @@ public class SwipeBackLayout extends FrameLayout {
     private boolean mBgEnabled;
     private boolean mEdgeEnabled;
     private boolean mFullScreenEnabled;
-    private GestureDetectorCompat mGestureDetectorCompat;
+    private float lastX = 0;
+    private float lastY = 0;
+    private boolean isVertical;
+    private boolean isHorizontal;
+
 
     public SwipeBackLayout(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public SwipeBackLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
     public SwipeBackLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        init();
     }
 
-    private void init(Context context) {
+    private void init() {
         viewDragHelper = ViewDragHelper.create(this, new SwipeViewDragHelper());
-        mGestureDetectorCompat = new GestureDetectorCompat(context, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                return Math.abs(distanceX) > Math.abs(distanceY);
-            }
-        });
-
-
     }
 
     public SwipeBackLayout replace(Activity activity) {
@@ -124,77 +113,80 @@ public class SwipeBackLayout extends FrameLayout {
         return result;
     }
 
-    float lastX = 0;
-    float lastY = 0;
-    boolean a = false;
-    boolean canMove = false;
-
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        int action = ev.getAction();
+    public boolean onInterceptTouchEvent(MotionEvent event) {
+        int action = event.getAction();
         if (action == MotionEvent.ACTION_DOWN) {
             viewDragHelper.abort();
         }
+        if (action == MotionEvent.ACTION_MOVE) {
+            if (isHorizontal) {
+                return viewDragHelper.shouldInterceptTouchEvent(event);
+            }
+            if (isVertical) {
+                return false;
+            }
+        }
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                LogUtil.e("拦截：按下");
-                lastX = ev.getX();
-                lastY = ev.getY();
+                lastX = event.getX();
+                lastY = event.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
-                LogUtil.e("拦截：移动");
-                float dx = Math.abs(ev.getX() - lastX);
-                float dy = Math.abs(ev.getY() - lastY);
-                if (dx * 0.5f > dy) {
-                    a = true;
-                } else {
-                    a = false;
+                float dx = Math.abs(event.getX() - lastX);
+                float dy = Math.abs(event.getY() - lastY);
+                if (dx > 0 && dx * 0.5f > dy) {// 水平
+                    isHorizontal = true;
+                    lastX = event.getX();
+                    lastY = event.getY();
+                } else if (dy > 0) {// 竖直
+                    isVertical = true;
+                    return false;
                 }
                 break;
-            case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
-                a = false;
+            case MotionEvent.ACTION_CANCEL:
+                isHorizontal = false;
+                isVertical = false;
                 break;
         }
-        return viewDragHelper.shouldInterceptTouchEvent(ev) && a;
+        return viewDragHelper.shouldInterceptTouchEvent(event);
     }
-
-    private boolean t1;
-    private boolean t2;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getAction();
         if (action == MotionEvent.ACTION_MOVE) {
-            if (t1) {
-                LogUtil.e("水平");
+            if (isHorizontal) {
                 viewDragHelper.processTouchEvent(event);
                 return true;
             }
-            if (t2) {
-                LogUtil.e("竖直");
+            if (isVertical) {
                 return false;
             }
         }
-
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 lastX = event.getX();
                 lastY = event.getY();
-                LogUtil.e("处理：按下");
                 break;
             case MotionEvent.ACTION_MOVE:
                 float dx = Math.abs(event.getX() - lastX);
                 float dy = Math.abs(event.getY() - lastY);
-                LogUtil.e("处理：移动" + dx + "/" + dy);
                 if (dx > 0 && dx * 0.5f > dy) {// 水平
-                    t1 = true;
+                    isHorizontal = true;
                     lastX = event.getX();
                     lastY = event.getY();
                     viewDragHelper.processTouchEvent(event);
                 } else if (dy > 0) {// 竖直
-                    t2 = true;
+                    isVertical = true;
                 }
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                viewDragHelper.processTouchEvent(event);
+                isHorizontal = false;
+                isVertical = false;
                 break;
         }
         return true;
@@ -227,12 +219,8 @@ public class SwipeBackLayout extends FrameLayout {
             }
             if (mSwipeListener != null) {
                 if (left >= mScreenWidth) {
-                    t1 = false;
-                    t2 = false;
                     mSwipeListener.back();
                 } else if (left <= 0) {
-                    t1 = false;
-                    t2 = false;
                     mSwipeListener.resume();
                 }
                 mSwipeListener.move(left);
