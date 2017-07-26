@@ -117,28 +117,37 @@ public class SwipeBackLayout extends FrameLayout {
     public boolean onInterceptTouchEvent(MotionEvent event) {
         int action = event.getAction();
         if (action == MotionEvent.ACTION_DOWN) {
+            // 初始化
             viewDragHelper.abort();
+            isHorizontal = false;
+            isVertical = false;
         }
         if (action == MotionEvent.ACTION_MOVE) {
             if (isHorizontal) {
+                LogUtil.e("拦截水平");
                 return viewDragHelper.shouldInterceptTouchEvent(event);
             }
             if (isVertical) {
+                LogUtil.e("拦截竖直");
                 return false;
             }
         }
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                LogUtil.e("拦截按下");
                 lastX = event.getX();
                 lastY = event.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
-                float dx = Math.abs(event.getX() - lastX);
-                float dy = Math.abs(event.getY() - lastY);
+                LogUtil.e("拦截移动");
+                float x = event.getX();
+                float y = event.getY();
+                float dx = Math.abs(x - lastX);
+                float dy = Math.abs(y - lastY);
                 if (dx > 0 && dx * 0.5f > dy) {// 水平
                     isHorizontal = true;
-                    lastX = event.getX();
-                    lastY = event.getY();
+                    lastX = x;
+                    lastY = y;
                 } else if (dy > 0) {// 竖直
                     isVertical = true;
                     return false;
@@ -146,6 +155,7 @@ public class SwipeBackLayout extends FrameLayout {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                LogUtil.e("拦截抬起");
                 isHorizontal = false;
                 isVertical = false;
                 break;
@@ -158,19 +168,23 @@ public class SwipeBackLayout extends FrameLayout {
         int action = event.getAction();
         if (action == MotionEvent.ACTION_MOVE) {
             if (isHorizontal) {
+                LogUtil.e("处理水平");
                 viewDragHelper.processTouchEvent(event);
                 return true;
             }
             if (isVertical) {
+                LogUtil.e("处理竖直");
                 return false;
             }
         }
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                LogUtil.e("处理按下");
                 lastX = event.getX();
                 lastY = event.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
+                LogUtil.e("处理移动");
                 float dx = Math.abs(event.getX() - lastX);
                 float dy = Math.abs(event.getY() - lastY);
                 if (dx > 0 && dx * 0.5f > dy) {// 水平
@@ -184,6 +198,7 @@ public class SwipeBackLayout extends FrameLayout {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                LogUtil.e("处理抬起");
                 viewDragHelper.processTouchEvent(event);
                 isHorizontal = false;
                 isVertical = false;
@@ -304,5 +319,10 @@ public class SwipeBackLayout extends FrameLayout {
         this.mEdgeEnabled = false;
         this.mFullScreenEnabled = false;
         return this;
+    }
+
+    private View mSwipeableView;
+    public void setSwipeabledView(View view) {
+        this.mSwipeableView = view;
     }
 }

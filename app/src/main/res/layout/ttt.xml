@@ -8,14 +8,14 @@
     <TextView
         android:background="@color/gray_200"
         android:layout_width="match_parent"
-        android:layout_height="250dp" />
+        android:layout_height="80dp" />
 
     <Button
         android:background="@color/gray_300"
         android:layout_width="match_parent"
-        android:layout_height="250dp" />
+        android:layout_height="80dp" />
 
-    <com.dream.dreamview.test.MyViewPager
+    <android.support.v4.view.ViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
