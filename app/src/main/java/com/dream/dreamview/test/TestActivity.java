@@ -6,6 +6,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
@@ -21,6 +22,7 @@ import java.util.List;
 public class TestActivity extends NavBaseActivity {
 
     private ViewPager viewPager;
+    private Button btn;
 
     @Override
     protected int getContentView() {
@@ -34,6 +36,7 @@ public class TestActivity extends NavBaseActivity {
 //        setContentView(R.layout.ttt);
 //        closeSwipe();
         viewPager = (ViewPager) findViewById(R.id.view_pager);
+        btn = (Button) findViewById(R.id.btn);
 
 
         final List<View> list = new ArrayList<>();
@@ -76,8 +79,15 @@ public class TestActivity extends NavBaseActivity {
         int y = location[1];
         int height = viewPager.getHeight();
         int width = viewPager.getWidth();
-        this.mSwipeBackLayout.setScoll(x, y, x + width, y + height);
+        this.mSwipeBackLayout.setUnInterceptPos(x, y, x + width, y + height);
         LogUtil.e("sssssssssssss" + x + "--" + y + "--" + (x + width) + "--" + (y + height));
 
+        int[] location2 = new int[2] ;
+        btn.getLocationInWindow(location2); //获取在当前窗口内的绝对坐标
+        int x2 = location2[0];
+        int y2 = location2[1];
+        int height2 = btn.getHeight();
+        int width2 = btn.getWidth();
+        this.mSwipeBackLayout.setUnInterceptPos(x2, y2, x2 + width2, y2 + height2);
     }
 }

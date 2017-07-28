@@ -18,6 +18,9 @@ import android.widget.FrameLayout;
 
 import com.dream.dreamview.util.LogUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Created by Administrator on 2017/7/11
@@ -45,7 +48,7 @@ public class SwipeBackLayout extends FrameLayout {
     private float lastY = 0;
     private boolean isVertical;
     private boolean isHorizontal;
-
+    private List<List<Integer>> mUnIntercepts;// 设置不拦截区域
 
     public SwipeBackLayout(Context context) {
         super(context);
@@ -137,7 +140,7 @@ public class SwipeBackLayout extends FrameLayout {
                 lastX = event.getX();
                 lastY = event.getY();
                 LogUtil.e("拦截按下" + event.getX() + "/" + event.getY());
-                if (isNeedScroll((int) event.getX(), (int) event.getY())) {
+                if (scrollable((int) event.getX(), (int) event.getY())) {
                     return false;
                 }
                 break;
@@ -147,7 +150,7 @@ public class SwipeBackLayout extends FrameLayout {
                 float y = event.getY();
                 float dx = Math.abs(x - lastX);
                 float dy = Math.abs(y - lastY);
-                if (isNeedScroll((int) x, (int) y)) {
+                if (scrollable((int) x, (int) y)) {
                     return false;
                 }
                 if (dx > 0 && dx * 0.5f > dy) {// 水平
@@ -213,21 +216,29 @@ public class SwipeBackLayout extends FrameLayout {
         return true;
     }
 
-    private boolean isNeedScroll(int x, int y) {
-        return x >= l && x < r && y >= t && y < b;
+    private boolean scrollable(int x, int y) {
+        if (mUnIntercepts != null) {
+            for (int i = 0; i < mUnIntercepts.size(); i++) {
+                List<Integer> list = mUnIntercepts.get(i);
+                if (!(x >= list.get(0) && x < list.get(2) && y >= list.get(1) && y < list.get(3))) {
+                    continue;
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
-    private int l;
-    private int t;
-    private int r;
-    private int b;
-
-    // TODO 需处理多个事件冲突
-    public void setScoll(int l, int t, int r, int b) {
-        this.l = l;
-        this.t = t;
-        this.r = r;
-        this.b = b;
+    public void setUnInterceptPos(int left, int top, int right, int bottom) {
+        if (mUnIntercepts == null) {
+            mUnIntercepts = new ArrayList<>();
+        }
+        List<Integer> list = new ArrayList<>();
+        list.add(left);
+        list.add(top);
+        list.add(right);
+        list.add(bottom);
+        mUnIntercepts.add(list);
     }
 
     private class SwipeViewDragHelper extends ViewDragHelper.Callback {
@@ -257,9 +268,15 @@ public class SwipeBackLayout extends FrameLayout {
             }
             if (mSwipeListener != null) {
                 if (left >= mScreenWidth) {
+                    if (mUnIntercepts != null) {// 页面返回的时候情况存储位置
+                        mUnIntercepts.clear();
+                        mUnIntercepts = null;
+                    }
                     mSwipeListener.back();
-                } else if (left <= 0) {
-                    mSwipeListener.resume();
+                } else {
+                    if (left <= 0) {
+                        mSwipeListener.resume();
+                    }
                 }
                 mSwipeListener.move(left);
             }
