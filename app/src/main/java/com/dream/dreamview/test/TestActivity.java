@@ -9,18 +9,19 @@ import android.view.ViewGroup;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
+import com.dream.dreamview.util.LogUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.R.id.list;
-import static com.dream.dreamview.R.id.view;
 
 /**
  * Created by lenovo on 2017/7/21
  */
 
 public class TestActivity extends NavBaseActivity {
+
+    private ViewPager viewPager;
+
     @Override
     protected int getContentView() {
         return R.layout.ttt;
@@ -30,9 +31,11 @@ public class TestActivity extends NavBaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        setContentView(R.layout.ttt);
 //        closeSwipe();
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
-        this.mSwipeBackLayout.setSwipeabledView(viewPager);
+        viewPager = (ViewPager) findViewById(R.id.view_pager);
+
+
         final List<View> list = new ArrayList<>();
         View view1 = getLayoutInflater().inflate(R.layout.item_view_pager_fir, null);
         View view2 = getLayoutInflater().inflate(R.layout.item_view_pager_sec, null);
@@ -62,5 +65,19 @@ public class TestActivity extends NavBaseActivity {
                 return list.get(position);
             }
         });
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        int[] location = new int[2] ;
+        viewPager.getLocationInWindow(location); //获取在当前窗口内的绝对坐标
+        int x = location[0];
+        int y = location[1];
+        int height = viewPager.getHeight();
+        int width = viewPager.getWidth();
+        this.mSwipeBackLayout.setScoll(x, y, x + width, y + height);
+        LogUtil.e("sssssssssssss" + x + "--" + y + "--" + (x + width) + "--" + (y + height));
+
     }
 }

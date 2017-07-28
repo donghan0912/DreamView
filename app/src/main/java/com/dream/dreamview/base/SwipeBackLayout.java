@@ -134,9 +134,12 @@ public class SwipeBackLayout extends FrameLayout {
         }
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                LogUtil.e("拦截按下");
                 lastX = event.getX();
                 lastY = event.getY();
+                LogUtil.e("拦截按下" + event.getX() + "/" + event.getY());
+                if (isNeedScroll((int) event.getX(), (int) event.getY())) {
+                    return false;
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 LogUtil.e("拦截移动");
@@ -144,6 +147,9 @@ public class SwipeBackLayout extends FrameLayout {
                 float y = event.getY();
                 float dx = Math.abs(x - lastX);
                 float dy = Math.abs(y - lastY);
+                if (isNeedScroll((int) x, (int) y)) {
+                    return false;
+                }
                 if (dx > 0 && dx * 0.5f > dy) {// 水平
                     isHorizontal = true;
                     lastX = x;
@@ -205,6 +211,23 @@ public class SwipeBackLayout extends FrameLayout {
                 break;
         }
         return true;
+    }
+
+    private boolean isNeedScroll(int x, int y) {
+        return x >= l && x < r && y >= t && y < b;
+    }
+
+    private int l;
+    private int t;
+    private int r;
+    private int b;
+
+    // TODO 需处理多个事件冲突
+    public void setScoll(int l, int t, int r, int b) {
+        this.l = l;
+        this.t = t;
+        this.r = r;
+        this.b = b;
     }
 
     private class SwipeViewDragHelper extends ViewDragHelper.Callback {
@@ -319,10 +342,5 @@ public class SwipeBackLayout extends FrameLayout {
         this.mEdgeEnabled = false;
         this.mFullScreenEnabled = false;
         return this;
-    }
-
-    private View mSwipeableView;
-    public void setSwipeabledView(View view) {
-        this.mSwipeableView = view;
     }
 }
