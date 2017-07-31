@@ -229,18 +229,6 @@ public class SwipeBackLayout extends FrameLayout {
         return false;
     }
 
-    public void setUnInterceptPos(int left, int top, int right, int bottom) {
-        if (mUnIntercepts == null) {
-            mUnIntercepts = new ArrayList<>();
-        }
-        List<Integer> list = new ArrayList<>();
-        list.add(left);
-        list.add(top);
-        list.add(right);
-        list.add(bottom);
-        mUnIntercepts.add(list);
-    }
-
     private class SwipeViewDragHelper extends ViewDragHelper.Callback {
 
         @Override
@@ -255,20 +243,17 @@ public class SwipeBackLayout extends FrameLayout {
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
             currentX = left;
-            LogUtil.e("当前: " + currentX);
             return left < 0 ? 0 : left;
         }
 
         @Override
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
-            LogUtil.e("当前getLeft()值：" + left + "/" + dx);
-
             if (mLeftShadow != null) {
                 invalidate();
             }
             if (mSwipeListener != null) {
                 if (left >= mScreenWidth) {
-                    if (mUnIntercepts != null) {// 页面返回的时候情况存储位置
+                    if (mUnIntercepts != null) {// 页面返回的时候清除存储位置
                         mUnIntercepts.clear();
                         mUnIntercepts = null;
                     }
@@ -359,5 +344,24 @@ public class SwipeBackLayout extends FrameLayout {
         this.mEdgeEnabled = false;
         this.mFullScreenEnabled = false;
         return this;
+    }
+
+    /**
+     * 设置不拦截滑动返回坐标(绝对坐标)
+     * @param left 相对于屏幕的 getLeft() 值
+     * @param top  相对于屏幕的 getTop() 值
+     * @param right 相对于屏幕的 getRight() 值
+     * @param bottom 相对于屏幕的 getBottom() 值
+     */
+    public void setUnInterceptPos(int left, int top, int right, int bottom) {
+        if (mUnIntercepts == null) {
+            mUnIntercepts = new ArrayList<>();
+        }
+        List<Integer> list = new ArrayList<>();
+        list.add(left);
+        list.add(top);
+        list.add(right);
+        list.add(bottom);
+        mUnIntercepts.add(list);
     }
 }
