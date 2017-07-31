@@ -100,7 +100,6 @@ public abstract class NavFoldBaseActivity extends SwipeBackActivity {
         }
     }
 
-
     private int titleMarginStart;
 
     protected void setTitleCenter() {
