@@ -28,4 +28,34 @@
         <attr name="player_layout_id"/>
         <attr name="controller_layout_id"/>
     </declare-styleable>
+
+    <!-- 圆形进度条 -->
+    <declare-styleable name="CircleProgressBar">
+        <attr name="antiAlias" format="boolean"/>
+        <attr name="startAngle" format="float"/>
+        <attr name="sweepAngle" format="float"/>
+        <attr name="animTime" format="integer"/>
+        <attr name="maxValue" format="integer"/>
+        <attr name="value" format="integer"/>
+        <attr name="precision" format="integer"/>
+        <attr name="valueSize" format="dimension"/>
+        <attr name="valueColor" format="color"/>
+        <attr name="textOffsetPercentInRadius" format="float"/>
+        <!-- 绘制内容相应的提示语 -->
+        <attr name="hint" format="string"/>
+        <attr name="hintSize" format="dimension"/>
+        <attr name="hintColor" format="color"/>
+        <!-- 绘制内容的单位 -->
+        <attr name="unit" format="string"/>
+        <attr name="unitSize" format="dimension"/>
+        <attr name="unitColor" format="color"/>
+        <!-- 圆弧宽度 -->
+        <attr name="arcWidth" format="dimension"/>
+        <attr name="arcColors" format="color"/>
+        <!-- 背景圆弧颜色 -->
+        <attr name="bgArcColor" format="color"/>
+        <!-- 背景圆弧宽度 -->
+        <attr name="bgArcWidth" format="dimension" />
+    </declare-styleable>
+
 </resources>
