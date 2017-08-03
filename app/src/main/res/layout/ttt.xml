@@ -24,11 +24,13 @@
         android:visibility="gone"/>
 
     <com.dream.dreamview.test.CircleProgress
+        android:visibility="gone"
+        android:layout_margin="5dp"
         android:id="@+id/circle_progress_bar3"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_gravity="center_horizontal"
-
+        app:arcColors="@array/test"
         app:antiAlias="true"
         app:arcWidth="5dp"
         app:bgArcColor="@android:color/darker_gray"
@@ -40,7 +42,21 @@
         app:sweepAngle="360"
         app:unit="%"
         app:unitSize="25sp"
+        app:percentSize="25dp"
         app:value="100"
         app:valueSize="35sp"/>
+
+    <View
+        android:background="@color/black"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+
+    <com.dream.dreamview.test.Circle
+        app:arc_progress="45"
+        android:layout_margin="10dp"
+        app:arc_stroke_width="10dp"
+        app:arc_angle="360"
+        android:layout_width="200dp"
+        android:layout_height="200dp"/>
 
 </LinearLayout>

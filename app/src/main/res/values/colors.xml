@@ -8,6 +8,9 @@
     <color name="transparent">#00000000</color>
     <color name="translucent">#7f000000</color>
 
+    <color name="start">#4cc3ff</color>
+    <color name="end">#66e6ff</color>
+
 
     <!-- 灰色 调色板 -->
     <color name="gray">@color/gray_500</color>

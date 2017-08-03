@@ -57,6 +57,7 @@ public class CircleProgress extends View {
     private int mValueColor;
     private float mValueSize;
 
+
     //绘制圆弧
     private Paint mArcPaint;
     private float mArcWidth;
@@ -81,6 +82,8 @@ public class CircleProgress extends View {
     private Point mCenterPoint;
     private float mRadius;
     private float mTextOffsetPercentInRadius;
+    private Paint percentPaint;
+    private float percentSize;
 
     public CircleProgress(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -89,7 +92,7 @@ public class CircleProgress extends View {
 
     private void init(Context context, AttributeSet attrs) {
         mContext = context;
-        mDefaultSize = CommonUtils.dip2px(150);
+        mDefaultSize = CommonUtils.dp2px(150);
         mAnimator = new ValueAnimator();
         mRectF = new RectF();
         mCenterPoint = new Point();
@@ -114,6 +117,7 @@ public class CircleProgress extends View {
         mPrecisionFormat = "%." + mPrecision + "f";
         mValueColor = typedArray.getColor(R.styleable.CircleProgressBar_valueColor, Color.BLACK);
         mValueSize = typedArray.getDimension(R.styleable.CircleProgressBar_valueSize, 15);
+        percentSize = typedArray.getDimension(R.styleable.CircleProgressBar_percentSize, 15);
 
         mUnit = typedArray.getString(R.styleable.CircleProgressBar_unit);
         mUnitColor = typedArray.getColor(R.styleable.CircleProgressBar_unitColor, Color.BLACK);
@@ -156,20 +160,15 @@ public class CircleProgress extends View {
 
     private void initPaint() {
         mHintPaint = new TextPaint();
-        // 设置抗锯齿,会消耗较大资源，绘制图形速度会变慢。
         mHintPaint.setAntiAlias(antiAlias);
-        // 设置绘制文字大小
         mHintPaint.setTextSize(mHintSize);
-        // 设置画笔颜色
         mHintPaint.setColor(mHintColor);
-        // 从中间向两边绘制，不需要再次计算文字
         mHintPaint.setTextAlign(Paint.Align.CENTER);
 
         mValuePaint = new TextPaint();
         mValuePaint.setAntiAlias(antiAlias);
         mValuePaint.setTextSize(mValueSize);
         mValuePaint.setColor(mValueColor);
-        // 设置Typeface对象，即字体风格，包括粗体，斜体以及衬线体，非衬线体等
         mValuePaint.setTypeface(Typeface.DEFAULT_BOLD);
         mValuePaint.setTextAlign(Paint.Align.CENTER);
 
@@ -181,12 +180,8 @@ public class CircleProgress extends View {
 
         mArcPaint = new Paint();
         mArcPaint.setAntiAlias(antiAlias);
-        // 设置画笔的样式，为FILL，FILL_OR_STROKE，或STROKE
         mArcPaint.setStyle(Paint.Style.STROKE);
-        // 设置画笔粗细
         mArcPaint.setStrokeWidth(mArcWidth);
-        // 当画笔样式为STROKE或FILL_OR_STROKE时，设置笔刷的图形样式，如圆形样式
-        // Cap.ROUND,或方形样式 Cap.SQUARE
         mArcPaint.setStrokeCap(Paint.Cap.ROUND);
 
         mBgArcPaint = new Paint();
@@ -195,6 +190,11 @@ public class CircleProgress extends View {
         mBgArcPaint.setStyle(Paint.Style.STROKE);
         mBgArcPaint.setStrokeWidth(mBgArcWidth);
         mBgArcPaint.setStrokeCap(Paint.Cap.ROUND);
+
+        percentPaint = new Paint();
+        percentPaint.setAntiAlias(antiAlias);
+        percentPaint.setTextSize(percentSize);
+        percentPaint.setColor(mValueColor);
     }
 
     @Override
@@ -220,7 +220,6 @@ public class CircleProgress extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        Log.d(TAG, "onSizeChanged: w = " + w + "; h = " + h + "; oldw = " + oldw + "; oldh = " + oldh);
         //求圆弧和背景圆弧的最大宽度
         float maxArcWidth = Math.max(mArcWidth, mBgArcWidth);
         //求最小值作为实际值
@@ -271,7 +270,10 @@ public class CircleProgress extends View {
         // 计算文字宽度，由于Paint已设置为居中绘制，故此处不需要重新计算
         // float textWidth = mValuePaint.measureText(mValue.toString());
         // float x = mCenterPoint.x - textWidth / 2;
-        canvas.drawText(String.format(mPrecisionFormat, mValue), mCenterPoint.x, mValueOffset, mValuePaint);
+        String format = String.format(mPrecisionFormat, mValue);
+        canvas.drawText(format, mCenterPoint.x, mValueOffset, mValuePaint);
+        String text = "%";
+        canvas.drawText(text, mCenterPoint.x + mValuePaint.measureText(format) / 2, mValueOffset, percentPaint);
 
         if (mHint != null) {
             canvas.drawText(mHint.toString(), mCenterPoint.x, mHintOffset, mHintPaint);
@@ -283,17 +285,10 @@ public class CircleProgress extends View {
     }
 
     private void drawArc(Canvas canvas) {
-        // 绘制背景圆弧
-        // 从进度圆弧结束的地方开始重新绘制，优化性能
         canvas.save();
         float currentAngle = mSweepAngle * mPercent;
         canvas.rotate(mStartAngle, mCenterPoint.x, mCenterPoint.y);
         canvas.drawArc(mRectF, currentAngle, mSweepAngle - currentAngle + 2, false, mBgArcPaint);
-        // 第一个参数 oval 为 RectF 类型，即圆弧显示区域
-        // startAngle 和 sweepAngle  均为 float 类型，分别表示圆弧起始角度和圆弧度数
-        // 3点钟方向为0度，顺时针递增
-        // 如果 startAngle < 0 或者 > 360,则相当于 startAngle % 360
-        // useCenter:如果为True时，在绘制圆弧时将圆心包括在内，通常用来绘制扇形
         canvas.drawArc(mRectF, 2, currentAngle, false, mArcPaint);
         canvas.restore();
     }
@@ -303,7 +298,6 @@ public class CircleProgress extends View {
      */
     private void updateArcPaint() {
         // 设置渐变
-        int[] mGradientColors = {Color.GREEN, Color.YELLOW, Color.RED};
         mSweepGradient = new SweepGradient(mCenterPoint.x, mCenterPoint.y, mGradientColors, null);
         mArcPaint.setShader(mSweepGradient);
     }

@@ -39,6 +39,7 @@
         <attr name="value" format="integer"/>
         <attr name="precision" format="integer"/>
         <attr name="valueSize" format="dimension"/>
+        <attr name="percentSize" format="dimension"/>
         <attr name="valueColor" format="color"/>
         <attr name="textOffsetPercentInRadius" format="float"/>
         <!-- 绘制内容相应的提示语 -->
@@ -51,11 +52,32 @@
         <attr name="unitColor" format="color"/>
         <!-- 圆弧宽度 -->
         <attr name="arcWidth" format="dimension"/>
-        <attr name="arcColors" format="color"/>
+        <attr name="arcColors" format="reference"/>
         <!-- 背景圆弧颜色 -->
         <attr name="bgArcColor" format="color"/>
         <!-- 背景圆弧宽度 -->
         <attr name="bgArcWidth" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="ArcProgress">
+        <attr name="arc_progress" format="integer"/>
+        <attr name="arc_angle" format="float"/>
+        <attr name="arc_stroke_width" format="dimension"/>
+        <attr name="arc_max" format="integer"/>
+
+        <attr name="arc_unfinished_color" format="color"/>
+        <attr name="arc_finished_color" format="color"/>
+
+        <attr name="arc_text_size" format="dimension"/>
+        <attr name="arc_text_color" format="color"/>
+
+        <attr name="arc_suffix_text" format="string"/>
+        <attr name="arc_suffix_text_size" format="dimension"/>
+        <attr name="arc_suffix_text_padding" format="dimension"/>
+
+        <attr name="arc_bottom_text" format="string"/>
+        <attr name="arc_bottom_text_size" format="dimension"/>
+    </declare-styleable>
+
 
 </resources>
