@@ -1,16 +1,13 @@
 package com.dream.dreamview.test;
 
-import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.graphics.Shader;
 import android.graphics.SweepGradient;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -19,10 +16,8 @@ import android.view.View;
 import com.dream.dreamview.R;
 import com.dream.dreamview.util.CommonUtils;
 
-import static com.dream.dreamview.R.attr.startAngle;
-
 /**
- * Created by bruce on 11/6/14.
+ * Created by dh on 11/6/14
  */
 public class Circle extends View {
     private Paint paint;
@@ -37,8 +32,8 @@ public class Circle extends View {
     private String bottomText;
     private float textSize;
     private int textColor;
-    private int progress = 0;
-    private int max;
+    private float progress = 0;
+    private float max;
     private int finishedStrokeColor;
     private int unfinishedStrokeColor;
     private float arcAngle;
@@ -58,10 +53,11 @@ public class Circle extends View {
     private final int default_max = 100;
     private final float default_arc_angle = 360 * 0.8f;
     private float default_text_size;
-    private final int min_size;
+//    private final int min_size;
     private int mCenterX;
     private int mCenterY;
     private int[] color = {Color.RED, Color.GREEN, Color.BLUE};
+    private ValueAnimator mAnimator;
 
     public Circle(Context context) {
         this(context, null);
@@ -75,35 +71,33 @@ public class Circle extends View {
         super(context, attrs, defStyleAttr);
 
         default_text_size = CommonUtils.sp2px(getResources(), 18);
-        min_size = CommonUtils.dp2px(100);
         default_text_size = CommonUtils.sp2px(getResources(), 40);
         default_suffix_text_size = CommonUtils.sp2px(getResources(), 15);
         default_suffix_padding = CommonUtils.dp2px(4);
         default_suffix_text = "%";
         default_bottom_text_size = CommonUtils.sp2px(getResources(), 10);
         default_stroke_width = CommonUtils.dp2px(4);
-
-        TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ArcProgress, defStyleAttr, 0);
-        initByAttributes(attributes);
-        attributes.recycle();
-
+        initByAttributes(context, attrs);
         initPainters();
+        startAnima(0, progress/max);
     }
 
-    protected void initByAttributes(TypedArray attributes) {
+    protected void initByAttributes(Context context, AttributeSet attrs) {
+        TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.ArcProgress);
         finishedStrokeColor = attributes.getColor(R.styleable.ArcProgress_arc_finished_color, default_finished_color);
         unfinishedStrokeColor = attributes.getColor(R.styleable.ArcProgress_arc_unfinished_color, default_unfinished_color);
         textColor = attributes.getColor(R.styleable.ArcProgress_arc_text_color, default_text_color);
         textSize = attributes.getDimension(R.styleable.ArcProgress_arc_text_size, default_text_size);
         arcAngle = attributes.getFloat(R.styleable.ArcProgress_arc_angle, default_arc_angle);
-        setMax(attributes.getInt(R.styleable.ArcProgress_arc_max, default_max));
-        setProgress(attributes.getInt(R.styleable.ArcProgress_arc_progress, 0));
+        max = attributes.getFloat(R.styleable.ArcProgress_arc_max, default_max);
+        progress = attributes.getFloat(R.styleable.ArcProgress_arc_progress, 0);
         strokeWidth = attributes.getDimension(R.styleable.ArcProgress_arc_stroke_width, default_stroke_width);
         suffixTextSize = attributes.getDimension(R.styleable.ArcProgress_arc_suffix_text_size, default_suffix_text_size);
         suffixText = TextUtils.isEmpty(attributes.getString(R.styleable.ArcProgress_arc_suffix_text)) ? default_suffix_text : attributes.getString(R.styleable.ArcProgress_arc_suffix_text);
         suffixTextPadding = attributes.getDimension(R.styleable.ArcProgress_arc_suffix_text_padding, default_suffix_padding);
         bottomTextSize = attributes.getDimension(R.styleable.ArcProgress_arc_bottom_text_size, default_bottom_text_size);
         bottomText = attributes.getString(R.styleable.ArcProgress_arc_bottom_text);
+        attributes.recycle();
     }
 
     protected void initPainters() {
@@ -126,12 +120,6 @@ public class Circle extends View {
         bgPaint.setStrokeWidth(strokeWidth);
         bgPaint.setStyle(Paint.Style.STROKE);
         bgPaint.setStrokeCap(Paint.Cap.ROUND);
-    }
-
-    @Override
-    public void invalidate() {
-        initPainters();
-        super.invalidate();
     }
 
     public float getStrokeWidth() {
@@ -162,35 +150,16 @@ public class Circle extends View {
     }
 
     public int getProgress() {
-        return progress;
+        return (int) progress;
     }
 
     public void setProgress(int progress) {
-        this.progress = progress;
-        if (this.progress > getMax()) {
-            this.progress %= getMax();
+        float start = this.progress / max;
+        this.progress = Math.abs(progress);
+        if (this.progress > max) {
+            this.progress %= max;
         }
-        invalidate();
-    }
-
-    public int getMax() {
-        return max;
-    }
-
-    public void setMax(int max) {
-        if (max > 0) {
-            this.max = max;
-            invalidate();
-        }
-    }
-
-    public float getBottomTextSize() {
-        return bottomTextSize;
-    }
-
-    public void setBottomTextSize(float bottomTextSize) {
-        this.bottomTextSize = bottomTextSize;
-        this.invalidate();
+        startAnima(start, progress/max);
     }
 
     public float getTextSize() {
@@ -208,24 +177,6 @@ public class Circle extends View {
 
     public void setTextColor(int textColor) {
         this.textColor = textColor;
-        this.invalidate();
-    }
-
-    public int getFinishedStrokeColor() {
-        return finishedStrokeColor;
-    }
-
-    public void setFinishedStrokeColor(int finishedStrokeColor) {
-        this.finishedStrokeColor = finishedStrokeColor;
-        this.invalidate();
-    }
-
-    public int getUnfinishedStrokeColor() {
-        return unfinishedStrokeColor;
-    }
-
-    public void setUnfinishedStrokeColor(int unfinishedStrokeColor) {
-        this.unfinishedStrokeColor = unfinishedStrokeColor;
         this.invalidate();
     }
 
@@ -256,15 +207,15 @@ public class Circle extends View {
         this.invalidate();
     }
 
-    @Override
-    protected int getSuggestedMinimumHeight() {
-        return min_size;
-    }
-
-    @Override
-    protected int getSuggestedMinimumWidth() {
-        return min_size;
-    }
+//    @Override
+//    protected int getSuggestedMinimumHeight() {
+//        return min_size;
+//    }
+//
+//    @Override
+//    protected int getSuggestedMinimumWidth() {
+//        return min_size;
+//    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -283,16 +234,14 @@ public class Circle extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         float startAngle = 270;
-        float finishedSweepAngle = progress / (float) getMax() * arcAngle;
+        float finishedSweepAngle = progress / max * arcAngle;
         float finishedStartAngle = finishedSweepAngle + startAngle;
-
         // 白色
         bgPaint.setColor(finishedStrokeColor);
         canvas.drawArc(rectF, finishedStartAngle, arcAngle - finishedSweepAngle, false, bgPaint);
         // 红色
         paint.setColor(unfinishedStrokeColor);
         canvas.drawArc(rectF, startAngle, finishedSweepAngle, false, paint);
-
         String text = String.valueOf(getProgress());
         if (!TextUtils.isEmpty(text)) {
             textPaint.setColor(textColor);
@@ -307,7 +256,6 @@ public class Circle extends View {
             float textHeight2 = textPaint.descent() + textPaint.ascent();
             canvas.drawText(str, mCenterX - textPaint.measureText(str) / 2, textBaseline + Math.abs(textHeight2), textPaint);
         }
-
         // 这里是半圆时，展示文字
 //        if (arcBottomHeight == 0) {
 //            float radius = getWidth() / 2f;
@@ -322,7 +270,17 @@ public class Circle extends View {
 //        }
     }
 
-    private void anim() {
-        new ObjectAnimator();
+    private void startAnima(float start, float end) {
+        mAnimator = ValueAnimator.ofFloat(start, end);
+        mAnimator.setDuration(1000);
+        mAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float f = (float) animation.getAnimatedValue();
+                progress = (int) (f * max);
+                invalidate();
+            }
+        });
+        mAnimator.start();
     }
 }

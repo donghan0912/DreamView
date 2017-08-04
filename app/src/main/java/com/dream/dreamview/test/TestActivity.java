@@ -15,6 +15,8 @@ import com.dream.dreamview.util.LogUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dream.dreamview.R.id.circle;
+
 /**
  * Created by lenovo on 2017/7/21
  */
@@ -37,7 +39,14 @@ public class TestActivity extends NavBaseActivity {
 //        closeSwipe();
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         btn = (Button) findViewById(R.id.btn);
+        final Circle circle = (Circle) findViewById(R.id.circle);
+        findViewById(R.id.btn1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                circle.setProgress(50);
+            }
+        });
 
         final List<View> list = new ArrayList<>();
         View view1 = getLayoutInflater().inflate(R.layout.item_view_pager_fir, null);
@@ -80,7 +89,6 @@ public class TestActivity extends NavBaseActivity {
         int height = viewPager.getHeight();
         int width = viewPager.getWidth();
         this.mSwipeBackLayout.setUnInterceptPos(x, y, x + width, y + height);
-        LogUtil.e("sssssssssssss" + x + "--" + y + "--" + (x + width) + "--" + (y + height));
 
         int[] location2 = new int[2] ;
         btn.getLocationInWindow(location2); //获取在当前窗口内的绝对坐标

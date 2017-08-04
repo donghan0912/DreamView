@@ -46,13 +46,14 @@
         app:value="100"
         app:valueSize="35sp"/>
 
-    <View
-        android:background="@color/black"
-        android:layout_width="match_parent"
-        android:layout_height="10dp"/>
+    <Button
+        android:id="@+id/btn1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
     <com.dream.dreamview.test.Circle
-        app:arc_progress="45"
+        android:id="@+id/circle"
+        app:arc_progress="50"
         android:layout_margin="10dp"
         app:arc_stroke_width="10dp"
         app:arc_angle="360"
