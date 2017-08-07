@@ -24,25 +24,25 @@
         android:visibility="gone"/>
 
     <com.dream.dreamview.test.CircleProgress
-        android:visibility="gone"
-        android:layout_margin="5dp"
         android:id="@+id/circle_progress_bar3"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_gravity="center_horizontal"
-        app:arcColors="@array/test"
+        android:layout_margin="5dp"
+        android:visibility="gone"
         app:antiAlias="true"
+        app:arcColors="@array/test"
         app:arcWidth="5dp"
         app:bgArcColor="@android:color/darker_gray"
         app:bgArcWidth="5dp"
         app:hint="当前进度"
         app:hintSize="25sp"
         app:maxValue="100"
+        app:percentSize="25dp"
         app:startAngle="270"
         app:sweepAngle="360"
         app:unit="%"
         app:unitSize="25sp"
-        app:percentSize="25dp"
         app:value="100"
         app:valueSize="35sp"/>
 
@@ -53,11 +53,43 @@
 
     <com.dream.dreamview.test.Circle
         android:id="@+id/circle"
-        app:arc_progress="50"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_margin="10dp"
-        app:arc_stroke_width="10dp"
-        app:arc_angle="360"
-        android:layout_width="200dp"
-        android:layout_height="200dp"/>
+        app:arc_progress="70"
+        app:arc_stroke_width="12dp"
+        app:arc_suffix_text_color="@color/gray_700"
+        app:arc_suffix_text_padding="0dp"
+        app:arc_text_size="14sp"
+        app:content_style="style_first"/>
+
+    <com.dream.dreamview.test.Circle
+        android:id="@+id/circle2"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_margin="10dp"
+        app:arc_max="3"
+        app:arc_progress="2"
+        app:arc_stroke_width="12dp"
+        app:arc_suffix_text="/"
+        app:arc_suffix_text_color="@color/gray_700"
+        app:arc_suffix_text_padding="10dp"
+        app:arc_suffix_text_size="14sp"
+        app:arc_text_size="18sp"
+        app:content_style="style_second"/>
+
+    <com.dream.dreamview.test.Circle
+        android:id="@+id/circle3"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_margin="10dp"
+        app:arc_max="3"
+        app:arc_progress="2"
+        app:arc_stroke_width="14dp"
+        app:arc_suffix_text="次"
+        app:arc_suffix_text_color="@color/gray_700"
+        app:arc_suffix_text_padding="0dp"
+        app:arc_text_size="14sp"
+        app:content_style="style_third"/>
 
 </LinearLayout>
