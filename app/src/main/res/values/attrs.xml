@@ -60,6 +60,11 @@
     </declare-styleable>
 
     <declare-styleable name="ArcProgress">
+        <attr name="content_style" format="enum">
+            <enum name="style_first" value="1"/>
+            <enum name="style_second" value="2"/>
+            <enum name="style_third" value="3"/>
+        </attr>
         <attr name="arc_progress" format="float"/>
         <attr name="arc_angle" format="float"/>
         <attr name="arc_stroke_width" format="dimension"/>
@@ -72,6 +77,7 @@
         <attr name="arc_text_color" format="color"/>
 
         <attr name="arc_suffix_text" format="string"/>
+        <attr name="arc_suffix_text_color" format="color"/>
         <attr name="arc_suffix_text_size" format="dimension"/>
         <attr name="arc_suffix_text_padding" format="dimension"/>
 

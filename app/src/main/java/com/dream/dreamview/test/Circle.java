@@ -20,14 +20,17 @@ import com.dream.dreamview.util.CommonUtils;
  * Created by dh on 11/6/14
  */
 public class Circle extends View {
+    private static final int STYLE_FIRST = 1;
+    private static final int STYLE_SECOND = 2;
+    private static final int STYLE_THIRD = 3;
+
     private Paint paint;
     private Paint bgPaint;
     protected Paint textPaint;
-
     private RectF rectF = new RectF();
-
     private float strokeWidth;
     private float suffixTextSize;
+    private int suffixTextColor;
     private float bottomTextSize;
     private String bottomText;
     private float textSize;
@@ -51,13 +54,14 @@ public class Circle extends View {
     private final float default_stroke_width;
     private final String default_suffix_text;
     private final int default_max = 100;
-    private final float default_arc_angle = 360 * 0.8f;
+    private final float default_arc_angle = 360;
     private float default_text_size;
-//    private final int min_size;
+    //    private final int min_size;
     private int mCenterX;
     private int mCenterY;
     private int[] color = {Color.RED, Color.GREEN, Color.BLUE};
     private ValueAnimator mAnimator;
+    private int type;
 
     public Circle(Context context) {
         this(context, null);
@@ -79,11 +83,12 @@ public class Circle extends View {
         default_stroke_width = CommonUtils.dp2px(4);
         initByAttributes(context, attrs);
         initPainters();
-        startAnima(0, progress/max);
+        startAnima(0, progress / max);
     }
 
     protected void initByAttributes(Context context, AttributeSet attrs) {
         TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.ArcProgress);
+        type = attributes.getInt(R.styleable.ArcProgress_content_style, 1);
         finishedStrokeColor = attributes.getColor(R.styleable.ArcProgress_arc_finished_color, default_finished_color);
         unfinishedStrokeColor = attributes.getColor(R.styleable.ArcProgress_arc_unfinished_color, default_unfinished_color);
         textColor = attributes.getColor(R.styleable.ArcProgress_arc_text_color, default_text_color);
@@ -93,6 +98,7 @@ public class Circle extends View {
         progress = attributes.getFloat(R.styleable.ArcProgress_arc_progress, 0);
         strokeWidth = attributes.getDimension(R.styleable.ArcProgress_arc_stroke_width, default_stroke_width);
         suffixTextSize = attributes.getDimension(R.styleable.ArcProgress_arc_suffix_text_size, default_suffix_text_size);
+        suffixTextColor = attributes.getColor(R.styleable.ArcProgress_arc_suffix_text_color, default_text_color);
         suffixText = TextUtils.isEmpty(attributes.getString(R.styleable.ArcProgress_arc_suffix_text)) ? default_suffix_text : attributes.getString(R.styleable.ArcProgress_arc_suffix_text);
         suffixTextPadding = attributes.getDimension(R.styleable.ArcProgress_arc_suffix_text_padding, default_suffix_padding);
         bottomTextSize = attributes.getDimension(R.styleable.ArcProgress_arc_bottom_text_size, default_bottom_text_size);
@@ -159,7 +165,7 @@ public class Circle extends View {
         if (this.progress > max) {
             this.progress %= max;
         }
-        startAnima(start, progress/max);
+        startAnima(start, progress / max);
     }
 
     public float getTextSize() {
@@ -207,16 +213,6 @@ public class Circle extends View {
         this.invalidate();
     }
 
-//    @Override
-//    protected int getSuggestedMinimumHeight() {
-//        return min_size;
-//    }
-//
-//    @Override
-//    protected int getSuggestedMinimumWidth() {
-//        return min_size;
-//    }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension(widthMeasureSpec, heightMeasureSpec);
@@ -233,29 +229,8 @@ public class Circle extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        float startAngle = 270;
-        float finishedSweepAngle = progress / max * arcAngle;
-        float finishedStartAngle = finishedSweepAngle + startAngle;
-        // 白色
-        bgPaint.setColor(finishedStrokeColor);
-        canvas.drawArc(rectF, finishedStartAngle, arcAngle - finishedSweepAngle, false, bgPaint);
-        // 红色
-        paint.setColor(unfinishedStrokeColor);
-        canvas.drawArc(rectF, startAngle, finishedSweepAngle, false, paint);
-        String text = String.valueOf(getProgress());
-        if (!TextUtils.isEmpty(text)) {
-            textPaint.setColor(textColor);
-            textPaint.setTextSize(textSize);
-            float textHeight = textPaint.descent() + textPaint.ascent();
-            float textBaseline = (getHeight() - textHeight) / 2.0f;
-            canvas.drawText(text, (getWidth() - textPaint.measureText(text)) / 2.0f, textBaseline, textPaint);
-            textPaint.setTextSize(suffixTextSize);
-            float suffixHeight = textPaint.descent() + textPaint.ascent();
-            canvas.drawText(suffixText, mCenterX + textPaint.measureText(text) + suffixTextPadding, textBaseline + textHeight - suffixHeight, textPaint);
-            String str = "hellow xiaomi";
-            float textHeight2 = textPaint.descent() + textPaint.ascent();
-            canvas.drawText(str, mCenterX - textPaint.measureText(str) / 2, textBaseline + Math.abs(textHeight2), textPaint);
-        }
+        drawCircle(canvas);
+        drawText(canvas);
         // 这里是半圆时，展示文字
 //        if (arcBottomHeight == 0) {
 //            float radius = getWidth() / 2f;
@@ -270,7 +245,64 @@ public class Circle extends View {
 //        }
     }
 
+    private void drawCircle(Canvas canvas) {
+        if (type == STYLE_THIRD) {
+            canvas.drawArc(rectF, 0, 360, false, paint);
+            return;
+        }
+        float startAngle = 270;
+        float finishedSweepAngle = progress / max * arcAngle;
+        float finishedStartAngle = finishedSweepAngle + startAngle;
+        bgPaint.setColor(finishedStrokeColor);
+        canvas.drawArc(rectF, finishedStartAngle, arcAngle - finishedSweepAngle, false, bgPaint);
+        canvas.drawArc(rectF, startAngle, finishedSweepAngle, false, paint);
+    }
+
+    private void drawText(Canvas canvas) {
+        String text = String.valueOf(getProgress());
+        if (!TextUtils.isEmpty(text)) {
+            if (type == STYLE_FIRST) { // 百分比
+                textPaint.setColor(textColor);
+                textPaint.setTextSize(textSize);
+                float textHeight = textPaint.descent() + textPaint.ascent();
+                float textBaseline = (getHeight() - textHeight) / 2.0f;
+                float textWidth = textPaint.measureText(text);
+                canvas.drawText(text, (getWidth() - textWidth) / 2.0f, textBaseline, textPaint);
+                textPaint.setTextSize(suffixTextSize);
+                canvas.drawText(suffixText, mCenterX + textWidth / 2.0f + suffixTextPadding, textBaseline, textPaint);
+            } else if (type == STYLE_SECOND) {
+                // text 是已学习整数，不是百分比进度
+                // suffixTextColor 是进度颜色，textColor是总进度颜色
+                // suffixTextPadding 为间距
+                textPaint.setColor(suffixTextColor);
+                textPaint.setTextSize(textSize);
+                float textWidth = textPaint.measureText(text + suffixText + (int) max);
+                canvas.drawText(text, (getWidth() - textWidth) / 2.0f, mCenterY - suffixTextPadding / 2, textPaint);
+                textPaint.setColor(textColor);
+                canvas.drawText(suffixText + (int) max, mCenterX + textPaint.measureText(text) - textWidth / 2.0f, mCenterY - suffixTextPadding / 2, textPaint);
+                textPaint.setColor(suffixTextColor);
+                textPaint.setTextSize(suffixTextSize);
+                float textHeight = textPaint.descent() + textPaint.ascent();
+                int percent = (int) (progress * 100 / max);
+                String s = percent + "%";
+                canvas.drawText(s, mCenterX - textPaint.measureText(s) / 2.0f, mCenterY - textHeight + suffixTextPadding / 2, textPaint);
+            } else if (type == STYLE_THIRD) {
+                textPaint.setColor(textColor);
+                textPaint.setTextSize(textSize);
+                float textHeight = textPaint.descent() + textPaint.ascent();
+                float textBaseline = (getHeight() - textHeight) / 2.0f;
+                float textWidth = textPaint.measureText(text + suffixText) + suffixTextPadding;
+                canvas.drawText(text, (getWidth() - textWidth) / 2.0f, textBaseline, textPaint);
+                textPaint.setTextSize(suffixTextSize);
+                canvas.drawText(suffixText, mCenterX - textWidth / 2.0f + textPaint.measureText(text) + suffixTextPadding, textBaseline, textPaint);
+            }
+        }
+    }
+
     private void startAnima(float start, float end) {
+        if (type == STYLE_THIRD) {
+            return;
+        }
         mAnimator = ValueAnimator.ofFloat(start, end);
         mAnimator.setDuration(1000);
         mAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
