@@ -10,12 +10,9 @@ import android.widget.Button;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
-import com.dream.dreamview.util.LogUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.dream.dreamview.R.id.circle;
 
 /**
  * Created by lenovo on 2017/7/21
@@ -39,12 +36,12 @@ public class TestActivity extends NavBaseActivity {
 //        closeSwipe();
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         btn = (Button) findViewById(R.id.btn);
-        final Circle circle = (Circle) findViewById(R.id.circle);
+        final CircleProgress circleProgress = findViewById(R.id.circle);
         findViewById(R.id.btn1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                circle.setProgress(50);
+                circleProgress.setProgress(50);
             }
         });
 

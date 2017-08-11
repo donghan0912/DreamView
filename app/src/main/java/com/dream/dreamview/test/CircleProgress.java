@@ -2,422 +2,339 @@ package com.dream.dreamview.test;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.SweepGradient;
-import android.graphics.Typeface;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import com.dream.dreamview.R;
-import com.dream.dreamview.util.CommonUtils;
 
 /**
- * 圆形进度条，类似 QQ 健康中运动步数的 UI 控件
- * Created by littlejie on 2017/2/21.
+ * Created by dh on 11/6/14
  */
-
 public class CircleProgress extends View {
+    private static final int STYLE_FIRST = 1;
+    private static final int STYLE_SECOND = 2;
+    private static final int STYLE_THIRD = 3;
 
-    private static final String TAG = CircleProgress.class.getSimpleName();
-    private Context mContext;
+    private Paint paint;
+    private Paint bgPaint;
+    protected Paint textPaint;
+    private RectF rectF = new RectF();
+    private float strokeWidth;
+    private float suffixTextSize;
+    private int suffixTextColor;
+    private String bottomText;
+    private float textSize;
+    private int textColor;
+    private float progress = 0;
+    private float max;
+    private float arcAngle;
+    private String suffixText = "%";
+    private float suffixTextPadding;
 
-    //默认大小
-    private int mDefaultSize;
-    //是否开启抗锯齿
-    private boolean antiAlias;
-    //绘制提示
-    private TextPaint mHintPaint;
-    private CharSequence mHint;
-    private int mHintColor;
-    private float mHintSize;
-    private float mHintOffset;
+    private final int default_text_color = Color.rgb(66, 145, 241);
+    private final float default_suffix_text_size;
+    private final float default_suffix_padding;
 
-    //绘制单位
-    private TextPaint mUnitPaint;
-    private CharSequence mUnit;
-    private int mUnitColor;
-    private float mUnitSize;
-    private float mUnitOffset;
+    private final float default_stroke_width;
+    private final String default_suffix_text;
+    private float default_text_size;
+    //    private final int min_size;
+    private int mCenterX;
+    private int mCenterY;
+    private int[] mArcColors = {Color.RED, Color.GREEN, Color.BLUE};
+    private int type;
 
-    //绘制数值
-    private TextPaint mValuePaint;
-    private float mValue;
-    private float mMaxValue;
-    private float mValueOffset;
-    private int mPrecision;
-    private String mPrecisionFormat;
-    private int mValueColor;
-    private float mValueSize;
-
-
-    //绘制圆弧
-    private Paint mArcPaint;
-    private float mArcWidth;
-    private float mStartAngle, mSweepAngle;
-    private RectF mRectF;
-    //渐变的颜色是360度，如果只显示270，那么则会缺失部分颜色
-    private SweepGradient mSweepGradient;
-    private int[] mGradientColors = {Color.GREEN, Color.YELLOW, Color.RED};
-    //当前进度，[0.0f,1.0f]
-    private float mPercent;
-    //动画时间
-    private long mAnimTime;
-    //属性动画
-    private ValueAnimator mAnimator;
-
-    //绘制背景圆弧
-    private Paint mBgArcPaint;
-    private int mBgArcColor;
-    private float mBgArcWidth;
-
-    //圆心坐标，半径
-    private Point mCenterPoint;
-    private float mRadius;
-    private float mTextOffsetPercentInRadius;
-    private Paint percentPaint;
-    private float percentSize;
+    public CircleProgress(Context context) {
+        this(context, null);
+    }
 
     public CircleProgress(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context, attrs);
+        this(context, attrs, 0);
     }
 
-    private void init(Context context, AttributeSet attrs) {
-        mContext = context;
-        mDefaultSize = CommonUtils.dp2px(150);
-        mAnimator = new ValueAnimator();
-        mRectF = new RectF();
-        mCenterPoint = new Point();
-        initAttrs(attrs);
-        initPaint();
-        setValue(mValue);
+    public CircleProgress(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+
+        default_text_size = sp2px(18);
+        default_text_size = sp2px(40);
+        default_suffix_text_size = sp2px(15);
+        default_suffix_padding = dp2px(4);
+        default_suffix_text = "%";
+        default_stroke_width = dp2px(5);
+        initByAttributes(context, attrs);
+        initPainters();
+        startAnima(0, progress / max);
     }
 
-    private void initAttrs(AttributeSet attrs) {
-        TypedArray typedArray = mContext.obtainStyledAttributes(attrs, R.styleable.CircleProgressBar);
-
-        antiAlias = typedArray.getBoolean(R.styleable.CircleProgressBar_antiAlias, true);
-
-        mHint = typedArray.getString(R.styleable.CircleProgressBar_hint);
-        mHintColor = typedArray.getColor(R.styleable.CircleProgressBar_hintColor, Color.BLACK);
-        mHintSize = typedArray.getDimension(R.styleable.CircleProgressBar_hintSize, 15);
-
-        mValue = typedArray.getFloat(R.styleable.CircleProgressBar_value, 50);
-        mMaxValue = typedArray.getFloat(R.styleable.CircleProgressBar_maxValue, 100);
-        //内容数值精度格式
-        mPrecision = typedArray.getInt(R.styleable.CircleProgressBar_precision, 0);
-        mPrecisionFormat = "%." + mPrecision + "f";
-        mValueColor = typedArray.getColor(R.styleable.CircleProgressBar_valueColor, Color.BLACK);
-        mValueSize = typedArray.getDimension(R.styleable.CircleProgressBar_valueSize, 15);
-        percentSize = typedArray.getDimension(R.styleable.CircleProgressBar_percentSize, 15);
-
-        mUnit = typedArray.getString(R.styleable.CircleProgressBar_unit);
-        mUnitColor = typedArray.getColor(R.styleable.CircleProgressBar_unitColor, Color.BLACK);
-        mUnitSize = typedArray.getDimension(R.styleable.CircleProgressBar_unitSize, 30);
-
-        mArcWidth = typedArray.getDimension(R.styleable.CircleProgressBar_arcWidth, 15);
-        mStartAngle = typedArray.getFloat(R.styleable.CircleProgressBar_startAngle, 270);
-        mSweepAngle = typedArray.getFloat(R.styleable.CircleProgressBar_sweepAngle, 360);
-
-        mBgArcColor = typedArray.getColor(R.styleable.CircleProgressBar_bgArcColor, Color.WHITE);
-        mBgArcWidth = typedArray.getDimension(R.styleable.CircleProgressBar_bgArcWidth, 15);
-        mTextOffsetPercentInRadius = typedArray.getFloat(R.styleable.CircleProgressBar_textOffsetPercentInRadius, 0.33f);
-
-        //mPercent = typedArray.getFloat(R.styleable.CircleProgressBar_percent, 0);
-        mAnimTime = typedArray.getInt(R.styleable.CircleProgressBar_animTime, 1000);
-
-        int gradientArcColors = typedArray.getResourceId(R.styleable.CircleProgressBar_arcColors, 0);
-        if (gradientArcColors != 0) {
-            try {
-                int[] gradientColors = getResources().getIntArray(gradientArcColors);
-                if (gradientColors.length == 0) {//如果渐变色为数组为0，则尝试以单色读取色值
-                    int color = getResources().getColor(gradientArcColors);
-                    mGradientColors = new int[2];
-                    mGradientColors[0] = color;
-                    mGradientColors[1] = color;
-                } else if (gradientColors.length == 1) {//如果渐变数组只有一种颜色，默认设为两种相同颜色
-                    mGradientColors = new int[2];
-                    mGradientColors[0] = gradientColors[0];
-                    mGradientColors[1] = gradientColors[0];
-                } else {
-                    mGradientColors = gradientColors;
-                }
-            } catch (Resources.NotFoundException e) {
-                throw new Resources.NotFoundException("the give resource not found.");
+    protected void initByAttributes(Context context, AttributeSet attrs) {
+        TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.CircleProgress);
+        type = attributes.getInt(R.styleable.CircleProgress_content_style, 1);
+        textColor = attributes.getColor(R.styleable.CircleProgress_text_color, default_text_color);
+        textSize = attributes.getDimension(R.styleable.CircleProgress_text_size, default_text_size);
+        arcAngle = attributes.getFloat(R.styleable.CircleProgress_angle, 360);
+        max = attributes.getFloat(R.styleable.CircleProgress_max, 100);
+        progress = attributes.getFloat(R.styleable.CircleProgress_progress, 0);
+        strokeWidth = attributes.getDimension(R.styleable.CircleProgress_stroke_width, default_stroke_width);
+        suffixTextSize = attributes.getDimension(R.styleable.CircleProgress_suffix_text_size, default_suffix_text_size);
+        suffixTextColor = attributes.getColor(R.styleable.CircleProgress_suffix_text_color, default_text_color);
+        suffixText = TextUtils.isEmpty(attributes.getString(R.styleable.CircleProgress_suffix_text)) ? default_suffix_text : attributes.getString(R.styleable.CircleProgress_suffix_text);
+        suffixTextPadding = attributes.getDimension(R.styleable.CircleProgress_suffix_text_padding, default_suffix_padding);
+//        bottomTextSize = attributes.getDimension(R.styleable.CircleProgress_bottom_text_size, default_bottom_text_size);
+        bottomText = attributes.getString(R.styleable.CircleProgress_bottom_text);
+        int arcColors = attributes.getResourceId(R.styleable.CircleProgress_arc_colors, 0);
+        if (arcColors != 0) {
+            int[] colors = getResources().getIntArray(arcColors);
+            if (colors.length == 0) {//如果渐变色为数组为0，则尝试以单色读取色值
+                int color = getResources().getColor(arcColors);
+                mArcColors = new int[2];
+                mArcColors[0] = color;
+                mArcColors[1] = color;
+            } else if (colors.length == 1) {//如果渐变数组只有一种颜色，默认设为两种相同颜色
+                mArcColors = new int[2];
+                mArcColors[0] = colors[0];
+                mArcColors[1] = colors[0];
+            } else {
+                mArcColors = colors;
             }
         }
-
-        typedArray.recycle();
+        attributes.recycle();
     }
 
-    private void initPaint() {
-        mHintPaint = new TextPaint();
-        mHintPaint.setAntiAlias(antiAlias);
-        mHintPaint.setTextSize(mHintSize);
-        mHintPaint.setColor(mHintColor);
-        mHintPaint.setTextAlign(Paint.Align.CENTER);
+    protected void initPainters() {
+        textPaint = new TextPaint();
+        textPaint.setColor(textColor);
+        textPaint.setTextSize(textSize);
+        textPaint.setAntiAlias(true);
 
-        mValuePaint = new TextPaint();
-        mValuePaint.setAntiAlias(antiAlias);
-        mValuePaint.setTextSize(mValueSize);
-        mValuePaint.setColor(mValueColor);
-        mValuePaint.setTypeface(Typeface.DEFAULT_BOLD);
-        mValuePaint.setTextAlign(Paint.Align.CENTER);
+        paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(strokeWidth);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeCap(Paint.Cap.ROUND);
 
-        mUnitPaint = new TextPaint();
-        mUnitPaint.setAntiAlias(antiAlias);
-        mUnitPaint.setTextSize(mUnitSize);
-        mUnitPaint.setColor(mUnitColor);
-        mUnitPaint.setTextAlign(Paint.Align.CENTER);
+        bgPaint = new Paint();
+        bgPaint.setAntiAlias(true);
+        bgPaint.setStrokeWidth(strokeWidth - 1);
+        bgPaint.setStyle(Paint.Style.STROKE);
+        bgPaint.setStrokeCap(Paint.Cap.ROUND);
+    }
 
-        mArcPaint = new Paint();
-        mArcPaint.setAntiAlias(antiAlias);
-        mArcPaint.setStyle(Paint.Style.STROKE);
-        mArcPaint.setStrokeWidth(mArcWidth);
-        mArcPaint.setStrokeCap(Paint.Cap.ROUND);
+    @SuppressWarnings("unused")
+    public float getStrokeWidth() {
+        return strokeWidth;
+    }
 
-        mBgArcPaint = new Paint();
-        mBgArcPaint.setAntiAlias(antiAlias);
-        mBgArcPaint.setColor(mBgArcColor);
-        mBgArcPaint.setStyle(Paint.Style.STROKE);
-        mBgArcPaint.setStrokeWidth(mBgArcWidth);
-        mBgArcPaint.setStrokeCap(Paint.Cap.ROUND);
+    @SuppressWarnings("unused")
+    public void setStrokeWidth(float strokeWidth) {
+        this.strokeWidth = strokeWidth;
+        this.invalidate();
+    }
 
-        percentPaint = new Paint();
-        percentPaint.setAntiAlias(antiAlias);
-        percentPaint.setTextSize(percentSize);
-        percentPaint.setColor(mValueColor);
+    @SuppressWarnings("unused")
+    public float getSuffixTextSize() {
+        return suffixTextSize;
+    }
+
+    @SuppressWarnings("unused")
+    public void setSuffixTextSize(float suffixTextSize) {
+        this.suffixTextSize = suffixTextSize;
+        this.invalidate();
+    }
+
+    @SuppressWarnings("unused")
+    public String getBottomText() {
+        return bottomText;
+    }
+
+    @SuppressWarnings("unused")
+    public void setBottomText(String bottomText) {
+        this.bottomText = bottomText;
+        this.invalidate();
+    }
+
+    public int getProgress() {
+        return (int) progress;
+    }
+
+    public void setProgress(int progress) {
+        float start = this.progress / max;
+        this.progress = Math.abs(progress);
+        if (this.progress > max) {
+            this.progress %= max;
+        }
+        startAnima(start, progress / max);
+    }
+
+    public float getTextSize() {
+        return textSize;
+    }
+
+    public void setTextSize(float textSize) {
+        this.textSize = textSize;
+        this.invalidate();
+    }
+
+    public int getTextColor() {
+        return textColor;
+    }
+
+    public void setTextColor(int textColor) {
+        this.textColor = textColor;
+        this.invalidate();
+    }
+
+    @SuppressWarnings("unused")
+    public float getArcAngle() {
+        return arcAngle;
+    }
+
+    @SuppressWarnings("unused")
+    public void setArcAngle(float arcAngle) {
+        this.arcAngle = arcAngle;
+        this.invalidate();
+    }
+
+    @SuppressWarnings("unused")
+    public String getSuffixText() {
+        return suffixText;
+    }
+
+    @SuppressWarnings("unused")
+    public void setSuffixText(String suffixText) {
+        this.suffixText = suffixText;
+        this.invalidate();
+    }
+
+    @SuppressWarnings("unused")
+    public float getSuffixTextPadding() {
+        return suffixTextPadding;
+    }
+
+    @SuppressWarnings("unused")
+    public void setSuffixTextPadding(float suffixTextPadding) {
+        this.suffixTextPadding = suffixTextPadding;
+        this.invalidate();
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(measures(widthMeasureSpec, mDefaultSize),
-                measures(heightMeasureSpec, mDefaultSize));
-    }
-
-    public int measures(int measureSpec, int defaultSize) {
-        int result = defaultSize;
-        int specMode = View.MeasureSpec.getMode(measureSpec);
-        int specSize = View.MeasureSpec.getSize(measureSpec);
-
-        if (specMode == View.MeasureSpec.EXACTLY) {
-            result = specSize;
-        } else if (specMode == View.MeasureSpec.AT_MOST) {
-            result = Math.min(result, specSize);
-        }
-        return result;
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        //求圆弧和背景圆弧的最大宽度
-        float maxArcWidth = Math.max(mArcWidth, mBgArcWidth);
-        //求最小值作为实际值
-        int minSize = Math.min(w - getPaddingLeft() - getPaddingRight() - 2 * (int) maxArcWidth,
-                h - getPaddingTop() - getPaddingBottom() - 2 * (int) maxArcWidth);
-        //减去圆弧的宽度，否则会造成部分圆弧绘制在外围
-        mRadius = minSize / 2;
-        //获取圆的相关参数
-        mCenterPoint.x = w / 2;
-        mCenterPoint.y = h / 2;
-        //绘制圆弧的边界
-        mRectF.left = mCenterPoint.x - mRadius - maxArcWidth / 2;
-        mRectF.top = mCenterPoint.y - mRadius - maxArcWidth / 2;
-        mRectF.right = mCenterPoint.x + mRadius + maxArcWidth / 2;
-        mRectF.bottom = mCenterPoint.y + mRadius + maxArcWidth / 2;
-        //计算文字绘制时的 baseline
-        //由于文字的baseline、descent、ascent等属性只与textSize和typeface有关，所以此时可以直接计算
-        //若value、hint、unit由同一个画笔绘制或者需要动态设置文字的大小，则需要在每次更新后再次计算
-        mValueOffset = mCenterPoint.y + getBaselineOffsetFromY(mValuePaint);
-        mHintOffset = mCenterPoint.y - mRadius * mTextOffsetPercentInRadius + getBaselineOffsetFromY(mHintPaint);
-        mUnitOffset = mCenterPoint.y + mRadius * mTextOffsetPercentInRadius + getBaselineOffsetFromY(mUnitPaint);
-        updateArcPaint();
-        Log.d(TAG, "onSizeChanged: 控件大小 = " + "(" + w + ", " + h + ")"
-                + "圆心坐标 = " + mCenterPoint.toString()
-                + ";圆半径 = " + mRadius
-                + ";圆的外接矩形 = " + mRectF.toString());
-    }
-
-    private float getBaselineOffsetFromY(Paint paint) {
-        Paint.FontMetrics fontMetrics = paint.getFontMetrics();
-        float v = Math.abs(fontMetrics.ascent) - fontMetrics.descent;
-        return v / 2;
+        setMeasuredDimension(widthMeasureSpec, heightMeasureSpec);
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        int height = MeasureSpec.getSize(heightMeasureSpec);
+        mCenterX = width / 2;
+        mCenterY = height / 2;
+        rectF.set(strokeWidth / 2f, strokeWidth / 2f, width - strokeWidth / 2f, height - strokeWidth / 2f);
+//        float radius = width / 2f;
+//        float angle = (360 - arcAngle) / 2f;
+//        arcBottomHeight = radius * (float) (1 - Math.cos(angle / 180 * Math.PI));
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         drawText(canvas);
-        drawArc(canvas);
+        drawCircle(canvas);
+        // 这里是半圆时，展示文字
+//        if (arcBottomHeight == 0) {
+//            float radius = getWidth() / 2f;
+//            float angle = (360 - arcAngle) / 2f;
+//            arcBottomHeight = radius * (float) (1 - Math.cos(angle / 180 * Math.PI));
+//        }
+//
+//        if (!TextUtils.isEmpty(getBottomText())) {
+//            textPaint.setTextSize(bottomTextSize);
+//            float bottomTextBaseline = getHeight() - arcBottomHeight - (textPaint.descent() + textPaint.ascent()) / 2;
+//            canvas.drawText(getBottomText(), (getWidth() - textPaint.measureText(getBottomText())) / 2.0f, bottomTextBaseline, textPaint);
+//        }
     }
 
-    /**
-     * 绘制内容文字
-     *
-     * @param canvas
-     */
+    private void drawCircle(Canvas canvas) {
+        if (type == STYLE_THIRD) {
+            canvas.drawArc(rectF, 0, 360, false, paint);
+            return;
+        }
+        canvas.rotate(-90, mCenterX, mCenterY);
+        paint.setShader(new SweepGradient(mCenterX, mCenterY, mArcColors, null));
+        float startAngle = 8;
+        float finishedSweepAngle = progress / max * arcAngle;
+        float finishedStartAngle = finishedSweepAngle + startAngle;
+        canvas.drawArc(rectF, finishedStartAngle, arcAngle - finishedSweepAngle, false, bgPaint);
+        canvas.drawArc(rectF, startAngle, finishedSweepAngle, false, paint);
+    }
+
     private void drawText(Canvas canvas) {
-        // 计算文字宽度，由于Paint已设置为居中绘制，故此处不需要重新计算
-        // float textWidth = mValuePaint.measureText(mValue.toString());
-        // float x = mCenterPoint.x - textWidth / 2;
-        String format = String.format(mPrecisionFormat, mValue);
-        canvas.drawText(format, mCenterPoint.x, mValueOffset, mValuePaint);
-        String text = "%";
-        canvas.drawText(text, mCenterPoint.x + mValuePaint.measureText(format) / 2, mValueOffset, percentPaint);
-
-        if (mHint != null) {
-            canvas.drawText(mHint.toString(), mCenterPoint.x, mHintOffset, mHintPaint);
+        String text = String.valueOf(getProgress());
+        if (!TextUtils.isEmpty(text)) {
+            if (type == STYLE_FIRST) { // 百分比
+                textPaint.setColor(textColor);
+                textPaint.setTextSize(textSize);
+                float textHeight = textPaint.descent() + textPaint.ascent();
+                float textBaseline = (getHeight() - textHeight) / 2.0f;
+                float textWidth = textPaint.measureText(text);
+                canvas.drawText(text, (getWidth() - textWidth) / 2.0f, textBaseline, textPaint);
+                textPaint.setTextSize(suffixTextSize);
+                canvas.drawText(suffixText, mCenterX + textWidth / 2.0f + suffixTextPadding, textBaseline, textPaint);
+            } else if (type == STYLE_SECOND) {
+                // text 是已学习整数，不是百分比进度
+                // suffixTextColor 是进度颜色，textColor是总进度颜色
+                // suffixTextPadding 为间距
+                textPaint.setColor(suffixTextColor);
+                textPaint.setTextSize(textSize);
+                float textWidth = textPaint.measureText(text + suffixText + (int) max);
+                canvas.drawText(text, (getWidth() - textWidth) / 2.0f, mCenterY - suffixTextPadding / 2, textPaint);
+                textPaint.setColor(textColor);
+                canvas.drawText(suffixText + (int) max, mCenterX + textPaint.measureText(text) - textWidth / 2.0f, mCenterY - suffixTextPadding / 2, textPaint);
+                textPaint.setColor(suffixTextColor);
+                textPaint.setTextSize(suffixTextSize);
+                float textHeight = textPaint.descent() + textPaint.ascent();
+                int percent = (int) (progress * 100 / max);
+                String s = percent + "%";
+                canvas.drawText(s, mCenterX - textPaint.measureText(s) / 2.0f, mCenterY - textHeight + suffixTextPadding / 2, textPaint);
+            } else if (type == STYLE_THIRD) {
+                textPaint.setColor(textColor);
+                textPaint.setTextSize(textSize);
+                float textHeight = textPaint.descent() + textPaint.ascent();
+                float textBaseline = (getHeight() - textHeight) / 2.0f;
+                float textWidth = textPaint.measureText(text + suffixText) + suffixTextPadding;
+                canvas.drawText(text, (getWidth() - textWidth) / 2.0f, textBaseline, textPaint);
+                textPaint.setTextSize(suffixTextSize);
+                canvas.drawText(suffixText, mCenterX - textWidth / 2.0f + textPaint.measureText(text) + suffixTextPadding, textBaseline, textPaint);
+            }
         }
+    }
 
-        if (mUnit != null) {
-            canvas.drawText(mUnit.toString(), mCenterPoint.x, mUnitOffset, mUnitPaint);
+    private void startAnima(float start, float end) {
+        if (type == STYLE_THIRD) {
+            return;
         }
-    }
-
-    private void drawArc(Canvas canvas) {
-        canvas.save();
-        float currentAngle = mSweepAngle * mPercent;
-        canvas.rotate(mStartAngle, mCenterPoint.x, mCenterPoint.y);
-        canvas.drawArc(mRectF, currentAngle, mSweepAngle - currentAngle + 2, false, mBgArcPaint);
-        canvas.drawArc(mRectF, 2, currentAngle, false, mArcPaint);
-        canvas.restore();
-    }
-
-    /**
-     * 更新圆弧画笔
-     */
-    private void updateArcPaint() {
-        // 设置渐变
-        mSweepGradient = new SweepGradient(mCenterPoint.x, mCenterPoint.y, mGradientColors, null);
-        mArcPaint.setShader(mSweepGradient);
-    }
-
-    public boolean isAntiAlias() {
-        return antiAlias;
-    }
-
-    public CharSequence getHint() {
-        return mHint;
-    }
-
-    public void setHint(CharSequence hint) {
-        mHint = hint;
-    }
-
-    public CharSequence getUnit() {
-        return mUnit;
-    }
-
-    public void setUnit(CharSequence unit) {
-        mUnit = unit;
-    }
-
-    public float getValue() {
-        return mValue;
-    }
-
-    /**
-     * 设置当前值
-     *
-     * @param value
-     */
-    public void setValue(float value) {
-        if (value > mMaxValue) {
-            value = mMaxValue;
-        }
-        float start = mPercent;
-        float end = value / mMaxValue;
-        startAnimator(start, end, mAnimTime);
-    }
-
-    private void startAnimator(float start, float end, long animTime) {
-        mAnimator = ValueAnimator.ofFloat(start, end);
-        mAnimator.setDuration(animTime);
+        ValueAnimator mAnimator = ValueAnimator.ofFloat(start, end);
+        mAnimator.setDuration(1000);
         mAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                mPercent = (float) animation.getAnimatedValue();
-                mValue = mPercent * mMaxValue;
+                float f = (float) animation.getAnimatedValue();
+                progress = (int) (f * max);
                 invalidate();
             }
         });
         mAnimator.start();
     }
 
-    /**
-     * 获取最大值
-     *
-     * @return
-     */
-    public float getMaxValue() {
-        return mMaxValue;
+    public int dp2px(float dp) {
+        final float scale = getResources().getDisplayMetrics().density;
+        return (int) (dp * scale + 0.5f);
     }
 
-    /**
-     * 设置最大值
-     *
-     * @param maxValue
-     */
-    public void setMaxValue(float maxValue) {
-        mMaxValue = maxValue;
-    }
-
-    /**
-     * 获取精度
-     *
-     * @return
-     */
-    public int getPrecision() {
-        return mPrecision;
-    }
-
-    public void setPrecision(int precision) {
-        mPrecision = precision;
-        mPrecisionFormat = "%." + precision + "f";
-    }
-
-    public int[] getGradientColors() {
-        return mGradientColors;
-    }
-
-    /**
-     * 设置渐变
-     *
-     * @param gradientColors
-     */
-    public void setGradientColors(int[] gradientColors) {
-        mGradientColors = gradientColors;
-        updateArcPaint();
-    }
-
-    public long getAnimTime() {
-        return mAnimTime;
-    }
-
-    public void setAnimTime(long animTime) {
-        mAnimTime = animTime;
-    }
-
-    /**
-     * 重置
-     */
-    public void reset() {
-        startAnimator(mPercent, 0.0f, 1000L);
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        //释放资源
+    public float sp2px(float sp){
+        final float scale = getResources().getDisplayMetrics().scaledDensity;
+        return sp * scale;
     }
 }

@@ -29,60 +29,29 @@
         <attr name="controller_layout_id"/>
     </declare-styleable>
 
-    <!-- 圆形进度条 -->
-    <declare-styleable name="CircleProgressBar">
-        <attr name="antiAlias" format="boolean"/>
-        <attr name="startAngle" format="float"/>
-        <attr name="sweepAngle" format="float"/>
-        <attr name="animTime" format="integer"/>
-        <attr name="maxValue" format="integer"/>
-        <attr name="value" format="integer"/>
-        <attr name="precision" format="integer"/>
-        <attr name="valueSize" format="dimension"/>
-        <attr name="percentSize" format="dimension"/>
-        <attr name="valueColor" format="color"/>
-        <attr name="textOffsetPercentInRadius" format="float"/>
-        <!-- 绘制内容相应的提示语 -->
-        <attr name="hint" format="string"/>
-        <attr name="hintSize" format="dimension"/>
-        <attr name="hintColor" format="color"/>
-        <!-- 绘制内容的单位 -->
-        <attr name="unit" format="string"/>
-        <attr name="unitSize" format="dimension"/>
-        <attr name="unitColor" format="color"/>
-        <!-- 圆弧宽度 -->
-        <attr name="arcWidth" format="dimension"/>
-        <attr name="arcColors" format="reference"/>
-        <!-- 背景圆弧颜色 -->
-        <attr name="bgArcColor" format="color"/>
-        <!-- 背景圆弧宽度 -->
-        <attr name="bgArcWidth" format="dimension" />
-    </declare-styleable>
-
-    <declare-styleable name="ArcProgress">
+    <declare-styleable name="CircleProgress">
         <attr name="content_style" format="enum">
             <enum name="style_first" value="1"/>
             <enum name="style_second" value="2"/>
             <enum name="style_third" value="3"/>
         </attr>
-        <attr name="arc_progress" format="float"/>
-        <attr name="arc_angle" format="float"/>
-        <attr name="arc_stroke_width" format="dimension"/>
-        <attr name="arc_max" format="float"/>
+        <attr name="progress" format="float"/>
+        <attr name="angle" format="float"/>
+        <attr name="stroke_width" format="dimension"/>
+        <attr name="max" format="float"/>
 
-        <attr name="arc_unfinished_color" format="color"/>
-        <attr name="arc_finished_color" format="color"/>
+        <attr name="text_size" format="dimension"/>
+        <attr name="text_color" format="color"/>
 
-        <attr name="arc_text_size" format="dimension"/>
-        <attr name="arc_text_color" format="color"/>
+        <attr name="suffix_text" format="string"/>
+        <attr name="suffix_text_color" format="color"/>
+        <attr name="suffix_text_size" format="dimension"/>
+        <attr name="suffix_text_padding" format="dimension"/>
 
-        <attr name="arc_suffix_text" format="string"/>
-        <attr name="arc_suffix_text_color" format="color"/>
-        <attr name="arc_suffix_text_size" format="dimension"/>
-        <attr name="arc_suffix_text_padding" format="dimension"/>
+        <attr name="bottom_text" format="string"/>
+        <attr name="bottom_text_size" format="dimension"/>
 
-        <attr name="arc_bottom_text" format="string"/>
-        <attr name="arc_bottom_text_size" format="dimension"/>
+        <attr name="arc_colors" format="reference"/>
     </declare-styleable>
 
 
