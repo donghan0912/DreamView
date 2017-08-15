@@ -1,5 +1,6 @@
 package com.dream.dreamview.test;
 
+import android.arch.persistence.room.Room;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
@@ -10,6 +11,8 @@ import android.widget.Button;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
+import com.dream.dreamview.dao.AppDatabase;
+import com.dream.dreamview.dao.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +37,8 @@ public class TestActivity extends NavBaseActivity {
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.ttt);
 //        closeSwipe();
-        viewPager = (ViewPager) findViewById(R.id.view_pager);
-        btn = (Button) findViewById(R.id.btn);
+        viewPager = findViewById(R.id.view_pager);
+        btn = findViewById(R.id.btn);
         final CircleProgress circleProgress = findViewById(R.id.circle);
         findViewById(R.id.btn1).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,6 +77,20 @@ public class TestActivity extends NavBaseActivity {
                 return list.get(position);
             }
         });
+
+        // TODO http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0728/8278.html
+        final AppDatabase db = Room.databaseBuilder(this, AppDatabase.class, "test-dao").fallbackToDestructiveMigration().build();
+        final User user = new User();
+        user.userId = "user_id";
+        user.userName = "haha";
+        user.password = "123456";
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                db.userDao().insert(user);
+            }
+        }).start();
+
     }
 
     @Override
