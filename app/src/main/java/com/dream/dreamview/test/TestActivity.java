@@ -79,15 +79,16 @@ public class TestActivity extends NavBaseActivity {
         });
 
         // TODO http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0728/8278.html
-        final AppDatabase db = Room.databaseBuilder(this, AppDatabase.class, "test-dao").fallbackToDestructiveMigration().build();
-        final User user = new User();
-        user.userId = "user_id";
-        user.userName = "haha";
-        user.password = "123456";
         new Thread(new Runnable() {
             @Override
             public void run() {
-                db.userDao().insert(user);
+                for (int i = 200; i < 210; i++) {
+                    User user = new User();
+                    user.userName = "haha_" + i;
+                    user.userId = "user_id_" + i;
+                    user.password = "123456";
+                    AppDatabase.getInstance().userDao().insert(user);
+                }
             }
         }).start();
 
