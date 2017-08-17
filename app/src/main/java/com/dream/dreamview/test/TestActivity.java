@@ -13,9 +13,13 @@ import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.dao.AppDatabase;
 import com.dream.dreamview.dao.User;
+import com.dream.dreamview.dao.UserModel;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.functions.Action;
+import io.reactivex.internal.operators.completable.CompletableFromAction;
 
 /**
  * Created by lenovo on 2017/7/21
@@ -79,25 +83,22 @@ public class TestActivity extends NavBaseActivity {
         });
 
         // TODO http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0728/8278.html
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 200; i < 210; i++) {
-                    User user = new User();
-                    user.userName = "haha_" + i;
-                    user.userId = "user_id_" + i;
-                    user.password = "123456";
-                    AppDatabase.getInstance().userDao().insert(user);
-                }
-            }
-        }).start();
-
+        // https://medium.com/google-developers/room-rxjava-acb0cd4f3757
+        // https://github.com/googlesamples/android-architecture-components/blob/master/BasicRxJavaSample/app/src/main/java/com/example/android/observability/ui/UserActivity.java
+        for (int i = 200; i < 210; i++) {
+            User user = new User();
+            user.userName = "haha_" + i;
+            user.userId = "user_id_" + i;
+            user.password = "123456";
+            // TODO not
+            UserModel.getInstance().updateUserName(user);
+        }
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        int[] location = new int[2] ;
+        int[] location = new int[2];
         viewPager.getLocationInWindow(location); //获取在当前窗口内的绝对坐标
         int x = location[0];
         int y = location[1];
@@ -105,7 +106,7 @@ public class TestActivity extends NavBaseActivity {
         int width = viewPager.getWidth();
         this.mSwipeBackLayout.setUnInterceptPos(x, y, x + width, y + height);
 
-        int[] location2 = new int[2] ;
+        int[] location2 = new int[2];
         btn.getLocationInWindow(location2); //获取在当前窗口内的绝对坐标
         int x2 = location2[0];
         int y2 = location2[1];

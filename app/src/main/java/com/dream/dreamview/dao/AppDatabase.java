@@ -11,7 +11,7 @@ import com.dream.dreamview.MyApplication;
 /**
  * Created by Administrator on 2017/8/15
  */
-@Database(entities = {User.class}, version = 2)
+@Database(entities = {User.class}, version = 2, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract UserDao userDao();
 
