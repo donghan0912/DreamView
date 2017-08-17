@@ -2,24 +2,35 @@ package com.dream.dreamview.test;
 
 import android.arch.persistence.room.Room;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.dao.AppDatabase;
 import com.dream.dreamview.dao.User;
 import com.dream.dreamview.dao.UserModel;
+import com.dream.dreamview.util.LogUtil;
+import com.dream.dreamview.util.ToastUtil;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Scheduler;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.internal.operators.completable.CompletableFromAction;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by lenovo on 2017/7/21
@@ -47,8 +58,15 @@ public class TestActivity extends NavBaseActivity {
         findViewById(R.id.btn1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                exportDatabse("user_table_1");
                 circleProgress.setProgress(50);
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<User> user = AppDatabase.getInstance().userDao().getUser();
+                    }
+                }).start();
             }
         });
 
@@ -85,14 +103,27 @@ public class TestActivity extends NavBaseActivity {
         // TODO http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0728/8278.html
         // https://medium.com/google-developers/room-rxjava-acb0cd4f3757
         // https://github.com/googlesamples/android-architecture-components/blob/master/BasicRxJavaSample/app/src/main/java/com/example/android/observability/ui/UserActivity.java
-        for (int i = 200; i < 210; i++) {
+
+        List<User> users = new ArrayList<>();
+        for (int i = 0; i < 20000; i++) {
             User user = new User();
             user.userName = "haha_" + i;
             user.userId = "user_id_" + i;
-            user.password = "123456";
-            // TODO not
-            UserModel.getInstance().updateUserName(user);
+            user.password = null;
+            users.add(user);
         }
+        UserModel.getInstance().updateUserName(users).subscribe(new Action() {
+            @Override
+            public void run() throws Exception {
+                ToastUtil.showShortToast(TestActivity.this, "database success");
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                ToastUtil.showShortToast(TestActivity.this, "database fail");
+                LogUtil.e(throwable.getMessage());
+            }
+        });
     }
 
     @Override
@@ -113,5 +144,30 @@ public class TestActivity extends NavBaseActivity {
         int height2 = btn.getHeight();
         int width2 = btn.getWidth();
         this.mSwipeBackLayout.setUnInterceptPos(x2, y2, x2 + width2, y2 + height2);
+    }
+
+    public void exportDatabse(String databaseName) {
+        try {
+            File sd = Environment.getExternalStorageDirectory();
+            File data = Environment.getDataDirectory();
+
+            if (sd.canWrite()) {
+//                String currentDBPath = "//data//"+getPackageName()+"//databases//"+databaseName+"";
+                String currentDBPath = getDatabasePath(databaseName).getAbsolutePath();
+                String backupDBPath = "backupname.db";
+                File currentDB = new File(data, currentDBPath);
+                File backupDB = new File(sd, backupDBPath);
+
+                if (currentDB.exists()) {
+                    FileChannel src = new FileInputStream(currentDB).getChannel();
+                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
+                    dst.transferFrom(src, 0, src.size());
+                    src.close();
+                    dst.close();
+                }
+            }
+        } catch (Exception e) {
+
+        }
     }
 }
