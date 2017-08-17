@@ -1,6 +1,5 @@
 package com.dream.dreamview.test;
 
-import android.arch.persistence.room.Room;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -9,7 +8,6 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
@@ -26,11 +24,9 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Scheduler;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import io.reactivex.internal.operators.completable.CompletableFromAction;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by lenovo on 2017/7/21
@@ -40,6 +36,7 @@ public class TestActivity extends NavBaseActivity {
 
     private ViewPager viewPager;
     private Button btn;
+    private final CompositeDisposable mDisposable = new CompositeDisposable();
 
     @Override
     protected int getContentView() {
@@ -112,7 +109,7 @@ public class TestActivity extends NavBaseActivity {
             user.password = null;
             users.add(user);
         }
-        UserModel.getInstance().updateUserName(users).subscribe(new Action() {
+        mDisposable.add(UserModel.getInstance().updateUserName(users).subscribe(new Action() {
             @Override
             public void run() throws Exception {
                 ToastUtil.showShortToast(TestActivity.this, "database success");
@@ -123,7 +120,8 @@ public class TestActivity extends NavBaseActivity {
                 ToastUtil.showShortToast(TestActivity.this, "database fail");
                 LogUtil.e(throwable.getMessage());
             }
-        });
+        }));
+
     }
 
     @Override
@@ -167,7 +165,14 @@ public class TestActivity extends NavBaseActivity {
                 }
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // clear all the subscriptions
+        mDisposable.clear();
     }
 }
