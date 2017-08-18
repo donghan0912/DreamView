@@ -55,7 +55,7 @@ public class TestActivity extends NavBaseActivity {
         findViewById(R.id.btn1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                exportDatabse("user_table_1");
+                exportDatabse("test-db", "hhhhhh");
                 circleProgress.setProgress(50);
 
                 new Thread(new Runnable() {
@@ -144,18 +144,25 @@ public class TestActivity extends NavBaseActivity {
         this.mSwipeBackLayout.setUnInterceptPos(x2, y2, x2 + width2, y2 + height2);
     }
 
-    public void exportDatabse(String databaseName) {
+    public void exportDatabse(String databaseName, String copyDbName) {
+        boolean isSDPresent = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+        if (!isSDPresent) {
+            // sd card not avalilable
+            return;
+        }
         try {
-            File sd = Environment.getExternalStorageDirectory();
             File data = Environment.getDataDirectory();
-
-            if (sd.canWrite()) {
-//                String currentDBPath = "//data//"+getPackageName()+"//databases//"+databaseName+"";
-                String currentDBPath = getDatabasePath(databaseName).getAbsolutePath();
-                String backupDBPath = "backupname.db";
+            File file = new File(Environment.getExternalStorageDirectory(), getPackageName());
+            if (!file.exists()) { // 判断文件夹是否存在
+                if (!file.mkdirs()) { // 判断文件夹是否创建成功
+                    // 文件夹创建失败，直接使用sd根目录
+                    file = Environment.getExternalStorageDirectory();
+                }
+            }
+            if (file.canWrite()) {
+                String currentDBPath = "//data//"+getPackageName()+"//databases//"+databaseName+"";
                 File currentDB = new File(data, currentDBPath);
-                File backupDB = new File(sd, backupDBPath);
-
+                File backupDB = new File(file, copyDbName);
                 if (currentDB.exists()) {
                     FileChannel src = new FileInputStream(currentDB).getChannel();
                     FileChannel dst = new FileOutputStream(backupDB).getChannel();
