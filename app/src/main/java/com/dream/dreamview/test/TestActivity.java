@@ -1,5 +1,7 @@
 package com.dream.dreamview.test;
 
+import android.arch.persistence.room.EmptyResultSetException;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -11,7 +13,6 @@ import android.widget.Button;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
-import com.dream.dreamview.dao.AppDatabase;
 import com.dream.dreamview.dao.User;
 import com.dream.dreamview.dao.UserModel;
 import com.dream.dreamview.util.LogUtil;
@@ -20,11 +21,16 @@ import com.dream.dreamview.util.ToastUtil;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.MaybeObserver;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 
@@ -55,15 +61,84 @@ public class TestActivity extends NavBaseActivity {
         findViewById(R.id.btn1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                exportDatabse("test-db", "hhhhhh");
+                exportDatabse("test-db", "ttt");
                 circleProgress.setProgress(50);
 
-                new Thread(new Runnable() {
+                mDisposable.add(UserModel.getInstance().getUser().subscribe(new Consumer<List<User>>() {
                     @Override
-                    public void run() {
-                        List<User> user = AppDatabase.getInstance().userDao().getUser();
+                    public void accept(List<User> users) throws Exception {
+                        ToastUtil.showShortToast(getApplicationContext(), "查询有" + users.size() + "data");
                     }
-                }).start();
+                }));
+
+                mDisposable.add(UserModel.getInstance().getUserName().subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Exception {
+                        ToastUtil.showShortToast(getApplicationContext(), "查询有" + s + "  data");
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        ToastUtil.showShortToast(getApplicationContext(), "cha xun fail");
+                    }
+                }));
+
+                UserModel.getInstance().getUserNameByMayby().subscribe(new MaybeObserver<String>() {
+                    @Override
+                    public void onSubscribe(Disposable disposable) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(String s) {
+                        LogUtil.e("=============mayby success");
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        LogUtil.e("===============mayby error");
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        LogUtil.e("=========mayby complete");
+                    }
+                });
+
+                mDisposable.add(UserModel.getInstance().getUserNameByMayby().subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Exception {
+                        LogUtil.e("mayby success");
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        LogUtil.e("mayby error");
+                    }
+                }, new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        LogUtil.e("mayby complete");
+                    }
+                }));
+
+
+                mDisposable.add(UserModel.getInstance().getUserBySingle("haha_100").subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Exception {
+                        LogUtil.e("single success");
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        if (throwable instanceof EmptyResultSetException) {
+                            LogUtil.e("single no data found");
+                        } else {
+                            LogUtil.e("single find error");
+                        }
+                    }
+                }));
+
             }
         });
 
@@ -101,7 +176,7 @@ public class TestActivity extends NavBaseActivity {
         // https://medium.com/google-developers/room-rxjava-acb0cd4f3757
         // https://github.com/googlesamples/android-architecture-components/blob/master/BasicRxJavaSample/app/src/main/java/com/example/android/observability/ui/UserActivity.java
 
-        List<User> users = new ArrayList<>();
+        /*List<User> users = new ArrayList<>();
         for (int i = 0; i < 20000; i++) {
             User user = new User();
             user.userName = "haha_" + i;
@@ -120,8 +195,13 @@ public class TestActivity extends NavBaseActivity {
                 ToastUtil.showShortToast(TestActivity.this, "database fail");
                 LogUtil.e(throwable.getMessage());
             }
-        }));
+        }));*/
 
+        try {
+            copyDBToDatabases(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -144,6 +224,7 @@ public class TestActivity extends NavBaseActivity {
         this.mSwipeBackLayout.setUnInterceptPos(x2, y2, x2 + width2, y2 + height2);
     }
 
+    // TODO 不完善，copy文件，最好放到子线程中
     public void exportDatabse(String databaseName, String copyDbName) {
         boolean isSDPresent = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
         if (!isSDPresent) {
@@ -160,7 +241,7 @@ public class TestActivity extends NavBaseActivity {
                 }
             }
             if (file.canWrite()) {
-                String currentDBPath = "//data//"+getPackageName()+"//databases//"+databaseName+"";
+                String currentDBPath = "//data//" + getPackageName() + "//databases//" + databaseName + "";
                 File currentDB = new File(data, currentDBPath);
                 File backupDB = new File(file, copyDbName);
                 if (currentDB.exists()) {
@@ -181,5 +262,41 @@ public class TestActivity extends NavBaseActivity {
         super.onPause();
         // clear all the subscriptions
         mDisposable.clear();
+    }
+
+    private static final String DB_PATH = "/data/data/com.dream.dreamview/databases/";
+    private static final String DB_NAME = "test-db";
+
+    /**
+     * 复制assets下数据库到data/data/packagename/databases
+     * @param context
+     * @throws
+     */
+    // TODO 不完善，copy文件，最好放到子线程中
+    public void copyDBToDatabases(Context context) throws IOException {
+        String outFileName = DB_PATH + DB_NAME;
+
+        File file = new File(DB_PATH);
+        if (!file.mkdirs()) {
+            file.mkdirs();
+        }
+
+        if (new File(outFileName).exists()) {
+            // 数据库已经存在，无需复制
+            return;
+        }
+
+        InputStream myInput = context.getAssets().open(DB_NAME);
+        OutputStream myOutput = new FileOutputStream(outFileName);
+
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = myInput.read(buffer)) > 0) {
+            myOutput.write(buffer, 0, length);
+        }
+
+        myOutput.flush();
+        myOutput.close();
+        myInput.close();
     }
 }
