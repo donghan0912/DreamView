@@ -15,6 +15,7 @@ import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.dao.User;
 import com.dream.dreamview.dao.UserModel;
+import com.dream.dreamview.util.AssetsHelper;
 import com.dream.dreamview.util.LogUtil;
 import com.dream.dreamview.util.ToastUtil;
 
@@ -196,12 +197,11 @@ public class TestActivity extends NavBaseActivity {
                 LogUtil.e(throwable.getMessage());
             }
         }));*/
-
-        try {
-            copyDBToDatabases(this);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        String assetFileName = ASSETS_DB_PATH + File.separator + DB_NAME;
+        // 复制assets目录下多个db文件
+        AssetsHelper.copyDB(this, "db");
+        // 复制assets目录下单个db文件
+        AssetsHelper.copyDB(this, DB_NAME, DB_NAME);
     }
 
     @Override
@@ -265,7 +265,7 @@ public class TestActivity extends NavBaseActivity {
     }
 
     private static final String DB_PATH = "/data/data/com.dream.dreamview/databases/";
-    private static final String DB_NAME = "test-db";
+    private static final String DB_NAME = "db/test-db";
 
     /**
      * 复制assets下数据库到data/data/packagename/databases
