@@ -1,9 +1,7 @@
 package com.dream.dreamview.test;
 
 import android.arch.persistence.room.EmptyResultSetException;
-import android.content.Context;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -16,24 +14,20 @@ import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.dao.User;
 import com.dream.dreamview.dao.UserModel;
 import com.dream.dreamview.util.AssetsHelper;
+import com.dream.dreamview.util.FileHelper;
 import com.dream.dreamview.util.LogUtil;
 import com.dream.dreamview.util.ToastUtil;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.MaybeObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by lenovo on 2017/7/21
@@ -62,7 +56,25 @@ public class TestActivity extends NavBaseActivity {
         findViewById(R.id.btn1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                exportDatabse("test-db", "ttt");
+                mDisposable.add(FileHelper
+                        .copyDbToExternalStorage(getApplicationContext(), "test-db", "ttt")
+                        .retry(1) // 失败重复次数(这里是重复一次)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Consumer<Object>() {
+                            @Override
+                            public void accept(Object o) throws Exception {
+                                LogUtil.e("======================1111111");
+                                ToastUtil.showShortToast(getApplicationContext(), "复制SD卡成功！！！");
+                            }
+                        }, new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) throws Exception {
+                                LogUtil.e("======================222222222222222");
+                                ToastUtil.showShortToast(getApplicationContext(), "复制SD卡失败！！！");
+                            }
+                        }));
+
                 circleProgress.setProgress(50);
 
                 mDisposable.add(UserModel.getInstance().getUser().subscribe(new Consumer<List<User>>() {
@@ -197,11 +209,37 @@ public class TestActivity extends NavBaseActivity {
                 LogUtil.e(throwable.getMessage());
             }
         }));*/
-//        String assetFileName = ASSETS_DB_PATH + File.separator + DB_NAME;
         // 复制assets目录下多个db文件
-        AssetsHelper.copyDB(this, "db");
+        AssetsHelper.copyAssetsDB(this, "db")
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Consumer<Object>() {
+            @Override
+            public void accept(Object o) throws Exception {
+                LogUtil.e("复制成功11111111111");
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                LogUtil.e("复制失败11111111");
+            }
+        });
         // 复制assets目录下单个db文件
-        AssetsHelper.copyDB(this, DB_NAME, DB_NAME);
+        AssetsHelper.copyAssetsDB(this, DB_NAME, DB_NAME)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Consumer<Object>() {
+            @Override
+            public void accept(Object o) throws Exception {
+                LogUtil.e("复制成功2222222");
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                LogUtil.e("复制失败222222222");
+            }
+        });
+
     }
 
     @Override
@@ -224,38 +262,7 @@ public class TestActivity extends NavBaseActivity {
         this.mSwipeBackLayout.setUnInterceptPos(x2, y2, x2 + width2, y2 + height2);
     }
 
-    // TODO 不完善，copy文件，最好放到子线程中
-    public void exportDatabse(String databaseName, String copyDbName) {
-        boolean isSDPresent = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
-        if (!isSDPresent) {
-            // sd card not avalilable
-            return;
-        }
-        try {
-            File data = Environment.getDataDirectory();
-            File file = new File(Environment.getExternalStorageDirectory(), getPackageName());
-            if (!file.exists()) { // 判断文件夹是否存在
-                if (!file.mkdirs()) { // 判断文件夹是否创建成功
-                    // 文件夹创建失败，直接使用sd根目录
-                    file = Environment.getExternalStorageDirectory();
-                }
-            }
-            if (file.canWrite()) {
-                String currentDBPath = "//data//" + getPackageName() + "//databases//" + databaseName + "";
-                File currentDB = new File(data, currentDBPath);
-                File backupDB = new File(file, copyDbName);
-                if (currentDB.exists()) {
-                    FileChannel src = new FileInputStream(currentDB).getChannel();
-                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
-                    dst.transferFrom(src, 0, src.size());
-                    src.close();
-                    dst.close();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+
 
     @Override
     protected void onPause() {
@@ -265,38 +272,5 @@ public class TestActivity extends NavBaseActivity {
     }
 
     private static final String DB_PATH = "/data/data/com.dream.dreamview/databases/";
-    private static final String DB_NAME = "db/test-db";
-
-    /**
-     * 复制assets下数据库到data/data/packagename/databases
-     * @param context
-     * @throws
-     */
-    // TODO 不完善，copy文件，最好放到子线程中
-    public void copyDBToDatabases(Context context) throws IOException {
-        String outFileName = DB_PATH + DB_NAME;
-
-        File file = new File(DB_PATH);
-        if (!file.mkdirs()) {
-            file.mkdirs();
-        }
-
-        if (new File(outFileName).exists()) {
-            // 数据库已经存在，无需复制
-            return;
-        }
-
-        InputStream myInput = context.getAssets().open(DB_NAME);
-        OutputStream myOutput = new FileOutputStream(outFileName);
-
-        byte[] buffer = new byte[1024];
-        int length;
-        while ((length = myInput.read(buffer)) > 0) {
-            myOutput.write(buffer, 0, length);
-        }
-
-        myOutput.flush();
-        myOutput.close();
-        myInput.close();
-    }
+    private static final String DB_NAME = "test-db";
 }
