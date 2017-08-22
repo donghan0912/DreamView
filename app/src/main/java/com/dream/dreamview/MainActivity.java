@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.module.anim.AnimationActivity;
+import com.dream.dreamview.module.room.RoomDBActivity;
 import com.dream.dreamview.test.KotlinActivity;
 import com.dream.dreamview.test.TestActivity;
 import com.dream.dreamview.util.ToastUtil;
@@ -56,6 +57,7 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
 //                startActivity(new Intent(this, AnimationActivity.class));
                 startActivity(new Intent(this, TestActivity.class));
 //                startActivity(new Intent(this, KotlinActivity.class));
+//                RoomDBActivity.start(this);
                 break;
             case R.id.btn_2:
                 mLayout.showErrorView();
