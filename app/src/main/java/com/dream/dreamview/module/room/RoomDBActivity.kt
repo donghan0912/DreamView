@@ -3,9 +3,7 @@ package com.dream.dreamview.module.room
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.View
 import com.dream.dreamview.R
 import com.dream.dreamview.base.NavBaseActivity
 import com.dream.dreamview.module.room.adapter.RoomItem
@@ -33,19 +31,19 @@ class RoomDBActivity : NavBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        title = "数据库"
         recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
-        recyclerView.layoutManager = GridLayoutManager(this, 2)
         adapter = BaseRecyclerViewAdapter()
         recyclerView.adapter = adapter
         val list = ArrayList<RoomItem>()
-        list.add(RoomItem("数据库"))
-        list.add(RoomItem("数据库"))
-        list.add(RoomItem("数据库"))
-        list.add(RoomItem("数据库"))
-        list.add(RoomItem("数据库"))
-        list.add(RoomItem("数据库"))
+        list.add(RoomItem("插入"))
+        list.add(RoomItem("查询"))
+        list.add(RoomItem("删除"))
+        list.add(RoomItem("升级"))
+        list.add(RoomItem("copyFromAssets"))
+        list.add(RoomItem("copyToSD"))
         adapter.data = list
-        adapter.setOnItemClickListener { p0, p1 ->
+        adapter.setOnItemClickListener { view, position ->
             ToastUtil.showShortToast(applicationContext, "tt")
         }
     }
