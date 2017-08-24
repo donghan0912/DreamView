@@ -10,6 +10,7 @@ import com.dream.dreamview.base.ActivityStackManager;
 import com.dream.dreamview.base.BasePreferences;
 import com.dream.dreamview.module.common.CommonPreferences;
 import com.dream.dreamview.util.LogUtil;
+import com.facebook.stetho.Stetho;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 
@@ -46,6 +47,7 @@ public class MyApplication extends Application implements Application.ActivityLi
     @Override
     public void onCreate() {
         super.onCreate();
+        Stetho.initializeWithDefaults(this);
         refWatcher = LeakCanary.install(this);
         String processName = getProcessName();
         // 每新建一个进程Application 的onCreate(）方法都将被调用一次

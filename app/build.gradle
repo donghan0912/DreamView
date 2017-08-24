@@ -96,7 +96,10 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     compile 'org.jetbrains.anko:anko:0.10.1'
 
-    compile "android.arch.persistence.room:runtime:1.0.0-alpha8"
-    annotationProcessor "android.arch.persistence.room:compiler:1.0.0-alpha8"
-    compile "android.arch.persistence.room:rxjava2:1.0.0-alpha8"
+    compile "android.arch.persistence.room:runtime:1.0.0-alpha9"
+    annotationProcessor "android.arch.persistence.room:compiler:1.0.0-alpha9"
+    compile "android.arch.persistence.room:rxjava2:1.0.0-alpha9"
+
+    // Facebook Chrom调试器
+    compile 'com.facebook.stetho:stetho:1.5.0'
 }

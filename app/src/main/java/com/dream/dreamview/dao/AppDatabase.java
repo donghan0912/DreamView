@@ -7,11 +7,13 @@ import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.migration.Migration;
 
 import com.dream.dreamview.MyApplication;
+import com.dream.dreamview.module.room.dao.User;
+import com.dream.dreamview.module.room.dao.UserDao;
 
 /**
  * Created by Administrator on 2017/8/15
  */
-@Database(entities = {User.class}, version = 2, exportSchema = false)
+@Database(entities = {User.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract UserDao userDao();
 
@@ -19,7 +21,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public static AppDatabase getInstance() {
         if (INSTANCE == null) {
-            INSTANCE = Room.databaseBuilder(MyApplication.getContext(), AppDatabase.class, "test-db")
+            INSTANCE = Room.databaseBuilder(MyApplication.getContext(), AppDatabase.class, "user_room")
                     .addMigrations(MIGRATION_1_2).build();
         }
         return INSTANCE;

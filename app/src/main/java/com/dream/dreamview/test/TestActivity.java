@@ -11,8 +11,8 @@ import android.widget.Button;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
-import com.dream.dreamview.dao.User;
-import com.dream.dreamview.dao.UserModel;
+import com.dream.dreamview.module.room.dao.User;
+import com.dream.dreamview.module.room.dao.UserModel;
 import com.dream.dreamview.util.AssetsHelper;
 import com.dream.dreamview.util.FileHelper;
 import com.dream.dreamview.util.LogUtil;
@@ -77,10 +77,24 @@ public class TestActivity extends NavBaseActivity {
 
                 circleProgress.setProgress(50);
 
-                mDisposable.add(UserModel.getInstance().getUser().subscribe(new Consumer<List<User>>() {
+                List<User> users = new ArrayList<>();
+                for (int i = 0; i < 20000; i++) {
+                    User user = new User();
+                    user.userName = "haha_" + i;
+                    user.userId = "user_id_" + i;
+                    user.password = null;
+                    users.add(user);
+                }
+                mDisposable.add(UserModel.getInstance().updateUserName(users).subscribe(new Action() {
                     @Override
-                    public void accept(List<User> users) throws Exception {
-                        ToastUtil.showShortToast(getApplicationContext(), "查询有" + users.size() + "data");
+                    public void run() throws Exception {
+                        ToastUtil.showShortToast(TestActivity.this, "database success");
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        ToastUtil.showShortToast(TestActivity.this, "database fail");
+                        LogUtil.e(throwable.getMessage());
                     }
                 }));
 
@@ -189,26 +203,7 @@ public class TestActivity extends NavBaseActivity {
         // https://medium.com/google-developers/room-rxjava-acb0cd4f3757
         // https://github.com/googlesamples/android-architecture-components/blob/master/BasicRxJavaSample/app/src/main/java/com/example/android/observability/ui/UserActivity.java
 
-        /*List<User> users = new ArrayList<>();
-        for (int i = 0; i < 20000; i++) {
-            User user = new User();
-            user.userName = "haha_" + i;
-            user.userId = "user_id_" + i;
-            user.password = null;
-            users.add(user);
-        }
-        mDisposable.add(UserModel.getInstance().updateUserName(users).subscribe(new Action() {
-            @Override
-            public void run() throws Exception {
-                ToastUtil.showShortToast(TestActivity.this, "database success");
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                ToastUtil.showShortToast(TestActivity.this, "database fail");
-                LogUtil.e(throwable.getMessage());
-            }
-        }));*/
+
         // 复制assets目录下多个db文件
         AssetsHelper.copyAssetsDB(this, "db")
         .subscribeOn(Schedulers.io())
@@ -239,7 +234,12 @@ public class TestActivity extends NavBaseActivity {
                 LogUtil.e("复制失败222222222");
             }
         });
-
+        mDisposable.add(UserModel.getInstance().getUser().subscribe(new Consumer<List<User>>() {
+            @Override
+            public void accept(List<User> users) throws Exception {
+                ToastUtil.showShortToast(getApplicationContext(), "查询有" + users.size() + "data");
+            }
+        }));
     }
 
     @Override

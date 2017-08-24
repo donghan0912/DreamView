@@ -1,4 +1,6 @@
-package com.dream.dreamview.dao;
+package com.dream.dreamview.module.room.dao;
+
+import com.dream.dreamview.dao.AppDatabase;
 
 import java.util.List;
 
@@ -7,7 +9,6 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.SchedulerSupport;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
 import io.reactivex.internal.operators.completable.CompletableFromAction;

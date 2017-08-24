@@ -1,4 +1,4 @@
-package com.dream.dreamview.dao;
+package com.dream.dreamview.module.room.dao;
 
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
@@ -28,16 +28,16 @@ public interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertOrUpdate(List<User> users);
 
-    @Query("SELECT * FROM user_table_1")
+    @Query("SELECT * FROM user_room")
     Flowable<List<User>> getUser();
 
-    @Query("select * from user_table_1 where userName = 'sss'")
+    @Query("select * from user_room where userName = 'sss'")
     Flowable<User> getUsre();
 
-    @Query("select * from user_table_1 where userName = 'haha_d100'")
+    @Query("select * from user_room where userName = 'haha_d100'")
     Maybe<User> getUsrByMaybe();
 
-    @Query("select * from user_table_1 where userName = :userName")
+    @Query("select * from user_room where userName = :userName")
     Single<User> getUsressBySingle(String userName);
 
 //    @Query("SELECT * FROM Users")
