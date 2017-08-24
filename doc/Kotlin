@@ -1,2 +1,6 @@
 1. 没有new关键字 直接
-2. ? !! 区别
+2. 空安全
+    val list: ArrayList<String>? = null
+    list?.add("test")// 正确，不会报空指针异常
+    list!!.add("test")// 错误，报KotlinNullPointerException
+3. setOnItemClickListener
