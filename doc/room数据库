@@ -1,0 +1,21 @@
+使用案例见 -> RoomDBActivity
+1. Maybe
+    @Query(“SELECT * FROM Users WHERE id = :userId”)
+    Maybe<User> getUserById(String userId);
+    1. 数据库中没有查询到，执行onComplete
+    2. 查询成功，执行onSuccess
+    3. 数据库更新，什么都不会发生(注意：Flowable)
+
+2. Single
+    @Query(“SELECT * FROM Users WHERE id = :userId”)
+    Single<User> getUserById(String userId);
+    1. 数据库中没有查询到，触发onError(EmptyResultSetException.class，该异常表示查询为空)
+    2. 查询成功，执行onSuccess
+    3. 数据库更新，什么都不会发生(注意：Flowable)
+
+3. Flowable
+    @Query(“SELECT * FROM Users WHERE id = :userId”)
+    Flowable<User> getUserById(String userId);
+    1. 数据库中没有查询到，不会执行onNext、onError(注意!)
+    2. 查询成功，执行onNext
+    3. 当数据库更新时(插入、更新、删除数据等)，会触发onNext or onError方法(切记！使用场景：比如根据查询结果实时更新UI)

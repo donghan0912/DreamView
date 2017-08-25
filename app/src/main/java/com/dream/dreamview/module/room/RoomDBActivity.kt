@@ -10,10 +10,14 @@ import com.dream.dreamview.base.NavBaseActivity
 import com.dream.dreamview.module.room.adapter.RoomItem
 import com.dream.dreamview.module.room.dao.User
 import com.dream.dreamview.module.room.dao.UserModel
+import com.dream.dreamview.util.AssetsHelper
+import com.dream.dreamview.util.FileHelper
 import com.dream.dreamview.util.LogUtil
 import com.dream.dreamview.util.ToastUtil
 import com.hpu.baserecyclerviewadapter.BaseRecyclerViewAdapter
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Created on 2017/8/22.
@@ -22,6 +26,7 @@ class RoomDBActivity : NavBaseActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: BaseRecyclerViewAdapter<RoomItem>
     private val mDisposable = CompositeDisposable()
+    private val DB_NAME = "test-db"
 
     companion object {
         @JvmStatic
@@ -43,9 +48,11 @@ class RoomDBActivity : NavBaseActivity() {
         recyclerView.adapter = adapter
         val list = ArrayList<RoomItem>()
         list.add(RoomItem("插入"))
-        list.add(RoomItem("查询"))
+        list.add(RoomItem("QueryByFlowable"))
+        list.add(RoomItem("QueryByMaybe"))
+        list.add(RoomItem("QueryBySingle"))
+        list.add(RoomItem("更新"))
         list.add(RoomItem("删除"))
-        list.add(RoomItem("升级"))
         list.add(RoomItem("copyFromAssets"))
         list.add(RoomItem("copyToSD"))
         adapter.data = list
@@ -55,10 +62,20 @@ class RoomDBActivity : NavBaseActivity() {
     }
 
     private fun action(position: Int) {
-        when(position) {
+        when (position) {
             0 -> insert()
-            1 -> getUsers()
-            2 -> getUser()
+            1 -> getUserByFlowable("haha_100")
+            2 -> getUserByMaybe("haha_100")
+            3 -> getUserBySingle("haha_100")
+            4 -> {
+                val user = User()
+                user.userName = "jjjj"
+                user.userId = "user_id_0"
+                updateUser(user)
+            }
+            5 -> deleteUser()
+            6 -> copyDBFromAssets()
+            7 -> copyDBToSD()
         }
     }
 
@@ -74,29 +91,83 @@ class RoomDBActivity : NavBaseActivity() {
             user.password = null
             users.add(user)
         }
-        mDisposable.add(UserModel.getInstance().updateUserName(users).subscribe({ ToastUtil.showShortToast(this, "database success") }) { throwable ->
+        mDisposable.add(UserModel.getInstance().insertUser(users).subscribe({ ToastUtil.showShortToast(this, "database success") }) { throwable ->
             ToastUtil.showShortToast(this, "database fail")
             LogUtil.e(throwable.message)
         })
     }
 
-    private fun getUsers() {
+    private fun getUserByFlowable(userName: String) {
         // TODO 注意：！！！！
         //TODO In your Room’s table Dao, return Flowable<List<User>> that will stream data of specified Query each time database is updated.
         // TODO 每次数据库更新(插入、删除数据等操作)，都会通知这个返回为Flowable的查询方法
-//        mDisposable.add(UserModel.getInstance().user.subscribe { users -> ToastUtil.showShortToast(this, "查询有" + users.size + "data") })
-
-        mDisposable.add(UserModel.getInstance().getUserBySingle("haha_100").subscribe({ ToastUtil.showShortToast(this, "single success") }) { throwable ->
-            if (throwable is EmptyResultSetException) {
-                ToastUtil.showShortToast(this, "single no data found")
-            } else {
-                ToastUtil.showShortToast(this,"single find error")
-            }
-        })
+        mDisposable.add(UserModel.getInstance()
+                .getUserByFlowable(userName)
+                .subscribe({
+                    // 查询成功才会执行onSuccess
+                    ToastUtil.showShortToast(this, "flowable success")
+                },
+                        { ToastUtil.showShortToast(this, "flowable error") },
+                        // onComplete 无论什么情况下都不会执行
+                        { ToastUtil.showShortToast(this, "flowable complete") }))
     }
 
-    private fun getUser() {
+    private fun getUserByMaybe(userName: String) {
+        mDisposable.add(UserModel.getInstance()
+                .getUserByMayby(userName)
+                .subscribe({ ToastUtil.showShortToast(this, "mayby success") },
+                        { ToastUtil.showShortToast(this, "mayby error") },
+                        { ToastUtil.showShortToast(this, "mayby complete") }))
+    }
 
+    private fun getUserBySingle(userName: String) {
+        mDisposable.add(UserModel.getInstance()
+                .getUserBySingle(userName)
+                .subscribe({ ToastUtil.showShortToast(this, "single success") }) { throwable ->
+                    if (throwable is EmptyResultSetException) {
+                        ToastUtil.showShortToast(this, "single no data found")
+                    } else {
+                        ToastUtil.showShortToast(this, "single find error")
+                    }
+                })
+    }
+
+    private fun updateUser(user: User) {
+        mDisposable.add(UserModel.getInstance().updateUser(user).subscribe(
+                { ToastUtil.showShortToast(this, "更新成功") },
+                { ToastUtil.showShortToast(this, "更新失败...") }))
+    }
+
+    private fun deleteUser() {
+        mDisposable.add(UserModel.getInstance().deleteUser().subscribe())
+    }
+
+    private fun copyDBFromAssets() {
+        // 复制assets目录下多个db文件
+        AssetsHelper.copyAssetsDB(this, "db")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ ToastUtil.showShortToast(this, "复制成功11111111111") },
+                        { ToastUtil.showShortToast(this, "复制失败11111111") })
+        // 复制assets目录下单个db文件
+        AssetsHelper.copyAssetsDB(this, DB_NAME, DB_NAME)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ ToastUtil.showLongToast(this, "复制成功2222222") },
+                        { ToastUtil.showShortToast(this, "复制失败222222222") })
+    }
+
+    private fun copyDBToSD() {
+        mDisposable.add(FileHelper
+                .copyDbToExternalStorage(applicationContext, "test-db", "ttt")
+                .retry(1) // 失败重复次数(这里是重复一次)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    ToastUtil.showShortToast(applicationContext, "复制SD卡成功...")
+                }, {
+                    ToastUtil.showShortToast(applicationContext, "复制SD卡失败...")
+                }))
     }
 
     override fun onDestroy() {

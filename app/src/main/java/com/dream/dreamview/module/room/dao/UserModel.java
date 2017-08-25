@@ -32,11 +32,29 @@ public class UserModel {
         return UserLoader.INSTANCE;
     }
 
-    public Completable updateUserName(final List<User> user) {
+    public Completable insertUser(final List<User> user) {
         return new CompletableFromAction(new Action() {
             @Override
             public void run() throws Exception {
-                mUserDao.insertOrUpdate(user);
+                mUserDao.insertUser(user);
+            }
+        }).subscribeOn(Schedulers.io());
+    }
+
+    public Completable insertUser(final User user) {
+        return new CompletableFromAction(new Action() {
+            @Override
+            public void run() throws Exception {
+                mUserDao.insert(user);
+            }
+        }).subscribeOn(Schedulers.io());
+    }
+
+    public Completable updateUser(final User user) {
+        return new CompletableFromAction(new Action() {
+            @Override
+            public void run() throws Exception {
+                mUserDao.update(user);
             }
         }).subscribeOn(Schedulers.io());
     }
@@ -45,8 +63,8 @@ public class UserModel {
         return mUserDao.getUser().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Flowable<String> getUserName() {
-        return mUserDao.getUsre().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).map(new Function<User, String>() {
+    public Flowable<String> getUserByFlowable(String userName) {
+        return mUserDao.getUsre(userName).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).map(new Function<User, String>() {
             @Override
             public String apply(User user) throws Exception {
                 return user.userName;
@@ -54,8 +72,8 @@ public class UserModel {
         });
     }
 
-    public Maybe<String> getUserNameByMayby() {
-        return mUserDao.getUsrByMaybe()
+    public Maybe<String> getUserByMayby(String userName) {
+        return mUserDao.getUsrByMaybe(userName)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(new Function<User, String>() {
@@ -78,4 +96,12 @@ public class UserModel {
                 });
     }
 
+    public Completable deleteUser() {
+        return new CompletableFromAction(new Action() {
+            @Override
+            public void run() throws Exception {
+                mUserDao.deleteUser();
+            }
+        }).subscribeOn(Schedulers.io());
+    }
 }

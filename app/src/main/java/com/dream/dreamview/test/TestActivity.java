@@ -39,6 +39,7 @@ public class TestActivity extends NavBaseActivity {
     private Button btn;
     private final CompositeDisposable mDisposable = new CompositeDisposable();
 
+
     @Override
     protected int getContentView() {
         return R.layout.ttt;
@@ -56,116 +57,7 @@ public class TestActivity extends NavBaseActivity {
         findViewById(R.id.btn1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mDisposable.add(FileHelper
-                        .copyDbToExternalStorage(getApplicationContext(), "test-db", "ttt")
-                        .retry(1) // 失败重复次数(这里是重复一次)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Consumer<Object>() {
-                            @Override
-                            public void accept(Object o) throws Exception {
-                                LogUtil.e("======================1111111");
-                                ToastUtil.showShortToast(getApplicationContext(), "复制SD卡成功！！！");
-                            }
-                        }, new Consumer<Throwable>() {
-                            @Override
-                            public void accept(Throwable throwable) throws Exception {
-                                LogUtil.e("======================222222222222222");
-                                ToastUtil.showShortToast(getApplicationContext(), "复制SD卡失败！！！");
-                            }
-                        }));
-
                 circleProgress.setProgress(50);
-
-                List<User> users = new ArrayList<>();
-                for (int i = 0; i < 20000; i++) {
-                    User user = new User();
-                    user.userName = "haha_" + i;
-                    user.userId = "user_id_" + i;
-                    user.password = null;
-                    users.add(user);
-                }
-                mDisposable.add(UserModel.getInstance().updateUserName(users).subscribe(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        ToastUtil.showShortToast(TestActivity.this, "database success");
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        ToastUtil.showShortToast(TestActivity.this, "database fail");
-                        LogUtil.e(throwable.getMessage());
-                    }
-                }));
-
-                mDisposable.add(UserModel.getInstance().getUserName().subscribe(new Consumer<String>() {
-                    @Override
-                    public void accept(String s) throws Exception {
-                        ToastUtil.showShortToast(getApplicationContext(), "查询有" + s + "  data");
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        ToastUtil.showShortToast(getApplicationContext(), "cha xun fail");
-                    }
-                }));
-
-                UserModel.getInstance().getUserNameByMayby().subscribe(new MaybeObserver<String>() {
-                    @Override
-                    public void onSubscribe(Disposable disposable) {
-
-                    }
-
-                    @Override
-                    public void onSuccess(String s) {
-                        LogUtil.e("=============mayby success");
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        LogUtil.e("===============mayby error");
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        LogUtil.e("=========mayby complete");
-                    }
-                });
-
-                mDisposable.add(UserModel.getInstance().getUserNameByMayby().subscribe(new Consumer<String>() {
-                    @Override
-                    public void accept(String s) throws Exception {
-                        LogUtil.e("mayby success");
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        LogUtil.e("mayby error");
-                    }
-                }, new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        LogUtil.e("mayby complete");
-                    }
-                }));
-
-
-                mDisposable.add(UserModel.getInstance().getUserBySingle("haha_100").subscribe(new Consumer<String>() {
-                    @Override
-                    public void accept(String s) throws Exception {
-                        LogUtil.e("single success");
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        if (throwable instanceof EmptyResultSetException) {
-                            LogUtil.e("single no data found");
-                        } else {
-                            LogUtil.e("single find error");
-                        }
-                    }
-                }));
-
             }
         });
 
@@ -198,48 +90,6 @@ public class TestActivity extends NavBaseActivity {
                 return list.get(position);
             }
         });
-
-        // TODO http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0728/8278.html
-        // https://medium.com/google-developers/room-rxjava-acb0cd4f3757
-        // https://github.com/googlesamples/android-architecture-components/blob/master/BasicRxJavaSample/app/src/main/java/com/example/android/observability/ui/UserActivity.java
-
-
-        // 复制assets目录下多个db文件
-        AssetsHelper.copyAssetsDB(this, "db")
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Consumer<Object>() {
-            @Override
-            public void accept(Object o) throws Exception {
-                LogUtil.e("复制成功11111111111");
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                LogUtil.e("复制失败11111111");
-            }
-        });
-        // 复制assets目录下单个db文件
-        AssetsHelper.copyAssetsDB(this, DB_NAME, DB_NAME)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Consumer<Object>() {
-            @Override
-            public void accept(Object o) throws Exception {
-                LogUtil.e("复制成功2222222");
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                LogUtil.e("复制失败222222222");
-            }
-        });
-        mDisposable.add(UserModel.getInstance().getUser().subscribe(new Consumer<List<User>>() {
-            @Override
-            public void accept(List<User> users) throws Exception {
-                ToastUtil.showShortToast(getApplicationContext(), "查询有" + users.size() + "data");
-            }
-        }));
     }
 
     @Override
@@ -271,6 +121,4 @@ public class TestActivity extends NavBaseActivity {
         mDisposable.clear();
     }
 
-    private static final String DB_PATH = "/data/data/com.dream.dreamview/databases/";
-    private static final String DB_NAME = "test-db";
 }
