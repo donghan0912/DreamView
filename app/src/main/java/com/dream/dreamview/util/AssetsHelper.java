@@ -16,32 +16,34 @@ import io.reactivex.SingleOnSubscribe;
 
 @SuppressWarnings("unused")
 public class AssetsHelper {
+    public static final int BACKUP_SUCCESS = 1;
+    public static final int FILE_BACKUP_EXISTS = 2; // 备份文件已存在
 
     private AssetsHelper() {
     }
 
     // 拷贝多个assets目录下文件
-    public static Single<Object> copyAssetsDB(final Context context, final String path) {
-        return Single.create(new SingleOnSubscribe<Object>() {
+    public static Single<Integer> copyAssetsDB(final Context context, final String path) {
+        return Single.create(new SingleOnSubscribe<Integer>() {
             @Override
-            public void subscribe(SingleEmitter<Object> singleEmitter) throws Exception {
+            public void subscribe(SingleEmitter<Integer> singleEmitter) throws Exception {
                 copyDB(context, path, singleEmitter);
             }
         });
     }
 
     // 拷贝单个assets目录下文件
-    public static Single<Object> copyAssetsDB(final Context context, @NonNull final String file, @NonNull final String dbName) {
-        return Single.create(new SingleOnSubscribe<Object>() {
+    public static Single<Integer> copyAssetsDB(final Context context, @NonNull final String file, @NonNull final String dbName) {
+        return Single.create(new SingleOnSubscribe<Integer>() {
             @Override
-            public void subscribe(SingleEmitter<Object> singleEmitter) throws Exception {
+            public void subscribe(SingleEmitter<Integer> singleEmitter) throws Exception {
                 copyDB(context, file, dbName, singleEmitter);
             }
         });
     }
 
     @SuppressWarnings("unused")
-    private static void copyDB(Context context, String path, SingleEmitter<Object> singleEmitter) {
+    private static void copyDB(Context context, String path, SingleEmitter<Integer> singleEmitter) {
         AssetManager assetManager = context.getAssets();
         String[] files;
         boolean isDir;
@@ -49,17 +51,11 @@ public class AssetsHelper {
             files = assetManager.list(path);
             isDir = true;
         } catch (IOException e) {
-            LogUtil.e("Failed to get asset file list.", e);
             files = new String[]{path};
             isDir = false;
             singleEmitter.onError(e);
         }
         if (null == files) {
-            try {
-                singleEmitter.onError(new Error("file not exist"));
-            } catch (Exception e) {
-                singleEmitter.onError(e);
-            }
             return;
         }
         for (String filename : files) {
@@ -73,7 +69,7 @@ public class AssetsHelper {
     }
 
     @SuppressWarnings({"unused", "ResultOfMethodCallIgnored"})
-    private static void copyDB(Context context, @NonNull String file, @NonNull String dbName, SingleEmitter<Object> singleEmitter) {
+    private static void copyDB(Context context, @NonNull String file, @NonNull String dbName, SingleEmitter<Integer> singleEmitter) {
         File outFile = context.getDatabasePath(dbName);
         File parentFile = outFile.getParentFile();
         if (!parentFile.exists()) {
@@ -91,7 +87,7 @@ public class AssetsHelper {
                 while ((length = in.read(buffer)) > 0) {
                     out.write(buffer, 0, length);
                 }
-                singleEmitter.onSuccess("copy success");
+                singleEmitter.onSuccess(BACKUP_SUCCESS);
             } catch (IOException e) {
                 singleEmitter.onError(e);
             } finally {
@@ -107,6 +103,8 @@ public class AssetsHelper {
                     e.printStackTrace();
                 }
             }
+        } else {
+            singleEmitter.onSuccess(FILE_BACKUP_EXISTS);
         }
     }
 

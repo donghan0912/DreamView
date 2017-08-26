@@ -43,7 +43,7 @@ class RoomDBActivity : NavBaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         title = "数据库"
-        recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
+        recyclerView = findViewById(R.id.recycler_view)
         adapter = BaseRecyclerViewAdapter()
         recyclerView.adapter = adapter
         val list = ArrayList<RoomItem>()
@@ -147,14 +147,25 @@ class RoomDBActivity : NavBaseActivity() {
         AssetsHelper.copyAssetsDB(this, "db")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ ToastUtil.showShortToast(this, "复制成功11111111111") },
-                        { ToastUtil.showShortToast(this, "复制失败11111111") })
+                .subscribe({  v ->
+                    if (v == AssetsHelper.BACKUP_SUCCESS) {
+                        ToastUtil.showLongToast(this, "备份成功")
+                    } else if (v == AssetsHelper.FILE_BACKUP_EXISTS) {
+                        ToastUtil.showLongToast(this, "备份文件已存在")
+                    } },
+                        { ToastUtil.showShortToast(this, "备份失败") })
         // 复制assets目录下单个db文件
         AssetsHelper.copyAssetsDB(this, DB_NAME, DB_NAME)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ ToastUtil.showLongToast(this, "复制成功2222222") },
-                        { ToastUtil.showShortToast(this, "复制失败222222222") })
+                .subscribe({ v ->
+                    if (v == AssetsHelper.BACKUP_SUCCESS) {
+                        ToastUtil.showLongToast(this, "备份成功")
+                    } else if (v == AssetsHelper.FILE_BACKUP_EXISTS) {
+                        ToastUtil.showLongToast(this, "备份文件已存在")
+                    }
+                },
+                        { ToastUtil.showShortToast(this, "备份失败") })
     }
 
     private fun copyDBToSD() {
@@ -163,8 +174,16 @@ class RoomDBActivity : NavBaseActivity() {
                 .retry(1) // 失败重复次数(这里是重复一次)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    ToastUtil.showShortToast(applicationContext, "复制SD卡成功...")
+                .subscribe({ v ->
+                    if (v == FileHelper.BACKUP_SUCCESS) {
+                        ToastUtil.showShortToast(applicationContext, "复制SD卡成功...")
+                    } else if (v == FileHelper.UNUSUAL_STATUS) {
+                        ToastUtil.showShortToast(applicationContext, "存储卡不可用")
+                    } else if (v == FileHelper.FILE_BACKUP_EXISTS) {
+                        ToastUtil.showShortToast(applicationContext, "备份文件已存在")
+                    } else if (v == FileHelper.FILE_SOURCE_NOT_EXIST) {
+                        ToastUtil.showShortToast(applicationContext, "源文件不存在")
+                    }
                 }, {
                     ToastUtil.showShortToast(applicationContext, "复制SD卡失败...")
                 }))

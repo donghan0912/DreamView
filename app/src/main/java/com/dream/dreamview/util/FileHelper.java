@@ -17,28 +17,29 @@ import io.reactivex.SingleOnSubscribe;
  */
 
 public class FileHelper {
+    public static final int BACKUP_SUCCESS = 1;
+    public static final int FILE_BACKUP_EXISTS = 2; // 备份文件已存在
+    public static final int UNUSUAL_STATUS = 3; // ExternalStorage 不可用
+    public static final int FILE_SOURCE_NOT_EXIST = 4; // 源文件不存在
 
     private FileHelper() {
 
     }
 
-    public static Single<Object> copyDbToExternalStorage(final Context context, final String databaseName, final String copyDbName) {
-        return Single.create(new SingleOnSubscribe<Object>() {
+    public static Single<Integer> copyDbToExternalStorage(final Context context, final String databaseName, final String copyDbName) {
+        return Single.create(new SingleOnSubscribe<Integer>() {
             @Override
-            public void subscribe(SingleEmitter<Object> singleEmitter) throws Exception {
+            public void subscribe(SingleEmitter<Integer> singleEmitter) throws Exception {
                 copyDb(context, databaseName, copyDbName, singleEmitter);
             }
         });
     }
-    private static void copyDb(Context context, String databaseName, String copyDbName, SingleEmitter<Object> singleEmitter) {
+
+    private static void copyDb(Context context, String databaseName, String copyDbName, SingleEmitter<Integer> singleEmitter) {
         boolean isSDPresent = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
         if (!isSDPresent) {
             // sd card not avalilable
-            try {
-                singleEmitter.onError(new RuntimeException("SD卡不可用！"));
-            } catch (Exception e) {
-                singleEmitter.onError(e);
-            }
+            singleEmitter.onSuccess(UNUSUAL_STATUS);
             return;
         }
         try {
@@ -54,19 +55,19 @@ public class FileHelper {
                 String currentDBPath = "//data//" + context.getPackageName() + "//databases//" + databaseName + "";
                 File currentDB = new File(data, currentDBPath);
                 File backupDB = new File(file, copyDbName);
+                if (backupDB.exists() && backupDB.length() > 0) {
+                    singleEmitter.onSuccess(FILE_BACKUP_EXISTS);
+                    return;
+                }
                 if (currentDB.exists()) {
                     FileChannel src = new FileInputStream(currentDB).getChannel();
                     FileChannel dst = new FileOutputStream(backupDB).getChannel();
                     dst.transferFrom(src, 0, src.size());
                     src.close();
                     dst.close();
-                    singleEmitter.onSuccess("");
+                    singleEmitter.onSuccess(BACKUP_SUCCESS);
                 } else {
-                    try {
-                        singleEmitter.onError(new Error("the database " + databaseName + " file not exist !"));
-                    } catch (Exception e) {
-                        singleEmitter.onError(e);
-                    }
+                    singleEmitter.onSuccess(FILE_SOURCE_NOT_EXIST);
                 }
             }
         } catch (Exception e) {
