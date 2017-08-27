@@ -1,4 +1,5 @@
-### work plan    
+### work plan
+TODO : SwipeBackLayout 添加params，圆环是否消失
 retrofit + rxjava;
 ### rxjava2 参考文档
 https://juejin.im/post/582b2c818ac24700618ff8f5
