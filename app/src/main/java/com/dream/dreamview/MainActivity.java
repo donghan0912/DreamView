@@ -1,19 +1,18 @@
 package com.dream.dreamview;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.dream.dreamview.base.NavBaseActivity;
-import com.dream.dreamview.module.anim.AnimationActivity;
-import com.dream.dreamview.module.room.RoomDBActivity;
+import com.dream.dreamview.module.rxbus.RxBus;
 import com.dream.dreamview.module.secret.SecretActivity;
-import com.dream.dreamview.test.KotlinActivity;
-import com.dream.dreamview.test.TestActivity;
 import com.dream.dreamview.util.ToastUtil;
 import com.dream.dreamview.widget.MultiStatusLayout;
+
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 public class MainActivity extends NavBaseActivity implements View.OnClickListener {
 
@@ -30,7 +29,7 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
         closeSwipe();
         setTitle("首页");
         setDisplayHomeAsUpEnabled(true);
-        mLayout = (MultiStatusLayout) findViewById(R.id.status_layout);
+        mLayout = findViewById(R.id.status_layout);
         findViewById(R.id.btn_1).setOnClickListener(this);
         findViewById(R.id.btn_2).setOnClickListener(this);
         findViewById(R.id.btn_3).setOnClickListener(this);
@@ -38,7 +37,12 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
         findViewById(R.id.btn_5).setOnClickListener(this);
         findViewById(R.id.btn_6).setOnClickListener(this);
         findViewById(R.id.btn_7).setOnClickListener(this);
-
+        Disposable subscribe = RxBus.get().toObservable().subscribe(new Consumer<Object>() {
+            @Override
+            public void accept(Object o) throws Exception {
+                ToastUtil.showShortToast(MainActivity.this, String.valueOf(o));
+            }
+        });
     }
 
 

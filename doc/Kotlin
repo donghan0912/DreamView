@@ -4,3 +4,13 @@
     list?.add("test")// 正确，不会报空指针异常
     list!!.add("test")// 错误，报KotlinNullPointerException
 3. setOnItemClickListener
+   java写法：
+       view.setOnClickListener(
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {}
+                })
+    Kotlin写法：
+        view.setOnClickListener(object: OnClickListener{
+            override fun onClick()
+        })
