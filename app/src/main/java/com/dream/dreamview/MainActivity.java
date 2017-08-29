@@ -1,5 +1,6 @@
 package com.dream.dreamview;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -8,6 +9,7 @@ import android.view.View;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.module.rxbus.RxBus;
 import com.dream.dreamview.module.secret.SecretActivity;
+import com.dream.dreamview.module.video.VideoActivity;
 import com.dream.dreamview.util.ToastUtil;
 import com.dream.dreamview.widget.MultiStatusLayout;
 
@@ -17,6 +19,7 @@ import io.reactivex.functions.Consumer;
 public class MainActivity extends NavBaseActivity implements View.OnClickListener {
 
     private MultiStatusLayout mLayout;
+    private Disposable subscribe;
 
     @Override
     protected int getContentView() {
@@ -37,7 +40,7 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
         findViewById(R.id.btn_5).setOnClickListener(this);
         findViewById(R.id.btn_6).setOnClickListener(this);
         findViewById(R.id.btn_7).setOnClickListener(this);
-        Disposable subscribe = RxBus.get().toObservable().subscribe(new Consumer<Object>() {
+        subscribe = RxBus.get().toObservable().subscribe(new Consumer<Object>() {
             @Override
             public void accept(Object o) throws Exception {
                 ToastUtil.showShortToast(MainActivity.this, String.valueOf(o));
@@ -58,12 +61,12 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
 //                startActivity(new Intent(this, RetrofitActivity.class));
 //                startActivity(new Intent(this, BeautyActivity.class));
 //                startActivity(new Intent(this, MultiTypeActivity.class));
-//                startActivity(new Intent(this, VideoActivity.class));
+                startActivity(new Intent(this, VideoActivity.class));
 //                startActivity(new Intent(this, AnimationActivity.class));
 //                startActivity(new Intent(this, TestActivity.class));
 //                startActivity(new Intent(this, KotlinActivity.class));
 //                RoomDBActivity.start(this);
-                SecretActivity.start(this);
+//                SecretActivity.start(this);
                 break;
             case R.id.btn_2:
                 mLayout.showErrorView();
@@ -110,5 +113,13 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (subscribe != null) {
+            subscribe.dispose();
+        }
+        super.onDestroy();
     }
 }
