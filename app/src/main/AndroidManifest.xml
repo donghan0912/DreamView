@@ -35,7 +35,8 @@
             android:process=":test" />
         <activity android:name=".module.meinv.FullScreenActivity" />
         <activity android:name=".module.multi.MultiTypeActivity" />
-        <activity android:name=".module.video.VideoActivity" />
+        <activity android:name=".module.video.VideoActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
         <activity android:name=".module.anim.AnimationActivity" />
         <activity android:name=".test.TestActivity" />
         <activity android:name=".test.KotlinActivity" />

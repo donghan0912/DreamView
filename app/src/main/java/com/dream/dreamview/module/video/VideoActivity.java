@@ -1,5 +1,6 @@
 package com.dream.dreamview.module.video;
 
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -81,7 +82,7 @@ public class VideoActivity extends NavBaseActivity {
         // Prepare the player with the source.
         player.prepare(hlsMediaSource);
         player.setPlayWhenReady(true);
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
     }
 
     @Override
