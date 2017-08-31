@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <RelativeLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -57,17 +57,17 @@
 
         <!--中间开始暂停按钮-->
         <ImageView
+            android:layout_gravity="center"
             android:id="@+id/exo_play"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:src="@drawable/ic_video_play" />
 
         <ImageView
+            android:layout_gravity="center"
             android:id="@+id/exo_pause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:src="@drawable/ic_video_pause"
             android:visibility="gone" />
 
@@ -76,12 +76,12 @@
             style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:layout_gravity="center" />
 
 
         <!-- 底部菜单 -->
         <LinearLayout
+            android:layout_gravity="bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -121,7 +121,7 @@
 
         </LinearLayout>
 
-    </RelativeLayout>
+    </FrameLayout>
 
     <View
         android:id="@+id/exo_controller_placeholder"
