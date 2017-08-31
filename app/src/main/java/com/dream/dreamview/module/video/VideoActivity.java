@@ -6,11 +6,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.EventLog;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
+import com.dream.dreamview.module.video.ui.ExoPlayerView;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -61,9 +63,8 @@ public class VideoActivity extends NavBaseActivity {
         // 2. Create the player
         player = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
 
-        SimpleExoPlayerView simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.exoplayer_view);
+        ExoPlayerView simpleExoPlayerView = findViewById(R.id.exoplayer_view2);
         simpleExoPlayerView.setPlayer(player);
-
 
         // Measures bandwidth during playback. Can be null if not required.
         DefaultBandwidthMeter bandwidthMeter1 = new DefaultBandwidthMeter();
@@ -81,8 +82,8 @@ public class VideoActivity extends NavBaseActivity {
 
         // Prepare the player with the source.
         player.prepare(hlsMediaSource);
-        player.setPlayWhenReady(true);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+//        player.setPlayWhenReady(true);
+//        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
     }
 
     @Override
