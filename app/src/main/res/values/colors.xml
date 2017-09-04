@@ -69,6 +69,23 @@
     <color name="blue_a400">#6BB5FF</color>
     <color name="blue_a700">#0F88FF</color>
 
+    <!-- 红色 调色板 -->
+    <color name="red">#FF0000</color>
+    <color name="red_50">#FFFFFF</color>
+    <color name="red_100">#fff2f0</color>
+    <color name="red_200">#ffc4b8</color>
+    <color name="red_300">#ff8870</color>
+    <color name="red_400">#ff6e52</color>
+    <color name="red_500">#ff5533</color>
+    <color name="red_600">#ff3c14</color>
+    <color name="red_700">#f52900</color>
+    <color name="red_800">#d62400</color>
+    <color name="red_900">#b81f00</color>
+    <color name="red_a100">#FFFFFF</color>
+    <color name="red_a200">#fff2f0</color>
+    <color name="red_a400">#ff6e52</color>
+    <color name="red_a700">#f52900</color>
+
     <color name="gray_50_opacity_87">#DEFAFAFA</color>
     <color name="gray_50_opacity_38">#61FAFAFA</color>
 

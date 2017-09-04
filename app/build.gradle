@@ -12,6 +12,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
 
     signingConfigs {
@@ -27,7 +28,7 @@ android {
         release {
             // 配置是否可以调试(Android Studio 默认release版不能调试)
             debuggable false
-            minifyEnabled false
+            minifyEnabled true
             // 配置签名
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -102,4 +103,5 @@ dependencies {
 
     // Facebook Chrom调试器
     compile 'com.facebook.stetho:stetho:1.5.0'
+    compile 'com.android.support:multidex:1.0.2'
 }

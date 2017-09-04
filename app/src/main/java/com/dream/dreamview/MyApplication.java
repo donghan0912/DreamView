@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.multidex.MultiDex;
 import android.text.TextUtils;
 
 import com.dream.dreamview.base.ActivityStackManager;
@@ -27,6 +28,7 @@ import static android.R.attr.width;
 
 public class MyApplication extends Application implements Application.ActivityLifecycleCallbacks{
     private static MyApplication instance;
+    private RefWatcher refWatcher;
 
     public static MyApplication getInstance() {
         return instance;
@@ -41,8 +43,11 @@ public class MyApplication extends Application implements Application.ActivityLi
         return application.refWatcher;
     }
 
-    private RefWatcher refWatcher;
-
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
+    }
 
     @Override
     public void onCreate() {

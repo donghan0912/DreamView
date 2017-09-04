@@ -86,6 +86,7 @@ public class VideoActivity extends NavBaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        player.release();
+//        player.release();
+//        player.stop();
     }
 }
