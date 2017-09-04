@@ -1,9 +1,11 @@
 package com.dream.dreamview.module.video;
 
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.view.KeyEvent;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
@@ -33,6 +35,7 @@ import com.google.android.exoplayer2.util.Util;
 public class VideoActivity extends NavBaseActivity {
 
     private SimpleExoPlayer player;
+    private ExoPlayerView exoPlayerView;
 
     @Override
     protected int getContentView() {
@@ -59,7 +62,7 @@ public class VideoActivity extends NavBaseActivity {
         player = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
 
         SimpleExoPlayerView simpleExoPlayerView = findViewById(R.id.exoplayer_view);
-        ExoPlayerView exoPlayerView = findViewById(R.id.exoplayer_view2);
+        exoPlayerView = findViewById(R.id.exoplayer_view2);
         exoPlayerView.setPlayer(player);
 //        simpleExoPlayerView.setPlayer(player);
 
@@ -86,7 +89,16 @@ public class VideoActivity extends NavBaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
-//        player.release();
-//        player.stop();
+        exoPlayerView.pause();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // TODO 待完善
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

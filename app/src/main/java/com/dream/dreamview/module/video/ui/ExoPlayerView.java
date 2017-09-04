@@ -16,7 +16,9 @@
 package com.dream.dreamview.module.video.ui;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -87,6 +89,7 @@ public final class ExoPlayerView extends FrameLayout {
     private SeekBar mSeekBar;
 
     private boolean isAttachedToWindow;
+    private boolean isPauseFromUser;// 是否手动暂停
 
     private final Runnable updateProgressAction = new Runnable() {
         @Override
@@ -94,6 +97,7 @@ public final class ExoPlayerView extends FrameLayout {
             updateProgress();
         }
     };
+    private ImageView mFullScreen;
 
     public ExoPlayerView(Context context) {
         this(context, null);
@@ -200,10 +204,12 @@ public final class ExoPlayerView extends FrameLayout {
         playBtn = findViewById(R.id.exo_play);
         pauseBtn = findViewById(R.id.exo_pause);
         mProgressBar = findViewById(R.id.loading_progress_bar);
+        mFullScreen = findViewById(R.id.enter_full_screen);
         mSeekBar = findViewById(R.id.seek_bar);
         playBtn.setOnClickListener(componentListener);
         pauseBtn.setOnClickListener(componentListener);
         mSeekBar.setOnSeekBarChangeListener(componentListener);
+        mFullScreen.setOnClickListener(componentListener);
 
         mSeekBar.setMax(PROGRESS_BAR_MAX);
     }
@@ -610,6 +616,15 @@ public final class ExoPlayerView extends FrameLayout {
         aspectRatioFrame.setResizeMode(resizeMode);
     }
 
+    public void pause() {
+        if (player != null) {
+            playBtn.setVisibility(VISIBLE);
+            pauseBtn.setVisibility(GONE);
+            player.setPlayWhenReady(false);
+        }
+    }
+
+
     /**
      * Returns whether the controller is currently visible.
      */
@@ -753,6 +768,13 @@ public final class ExoPlayerView extends FrameLayout {
                     playBtn.setVisibility(VISIBLE);
                     pauseBtn.setVisibility(GONE);
                     player.setPlayWhenReady(false);
+                } else if (view == mFullScreen) {
+                    // TODO 待整理
+                    Context context = getContext();
+                    if (context instanceof Activity) {
+                        Activity activity = (Activity) context;
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+                    }
                 }
             }
         }
