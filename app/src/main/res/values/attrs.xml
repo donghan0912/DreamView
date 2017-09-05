@@ -47,6 +47,11 @@
         <enum name="fill" value="3"/>
     </attr>
 
+    <attr name="surface_type" format="enum">
+        <enum name="surface_view" value="1"/>
+        <enum name="texture_view" value="2"/>
+    </attr>
+
     <declare-styleable name="ExoPlayerView">
         <attr name="use_artwork" format="boolean"/>
         <attr name="default_artwork" format="reference"/>

@@ -1,11 +1,14 @@
 package com.dream.dreamview.module.video;
 
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
+import android.view.OrientationEventListener;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
@@ -84,6 +87,7 @@ public class VideoActivity extends NavBaseActivity {
         player.prepare(videoSource);
 //        player.setPlayWhenReady(true);
 //        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+        t();
     }
 
     @Override
@@ -96,9 +100,50 @@ public class VideoActivity extends NavBaseActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         // TODO 待完善
         if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-            return true;
+            int orientation = getResources().getConfiguration().orientation;
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+                return true;
+            }
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    private OrientationEventListener mOrientationListener;
+    // TODO 处理屏幕旋转
+    private void t() {
+        mOrientationListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
+            @Override
+            public void onOrientationChanged(int orientation) {
+                //只检测是否有四个角度的改变
+                if (orientation > 350 || orientation < 10) { //0度
+                    orientation = 0;
+                } else if (orientation > 80 && orientation < 100) { //90度
+                    orientation = 90;
+                } else if (orientation > 170 && orientation < 190) { //180度
+                    orientation = 180;
+                } else if (orientation > 260 && orientation < 280) { //270度
+                    orientation = 270;
+                }
+                if (orientation == 90) {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                } else if (orientation == 270) {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+                } else if (orientation == 0) {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+                }
+            }
+        };
+        if (mOrientationListener.canDetectOrientation()) {
+            mOrientationListener.enable();
+        } else {
+            mOrientationListener.disable();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mOrientationListener.disable();
     }
 }

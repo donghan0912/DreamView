@@ -1,6 +1,7 @@
 package com.dream.dreamview;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -8,7 +9,6 @@ import android.view.View;
 
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.module.rxbus.RxBus;
-import com.dream.dreamview.module.secret.SecretActivity;
 import com.dream.dreamview.module.video.VideoActivity;
 import com.dream.dreamview.util.ToastUtil;
 import com.dream.dreamview.widget.MultiStatusLayout;
@@ -46,6 +46,7 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
                 ToastUtil.showShortToast(MainActivity.this, String.valueOf(o));
             }
         });
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
     }
 
 

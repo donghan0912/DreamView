@@ -21,6 +21,7 @@
             android:layout_height="260dp"/>
 
         <com.dream.dreamview.module.video.ui.ExoPlayerView
+            app:surface_type="surface_view"
             app:resize_mode="fit"
             android:id="@+id/exoplayer_view2"
             android:layout_width="match_parent"
