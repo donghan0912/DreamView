@@ -112,7 +112,7 @@ public final class ExoPlayerView extends FrameLayout {
 
         int playerLayoutId = R.layout.exo_player_view;
         boolean useController = true;
-        int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
+        int surfaceType = SURFACE_TYPE_TEXTURE_VIEW;
         int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT;
         int controllerShowTimeoutMs = PlaybackControlView.DEFAULT_SHOW_TIMEOUT_MS;
         boolean controllerHideOnTouch = true;
