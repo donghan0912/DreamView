@@ -78,6 +78,17 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center" />
 
+        <TextView
+            android:padding="2dp"
+            android:id="@+id/brightness"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textColor="@color/gray_50"
+            android:background="#3e333333"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
 
         <!-- 底部菜单 -->
         <LinearLayout

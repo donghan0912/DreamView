@@ -29,4 +29,6 @@
     <string name="init_encrypted_db">Init Encrypted DB</string>
     <string name="insert_message">Insert Message</string>
 
+    <string name="brightness">%1$d%%</string>
+
 </resources>

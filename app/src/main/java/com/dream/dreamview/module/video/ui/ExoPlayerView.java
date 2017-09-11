@@ -22,6 +22,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -37,8 +38,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.dream.dreamview.R;
+import com.dream.dreamview.util.LogUtil;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -99,6 +102,7 @@ public final class ExoPlayerView extends FrameLayout {
         }
     };
     private ImageView mFullScreen;
+    private TextView b;// 亮度
 
     public ExoPlayerView(Context context) {
         this(context, null);
@@ -213,6 +217,16 @@ public final class ExoPlayerView extends FrameLayout {
         mFullScreen.setOnClickListener(componentListener);
 
         mSeekBar.setMax(PROGRESS_BAR_MAX);
+
+        if (context instanceof Activity) {
+            Activity activity = (Activity) context;
+            try {
+                mBrightness = Settings.System.getInt(activity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
+            } catch (Settings.SettingNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        b = findViewById(R.id.brightness);
     }
 
     /**
@@ -798,6 +812,7 @@ public final class ExoPlayerView extends FrameLayout {
 
     private float lastX;
     private float lastY;
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getAction();
@@ -815,7 +830,7 @@ public final class ExoPlayerView extends FrameLayout {
                 float dyMath = Math.abs(y - lastY);
                 if (dxMath > 0 && dxMath * 0.5f > dyMath) {// 水平
 //                    isHorizontal = true;
-                // TODO 参考 http://blog.csdn.net/qq_32353771/article/details/53537835
+                    // TODO 参考 http://blog.csdn.net/qq_32353771/article/details/53537835
 
                 } else if (dyMath > 0) {// 竖直
 //                    isVertical = true;
@@ -830,21 +845,28 @@ public final class ExoPlayerView extends FrameLayout {
         return true;
     }
 
+    private int mBrightness;
+    private boolean tttt;
+
+    // TODO 向上滑动一定距离才可以 调节亮度
     public void setBrightness(float brightness) {
         Context context = getContext();
-        if (context instanceof Activity) {
-            Activity activity = (Activity) context;
-
-            WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
-
-            lp.screenBrightness = lp.screenBrightness + brightness / 255.0f;
-            if (lp.screenBrightness > 1) {
-                lp.screenBrightness = 1;
-            } else if (lp.screenBrightness < 0.1) {
-                lp.screenBrightness = (float) 0.1;
-            }
-            activity.getWindow().setAttributes(lp);
+        if (!(context instanceof Activity)) {
+            return;
         }
-
+        Activity activity = (Activity) context;
+        WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
+        if (!tttt) {
+            tttt = true;
+            lp.screenBrightness = mBrightness / 255.0f + brightness / 255.0f;
+        } else {
+            lp.screenBrightness = lp.screenBrightness + brightness / 255.0f;
+        }
+        if (lp.screenBrightness > 1) {
+            lp.screenBrightness = 1;
+        }
+        int round = Math.round(lp.screenBrightness * 100);
+        activity.getWindow().setAttributes(lp);
+        b.setText(getResources().getString(R.string.brightness, round));
     }
 }
