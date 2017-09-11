@@ -32,6 +32,7 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -795,4 +796,55 @@ public final class ExoPlayerView extends FrameLayout {
         }
     }
 
+    private float lastX;
+    private float lastY;
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        int action = event.getAction();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                lastX = event.getX();
+                lastY = event.getY();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float x = event.getX();
+                float y = event.getY();
+                float dx = x - lastX;
+                float dy = y - lastY;
+                float dxMath = Math.abs(x - lastX);
+                float dyMath = Math.abs(y - lastY);
+                if (dxMath > 0 && dxMath * 0.5f > dyMath) {// 水平
+//                    isHorizontal = true;
+                // TODO 参考 http://blog.csdn.net/qq_32353771/article/details/53537835
+
+                } else if (dyMath > 0) {// 竖直
+//                    isVertical = true;
+                    setBrightness(1);
+
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                break;
+        }
+        return true;
+    }
+
+    public void setBrightness(float brightness) {
+        Context context = getContext();
+        if (context instanceof Activity) {
+            Activity activity = (Activity) context;
+
+            WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
+
+            lp.screenBrightness = lp.screenBrightness + brightness / 255.0f;
+            if (lp.screenBrightness > 1) {
+                lp.screenBrightness = 1;
+            } else if (lp.screenBrightness < 0.1) {
+                lp.screenBrightness = (float) 0.1;
+            }
+            activity.getWindow().setAttributes(lp);
+        }
+
+    }
 }
