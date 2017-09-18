@@ -22,6 +22,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.AudioManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -812,6 +813,7 @@ public final class ExoPlayerView extends FrameLayout {
 
     private float lastX;
     private float lastY;
+    private float startY;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -819,24 +821,30 @@ public final class ExoPlayerView extends FrameLayout {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 lastX = event.getX();
-                lastY = event.getY();
+                startY = lastY = event.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
                 float x = event.getX();
                 float y = event.getY();
                 float dx = x - lastX;
                 float dy = y - lastY;
+                float dy2 = y - startY;
+                LogUtil.e("当前dy" + dy);
                 float dxMath = Math.abs(x - lastX);
                 float dyMath = Math.abs(y - lastY);
                 if (dxMath > 0 && dxMath * 0.5f > dyMath) {// 水平
 //                    isHorizontal = true;
                     // TODO 参考 http://blog.csdn.net/qq_32353771/article/details/53537835
 
-                } else if (dyMath > 0) {// 竖直
+                } else if (dy2 > 0) {// 竖直
 //                    isVertical = true;
-                    setBrightness(1);
-
+//                    setBrightness(-1);
+                    setVoice(-5);
+                } else if (dy2 < 0) {
+//                    setBrightness(1);
+                    setVoice(5);
                 }
+                startY = event.getY();
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
@@ -867,6 +875,39 @@ public final class ExoPlayerView extends FrameLayout {
         }
         int round = Math.round(lp.screenBrightness * 100);
         activity.getWindow().setAttributes(lp);
+        b.setText(getResources().getString(R.string.brightness, round));
+    }
+
+    private float mVoice;
+    private void setVoice(float voice) {
+        Context context = getContext();
+        if (!(context instanceof Activity)) {
+            return;
+        }
+        Activity activity = (Activity) context;
+        AudioManager mAudioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
+        int maxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        int volume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        if (mVoice == 0) {
+            mVoice = volume;
+        }
+        if ((int) mVoice > maxVolume || (int) mVoice < 0) {
+            return;
+        }
+        if ((int)(mVoice + voice / maxVolume) <= maxVolume && (mVoice + voice / maxVolume) >= -0.5) {
+            mVoice += voice / maxVolume;
+        }
+        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) mVoice, 0);
+        int volume2 = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        if (volume2 != (int)mVoice) {
+//            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) mVoice, AudioManager.FLAG_SHOW_UI);
+        }
+        int round = (int) (mVoice * 100 / maxVolume);
+        if (round > 100) {
+            round = 100;
+        } else if (round < 0) {
+            round = 0;
+        }
         b.setText(getResources().getString(R.string.brightness, round));
     }
 }
