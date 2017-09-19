@@ -115,6 +115,7 @@ public final class ExoPlayerView extends FrameLayout {
 
     private float startX;
     private float startY;
+    private float lastX;
     private float lastY;
 
     public ExoPlayerView(Context context) {
@@ -663,7 +664,6 @@ public final class ExoPlayerView extends FrameLayout {
     private void init() {
         mAudioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
         mMaxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-
     }
 
     @Override
@@ -677,6 +677,11 @@ public final class ExoPlayerView extends FrameLayout {
     private int progressBarValue(long position) {
         long duration = player == null ? C.TIME_UNSET : player.getDuration();
         return duration == C.TIME_UNSET || duration == 0 ? 0 : (int) ((position * PROGRESS_BAR_MAX) / duration);
+    }
+
+    private long positionValue(int progress) {
+        long duration = player == null ? C.TIME_UNSET : player.getDuration();
+        return duration == C.TIME_UNSET ? 0 : ((duration * progress) / PROGRESS_BAR_MAX);
     }
 
     private void updateProgress() {
@@ -719,7 +724,6 @@ public final class ExoPlayerView extends FrameLayout {
         }
 
         // SimpleExoPlayer.VideoListener implementation
-
         @Override
         public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
                                        float pixelWidthHeightRatio) {
@@ -810,7 +814,7 @@ public final class ExoPlayerView extends FrameLayout {
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+            mSeekBar.setProgress(progress);
         }
 
         @Override
@@ -820,9 +824,12 @@ public final class ExoPlayerView extends FrameLayout {
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-
+            player.seekTo(positionValue(seekBar.getProgress()));
         }
     }
+
+    private boolean isVertical;
+    private boolean isHorizontal;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -834,31 +841,40 @@ public final class ExoPlayerView extends FrameLayout {
         int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                startX = event.getX();
+                startX = lastX = event.getX();
                 startY = lastY = event.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
                 float x = event.getX();
                 float y = event.getY();
+                float dx2 = x - lastX;
                 float dy2 = y - lastY;
                 float dx = Math.abs(x - startX);
                 float dy = Math.abs(y - startY);
                 if (dx > 0 && dx * 0.5f > dy) {// 水平
-//                    isHorizontal = true;
-                    // TODO 参考 http://blog.csdn.net/qq_32353771/article/details/53537835
-
+                    isHorizontal = true;
                 } else if (dy > 0) {// 竖直
-//                    isVertical = true;
+                    isVertical = true;
+                }
+                if (isHorizontal && !isVertical) {
+                    setProgress(dx2 > 0);
+                }
+                if (!isHorizontal && isVertical) {
                     if ((int) x < mScreen.widthPixels / 2) {
                         setVolume(dy2 > 0);
                     } else {
                         setBrightness(dy2 > 0);
                     }
                 }
+                lastX = event.getX();
                 lastY = event.getY();
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                player.seekTo(currentPosition);
+                currentPosition = -1;
+                isHorizontal = false;
+                isVertical = false;
                 break;
         }
         return true;
@@ -906,5 +922,25 @@ public final class ExoPlayerView extends FrameLayout {
             int round = Math.min(Math.max((int) (mVolume * 100 / mMaxVolume), 0), 100);
             mCenterText.setText(getResources().getString(R.string.brightness, round));
         }
+    }
+
+    private float duration;
+    private long currentPosition = -1;
+
+    private void setProgress(boolean value) {
+        if (duration == 0) {
+            duration = player.getDuration();
+        }
+        if (currentPosition == -1) {
+            currentPosition = player.getCurrentPosition();
+        }
+        long v = value ? (long) (0.01 * duration) : -(long) (0.01 * duration);
+        LogUtil.e("当前CurrentPosition+++++++++++++++++" + v);
+        currentPosition += v;
+        LogUtil.e("当前CurrentPosition=================" + currentPosition);
+        currentPosition = (long) Math.max(Math.min(currentPosition, duration), 0);
+        LogUtil.e("当前CurrentPosition" + currentPosition);
+        int round = (int) (currentPosition * 100 / duration);
+        mCenterText.setText(getResources().getString(R.string.brightness, round));
     }
 }
