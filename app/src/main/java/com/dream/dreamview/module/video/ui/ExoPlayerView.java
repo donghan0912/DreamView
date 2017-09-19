@@ -27,6 +27,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -69,11 +70,12 @@ import java.util.List;
 
 @TargetApi(16)
 public final class ExoPlayerView extends FrameLayout {
-
     private static final int SURFACE_TYPE_NONE = 0;
     private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
     private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
     private static final int PROGRESS_BAR_MAX = 1000;
+    private static final float BRIGHTNESS_DEFAULT_UNIT = 2;
+    private static final float VOLUME_DEFAULT_UNIT = 2;
 
     private final AspectRatioFrameLayout contentFrame;
     private final View shutterView;
@@ -103,7 +105,17 @@ public final class ExoPlayerView extends FrameLayout {
         }
     };
     private ImageView mFullScreen;
-    private TextView b;// 亮度
+    private TextView mCenterText;//
+    private AudioManager mAudioManager;
+    private int mMaxVolume; // 系统亮度最大值
+    private float mVolume;// 音量
+    private int mBrightness;
+    private DisplayMetrics mScreen;
+    private ImageView mCenterIcon;
+
+    private float startX;
+    private float startY;
+    private float lastY;
 
     public ExoPlayerView(Context context) {
         this(context, null);
@@ -219,15 +231,8 @@ public final class ExoPlayerView extends FrameLayout {
 
         mSeekBar.setMax(PROGRESS_BAR_MAX);
 
-        if (context instanceof Activity) {
-            Activity activity = (Activity) context;
-            try {
-                mBrightness = Settings.System.getInt(activity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
-            } catch (Settings.SettingNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-        b = findViewById(R.id.brightness);
+        mCenterText = findViewById(R.id.brightness);
+        mCenterIcon = findViewById(R.id.icon_center);
     }
 
     /**
@@ -652,6 +657,13 @@ public final class ExoPlayerView extends FrameLayout {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         isAttachedToWindow = true;
+        init();
+    }
+
+    private void init() {
+        mAudioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+        mMaxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+
     }
 
     @Override
@@ -659,6 +671,7 @@ public final class ExoPlayerView extends FrameLayout {
         super.onDetachedFromWindow();
         isAttachedToWindow = false;
         removeCallbacks(updateProgressAction);
+        mVolume = 0;
     }
 
     private int progressBarValue(long position) {
@@ -811,40 +824,38 @@ public final class ExoPlayerView extends FrameLayout {
         }
     }
 
-    private float lastX;
-    private float lastY;
-    private float startY;
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // TODO 这里最好放在屏幕旋转那里
+        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        mScreen = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(mScreen);
+
         int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                lastX = event.getX();
+                startX = event.getX();
                 startY = lastY = event.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
                 float x = event.getX();
                 float y = event.getY();
-                float dx = x - lastX;
-                float dy = y - lastY;
-                float dy2 = y - startY;
-                LogUtil.e("当前dy" + dy);
-                float dxMath = Math.abs(x - lastX);
-                float dyMath = Math.abs(y - lastY);
-                if (dxMath > 0 && dxMath * 0.5f > dyMath) {// 水平
+                float dy2 = y - lastY;
+                float dx = Math.abs(x - startX);
+                float dy = Math.abs(y - startY);
+                if (dx > 0 && dx * 0.5f > dy) {// 水平
 //                    isHorizontal = true;
                     // TODO 参考 http://blog.csdn.net/qq_32353771/article/details/53537835
 
-                } else if (dy2 > 0) {// 竖直
+                } else if (dy > 0) {// 竖直
 //                    isVertical = true;
-//                    setBrightness(-1);
-                    setVoice(-5);
-                } else if (dy2 < 0) {
-//                    setBrightness(1);
-                    setVoice(5);
+                    if ((int) x < mScreen.widthPixels / 2) {
+                        setVolume(dy2 > 0);
+                    } else {
+                        setBrightness(dy2 > 0);
+                    }
                 }
-                startY = event.getY();
+                lastY = event.getY();
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
@@ -853,61 +864,47 @@ public final class ExoPlayerView extends FrameLayout {
         return true;
     }
 
-    private int mBrightness;
-    private boolean tttt;
-
-    // TODO 向上滑动一定距离才可以 调节亮度
-    public void setBrightness(float brightness) {
+    private void setBrightness(boolean value) {
+        float brightness = value ? -BRIGHTNESS_DEFAULT_UNIT : BRIGHTNESS_DEFAULT_UNIT;
         Context context = getContext();
         if (!(context instanceof Activity)) {
             return;
         }
+        mCenterIcon.setImageResource(R.drawable.ic_brightness);
         Activity activity = (Activity) context;
         WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
-        if (!tttt) {
-            tttt = true;
-            lp.screenBrightness = mBrightness / 255.0f + brightness / 255.0f;
+        if (mBrightness == 0) {
+            try {
+                mBrightness = Settings.System.getInt(activity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
+                lp.screenBrightness = mBrightness / 255.0f + brightness / 255.0f;
+            } catch (Settings.SettingNotFoundException e) {
+                e.printStackTrace();
+            }
         } else {
             lp.screenBrightness = lp.screenBrightness + brightness / 255.0f;
         }
-        if (lp.screenBrightness > 1) {
-            lp.screenBrightness = 1;
-        }
+        lp.screenBrightness = Math.min(Math.max(lp.screenBrightness, 0), 1);
         int round = Math.round(lp.screenBrightness * 100);
         activity.getWindow().setAttributes(lp);
-        b.setText(getResources().getString(R.string.brightness, round));
+        mCenterText.setText(getResources().getString(R.string.brightness, round));
     }
 
-    private float mVoice;
-    private void setVoice(float voice) {
-        Context context = getContext();
-        if (!(context instanceof Activity)) {
+    private void setVolume(boolean value) {
+        float volume = value ? -VOLUME_DEFAULT_UNIT / mMaxVolume : VOLUME_DEFAULT_UNIT / mMaxVolume;
+        // 获取当前音量
+        mCenterIcon.setImageResource(R.drawable.ic_volume);
+        if (mVolume == 0) {
+            mVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        }
+        if ((int) mVolume > mMaxVolume || (int) mVolume < 0) {
             return;
         }
-        Activity activity = (Activity) context;
-        AudioManager mAudioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
-        int maxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        int volume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        if (mVoice == 0) {
-            mVoice = volume;
+        if ((int) (mVolume + volume) <= mMaxVolume && (int) (mVolume + volume) >= 0) {
+            mVolume += volume;
+            // the safe volume warning dialog is displayed only with the FLAG_SHOW_UI flag
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) mVolume, 0);
+            int round = Math.min(Math.max((int) (mVolume * 100 / mMaxVolume), 0), 100);
+            mCenterText.setText(getResources().getString(R.string.brightness, round));
         }
-        if ((int) mVoice > maxVolume || (int) mVoice < 0) {
-            return;
-        }
-        if ((int)(mVoice + voice / maxVolume) <= maxVolume && (mVoice + voice / maxVolume) >= -0.5) {
-            mVoice += voice / maxVolume;
-        }
-        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) mVoice, 0);
-        int volume2 = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        if (volume2 != (int)mVoice) {
-//            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) mVoice, AudioManager.FLAG_SHOW_UI);
-        }
-        int round = (int) (mVoice * 100 / maxVolume);
-        if (round > 100) {
-            round = 100;
-        } else if (round < 0) {
-            round = 0;
-        }
-        b.setText(getResources().getString(R.string.brightness, round));
     }
 }
