@@ -38,6 +38,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -46,7 +47,6 @@ import com.dream.dreamview.R;
 import com.dream.dreamview.util.LogUtil;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -92,8 +92,11 @@ public final class ExoPlayerView extends FrameLayout {
     private boolean controllerHideOnTouch;
     private ImageView playBtn;
     private ImageView pauseBtn;
-    private ProgressBar mProgressBar;
+    private ProgressBar mLoadingProgressBar;
     private SeekBar mSeekBar;
+    private TextView mCenterText;
+    private ImageView mCenterIcon;
+    private LinearLayout mCenterLayout;
 
     private boolean isAttachedToWindow;
     private boolean isPauseFromUser;// 是否手动暂停
@@ -105,18 +108,25 @@ public final class ExoPlayerView extends FrameLayout {
         }
     };
     private ImageView mFullScreen;
-    private TextView mCenterText;//
     private AudioManager mAudioManager;
     private int mMaxVolume; // 系统亮度最大值
     private float mVolume;// 音量
     private DisplayMetrics mScreen;
-    private ImageView mCenterIcon;
 
     private float startX;
     private float startY;
-    private float lastX;
-    private float lastY;
     private WindowManager.LayoutParams mWindowParams;
+    private Activity mActivity;
+    private long duration;
+    private long currentPosition;
+    private float mStartVolume;// 初始音量
+    private float mCurrentBrightness;
+    private float mStartBrightness;
+
+    private boolean isVertical;// 竖直滑动
+    private boolean isHorizontal;// 水平滑动
+    private boolean mPlayerIsReady;
+
 
     public ExoPlayerView(Context context) {
         this(context, null);
@@ -222,7 +232,7 @@ public final class ExoPlayerView extends FrameLayout {
         /** 播放菜单 **/
         playBtn = findViewById(R.id.exo_play);
         pauseBtn = findViewById(R.id.exo_pause);
-        mProgressBar = findViewById(R.id.loading_progress_bar);
+        mLoadingProgressBar = findViewById(R.id.loading_progress_bar);
         mFullScreen = findViewById(R.id.enter_full_screen);
         mSeekBar = findViewById(R.id.seek_bar);
         playBtn.setOnClickListener(componentListener);
@@ -232,8 +242,9 @@ public final class ExoPlayerView extends FrameLayout {
 
         mSeekBar.setMax(PROGRESS_BAR_MAX);
 
-        mCenterText = findViewById(R.id.brightness);
+        mCenterText = findViewById(R.id.text_center);
         mCenterIcon = findViewById(R.id.icon_center);
+        mCenterLayout = findViewById(R.id.layut_center);
     }
 
     /**
@@ -667,10 +678,10 @@ public final class ExoPlayerView extends FrameLayout {
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mMaxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         if (context instanceof Activity) {
-            Activity activity = (Activity) context;
-            mWindowParams = activity.getWindow().getAttributes();
+            mActivity = (Activity) context;
+            mWindowParams = mActivity.getWindow().getAttributes();
             try {
-                int brightness = Settings.System.getInt(activity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
+                int brightness = Settings.System.getInt(mActivity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
                 mWindowParams.screenBrightness = brightness / 255.0f;
             } catch (Settings.SettingNotFoundException e) {
                 e.printStackTrace();
@@ -684,6 +695,9 @@ public final class ExoPlayerView extends FrameLayout {
         isAttachedToWindow = false;
         removeCallbacks(updateProgressAction);
         mVolume = 0;
+        mActivity = null;
+        mCurrentBrightness = 0;
+        mWindowParams = null;
     }
 
     private int progressBarValue(long position) {
@@ -767,9 +781,10 @@ public final class ExoPlayerView extends FrameLayout {
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
             if (playbackState == Player.STATE_IDLE || playbackState == Player.STATE_BUFFERING) {
-                mProgressBar.setVisibility(VISIBLE);
+                mLoadingProgressBar.setVisibility(VISIBLE);
             } else {
-                mProgressBar.setVisibility(GONE);
+                mPlayerIsReady = true;
+                mLoadingProgressBar.setVisibility(GONE);
             }
             updateProgress();
 //            maybeShowController(false);
@@ -815,10 +830,8 @@ public final class ExoPlayerView extends FrameLayout {
                     player.setPlayWhenReady(false);
                 } else if (view == mFullScreen) {
                     // TODO 待整理
-                    Context context = getContext();
-                    if (context instanceof Activity) {
-                        Activity activity = (Activity) context;
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+                    if (mActivity != null) {
+                        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
                     }
                 }
             }
@@ -840,107 +853,109 @@ public final class ExoPlayerView extends FrameLayout {
         }
     }
 
-    private boolean isVertical;
-    private boolean isHorizontal;
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // TODO 这里最好放在屏幕旋转那里
         WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         mScreen = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(mScreen);
+        int widthPixels = mScreen.widthPixels;
+        int heightPixels = mScreen.heightPixels;
+        int slidingRange = Math.min(heightPixels, widthPixels);
 
         int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                startX = lastX = event.getX();
-                startY = lastY = event.getY();
+                startX = event.getX();
+                startY = event.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
                 float x = event.getX();
                 float y = event.getY();
-                float dx2 = x - lastX;
-                float dy2 = y - lastY;
-                float dx = Math.abs(x - startX);
-                float dy = Math.abs(y - startY);
-                if (dx > 0 && dx * 0.5f > dy && !isVertical) {// 水平
-                    isHorizontal = true;
-                    setProgress((x - startX) / mScreen.widthPixels);
-                } else if (dy > 0 && dy * 0.5f > dx && !isHorizontal) {// 竖直
-                    isVertical = true;
-                    float value = -(y - startY) / mScreen.widthPixels;
-                    if ((int) x < mScreen.widthPixels / 2) {
+                float dx = x - startX;
+                float dy = y - startY;
+                float absX = Math.abs(dx);
+                float absY = Math.abs(dy);
+                if (isVertical) {
+                    float value = -dy / slidingRange;
+                    if ((int) x < widthPixels / 2) {
                         setVolume(value);
                     } else {
                         setBrightness(value);
                     }
+                    break;
                 }
-                lastX = event.getX();
-                lastY = event.getY();
+                if (isHorizontal) {
+                    setProgress(dx / slidingRange);
+                    break;
+                }
+                if (absX > 0 && absX * 0.5f > (absY + 8) && !isVertical && mPlayerIsReady) {// 水平
+                    isHorizontal = true;
+                } else if (absY > 0 && absY * 0.5f > (absX + 8) && !isHorizontal && mPlayerIsReady) {// 竖直
+                    isVertical = true;
+                }
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                if (isHorizontal || isVertical) {
+                    mCenterLayout.setVisibility(GONE);
+                }
                 // 当滑动到100%不显示当前视频页面，是个bug，所以最后减少一点
                 if (isHorizontal) {
                     player.seekTo(currentPosition == duration ? currentPosition - 200 : currentPosition);
                 }
                 isHorizontal = false;
                 isVertical = false;
-                mCurrentVolume = 0;
-                mBrightness = 0;
+                mStartVolume = 0;
+                mStartBrightness = 0;
                 break;
         }
         return true;
     }
 
-    private float mCurrentBrightness;
-    private float mBrightness;
-
     private void setBrightness(float value) {
         float brightness = value * 4;
-        Context context = getContext();
-        if (!(context instanceof Activity)) {
+        if (mActivity == null) {
             return;
         }
-        mCenterIcon.setImageResource(R.drawable.ic_brightness);
-        Activity activity = (Activity) context;
-        if (mBrightness == 0) {
-            mBrightness = mWindowParams.screenBrightness;
+        mCenterIcon.setImageResource(R.drawable.ic_video_brightness);
+        if (mStartBrightness == 0) {
+            mStartBrightness = mWindowParams.screenBrightness;
         }
-        mCurrentBrightness = mBrightness + brightness;
+        mCurrentBrightness = mStartBrightness + brightness;
         mCurrentBrightness = mWindowParams.screenBrightness = Math.min(Math.max(mCurrentBrightness, 0), 1);
         int round = Math.round(mWindowParams.screenBrightness * 100);
-        activity.getWindow().setAttributes(mWindowParams);
+        mActivity.getWindow().setAttributes(mWindowParams);
         mCenterText.setText(getResources().getString(R.string.brightness, round));
+        mCenterLayout.setVisibility(VISIBLE);
     }
 
-    private float mCurrentVolume;// 初始音量
-
     private void setVolume(float value) {
-        mCenterIcon.setImageResource(R.drawable.ic_volume);
-        if (mCurrentVolume == 0) {
+        mCenterIcon.setImageResource(R.drawable.ic_video_volume);
+        if (mStartVolume == 0) {
             // 获取当前音量
-            mCurrentVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+            mStartVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         }
         float v = value * mMaxVolume * 4;
-        mVolume = mCurrentVolume + v;
+        mVolume = mStartVolume + v;
         mVolume = Math.max(Math.min(mVolume, mMaxVolume), 0);
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) mVolume, 0);
         int round = (int) (mVolume * 100 / mMaxVolume);
         mCenterText.setText(getResources().getString(R.string.brightness, round));
+        mCenterLayout.setVisibility(VISIBLE);
     }
 
-    private float duration;
-    private long currentPosition;
-
     private void setProgress(float value) {
+        mCenterIcon.setImageResource(R.drawable.ic_video_progress);
         if (duration == 0) {
             duration = player.getDuration();
         }
         long position = player.getCurrentPosition();
         currentPosition = position + (long) (value * duration);
-        currentPosition = (long) Math.max(Math.min(currentPosition, duration), 0);
-        int round = (int) (currentPosition * 100 / duration);
+        currentPosition = Math.max(Math.min(currentPosition, duration), 0);
+        int round = (int) (currentPosition * 100 / ((float) duration));
+        LogUtil.e("当前百分比" + round + "========" + currentPosition);
         mCenterText.setText(getResources().getString(R.string.brightness, round));
+        mCenterLayout.setVisibility(VISIBLE);
     }
 }
