@@ -28,7 +28,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
@@ -60,10 +59,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.ui.PlaybackControlView;
-import com.google.android.exoplayer2.ui.PlaybackControlView.ControlDispatcher;
 import com.google.android.exoplayer2.ui.SubtitleView;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.RepeatModeUtil;
 
 import java.util.List;
 
@@ -81,7 +78,6 @@ public final class ExoPlayerView extends FrameLayout {
     private final View shutterView;
     private final View surfaceView;
     private final SubtitleView subtitleView;
-    private final PlaybackControlView controller;
     private final ComponentListener componentListener;
     private final FrameLayout overlayFrameLayout;
 
@@ -101,12 +97,6 @@ public final class ExoPlayerView extends FrameLayout {
     private boolean isAttachedToWindow;
     private boolean isPauseFromUser;// 是否手动暂停
 
-    private final Runnable updateProgressAction = new Runnable() {
-        @Override
-        public void run() {
-            updateProgress();
-        }
-    };
     private ImageView mFullScreen;
     private AudioManager mAudioManager;
     private int mMaxVolume; // 系统亮度最大值
@@ -126,7 +116,22 @@ public final class ExoPlayerView extends FrameLayout {
     private boolean isVertical;// 竖直滑动
     private boolean isHorizontal;// 水平滑动
     private boolean mPlayerIsReady;
+    private LinearLayout mTopLayout;
+    private LinearLayout mBottomLayout;
 
+    private final Runnable updateProgressAction = new Runnable() {
+        @Override
+        public void run() {
+            updateProgress();
+        }
+    };
+
+    private final Runnable hideAction = new Runnable() {
+        @Override
+        public void run() {
+            shouldShowController(false);
+        }
+    };
 
     public ExoPlayerView(Context context) {
         this(context, null);
@@ -203,32 +208,6 @@ public final class ExoPlayerView extends FrameLayout {
             subtitleView.setUserDefaultTextSize();
         }
 
-        // Playback control view.
-        // 进度条等菜单
-//    PlaybackControlView customController = findViewById(R.id.exo_controller);
-//    View controllerPlaceholder = findViewById(com.google.android.exoplayer2.ui.R.id.exo_controller_placeholder);
-        PlaybackControlView customController = null;
-        View controllerPlaceholder = null;
-        if (customController != null) {
-            this.controller = customController;
-        } else if (controllerPlaceholder != null) {
-            // Note: rewindMs and fastForwardMs are passed via attrs, so we don't need to make explicit
-            // calls to set them.
-            this.controller = new PlaybackControlView(context, attrs);
-            controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
-            ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
-            int controllerIndex = parent.indexOfChild(controllerPlaceholder);
-            parent.removeView(controllerPlaceholder);
-            parent.addView(controller, controllerIndex);
-        } else {
-            this.controller = null;
-        }
-        this.controllerShowTimeoutMs = controller != null ? controllerShowTimeoutMs : 0;
-        this.controllerHideOnTouch = controllerHideOnTouch;
-        this.controllerAutoShow = controllerAutoShow;
-        this.useController = useController && controller != null;
-        hideController();
-
         /** 播放菜单 **/
         playBtn = findViewById(R.id.exo_play);
         pauseBtn = findViewById(R.id.exo_pause);
@@ -245,6 +224,8 @@ public final class ExoPlayerView extends FrameLayout {
         mCenterText = findViewById(R.id.text_center);
         mCenterIcon = findViewById(R.id.icon_center);
         mCenterLayout = findViewById(R.id.layut_center);
+        mTopLayout = findViewById(R.id.top_layout);
+        mBottomLayout = findViewById(R.id.bottom_layout);
     }
 
     /**
@@ -293,9 +274,6 @@ public final class ExoPlayerView extends FrameLayout {
             }
         }
         this.player = player;
-        if (useController) {
-            controller.setPlayer(player);
-        }
         if (shutterView != null) {
             shutterView.setVisibility(VISIBLE);
         }
@@ -308,10 +286,9 @@ public final class ExoPlayerView extends FrameLayout {
             player.setVideoListener(componentListener);
             player.setTextOutput(componentListener);
             player.addListener(componentListener);
-            maybeShowController(false);
             updateForCurrentTrackSelections();
         } else {
-            hideController();
+//            hideController();
         }
     }
 
@@ -323,194 +300,6 @@ public final class ExoPlayerView extends FrameLayout {
     public void setResizeMode(@ResizeMode int resizeMode) {
         Assertions.checkState(contentFrame != null);
         contentFrame.setResizeMode(resizeMode);
-    }
-
-    /**
-     * Returns whether the playback controls can be shown.
-     */
-    public boolean getUseController() {
-        return useController;
-    }
-
-    /**
-     * Sets whether the playback controls can be shown. If set to {@code false} the playback controls
-     * are never visible and are disconnected from the player.
-     *
-     * @param useController Whether the playback controls can be shown.
-     */
-    public void setUseController(boolean useController) {
-        Assertions.checkState(!useController || controller != null);
-        if (this.useController == useController) {
-            return;
-        }
-        this.useController = useController;
-        if (useController) {
-            controller.setPlayer(player);
-        } else if (controller != null) {
-            controller.hide();
-            controller.setPlayer(null);
-        }
-    }
-
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        maybeShowController(true);
-        return dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
-    }
-
-    /**
-     * Called to process media key events. Any {@link KeyEvent} can be passed but only media key
-     * events will be handled. Does nothing if playback controls are disabled.
-     *
-     * @param event A key event.
-     * @return Whether the key event was handled.
-     */
-    public boolean dispatchMediaKeyEvent(KeyEvent event) {
-        return useController && controller.dispatchMediaKeyEvent(event);
-    }
-
-    /**
-     * Shows the playback controls. Does nothing if playback controls are disabled.
-     * <p>
-     * <p>The playback controls are automatically hidden during playback after
-     * {{@link #getControllerShowTimeoutMs()}}. They are shown indefinitely when playback has not
-     * started yet, is paused, has ended or failed.
-     */
-    public void showController() {
-        showController(shouldShowControllerIndefinitely());
-    }
-
-    /**
-     * Hides the playback controls. Does nothing if playback controls are disabled.
-     */
-    public void hideController() {
-        if (controller != null) {
-            controller.hide();
-        }
-    }
-
-    /**
-     * Returns the playback controls timeout. The playback controls are automatically hidden after
-     * this duration of time has elapsed without user input and with playback or buffering in
-     * progress.
-     *
-     * @return The timeout in milliseconds. A non-positive value will cause the controller to remain
-     * visible indefinitely.
-     */
-    public int getControllerShowTimeoutMs() {
-        return controllerShowTimeoutMs;
-    }
-
-    /**
-     * Sets the playback controls timeout. The playback controls are automatically hidden after this
-     * duration of time has elapsed without user input and with playback or buffering in progress.
-     *
-     * @param controllerShowTimeoutMs The timeout in milliseconds. A non-positive value will cause
-     *                                the controller to remain visible indefinitely.
-     */
-    public void setControllerShowTimeoutMs(int controllerShowTimeoutMs) {
-        Assertions.checkState(controller != null);
-        this.controllerShowTimeoutMs = controllerShowTimeoutMs;
-    }
-
-    /**
-     * Returns whether the playback controls are hidden by touch events.
-     */
-    public boolean getControllerHideOnTouch() {
-        return controllerHideOnTouch;
-    }
-
-    /**
-     * Sets whether the playback controls are hidden by touch events.
-     *
-     * @param controllerHideOnTouch Whether the playback controls are hidden by touch events.
-     */
-    public void setControllerHideOnTouch(boolean controllerHideOnTouch) {
-        Assertions.checkState(controller != null);
-        this.controllerHideOnTouch = controllerHideOnTouch;
-    }
-
-    /**
-     * Returns whether the playback controls are automatically shown when playback starts, pauses,
-     * ends, or fails. If set to false, the playback controls can be manually operated with {@link
-     * #showController()} and {@link #hideController()}.
-     */
-    public boolean getControllerAutoShow() {
-        return controllerAutoShow;
-    }
-
-    /**
-     * Sets whether the playback controls are automatically shown when playback starts, pauses, ends,
-     * or fails. If set to false, the playback controls can be manually operated with {@link
-     * #showController()} and {@link #hideController()}.
-     *
-     * @param controllerAutoShow Whether the playback controls are allowed to show automatically.
-     */
-    public void setControllerAutoShow(boolean controllerAutoShow) {
-        this.controllerAutoShow = controllerAutoShow;
-    }
-
-    /**
-     * Set the {@link PlaybackControlView.VisibilityListener}.
-     *
-     * @param listener The listener to be notified about visibility changes.
-     */
-    public void setControllerVisibilityListener(PlaybackControlView.VisibilityListener listener) {
-        Assertions.checkState(controller != null);
-        controller.setVisibilityListener(listener);
-    }
-
-    /**
-     * Sets the {@link ControlDispatcher}.
-     *
-     * @param controlDispatcher The {@link ControlDispatcher}, or null to use
-     *                          {@link PlaybackControlView#DEFAULT_CONTROL_DISPATCHER}.
-     */
-    public void setControlDispatcher(ControlDispatcher controlDispatcher) {
-        Assertions.checkState(controller != null);
-        controller.setControlDispatcher(controlDispatcher);
-    }
-
-    /**
-     * Sets the rewind increment in milliseconds.
-     *
-     * @param rewindMs The rewind increment in milliseconds. A non-positive value will cause the
-     *                 rewind button to be disabled.
-     */
-    public void setRewindIncrementMs(int rewindMs) {
-        Assertions.checkState(controller != null);
-        controller.setRewindIncrementMs(rewindMs);
-    }
-
-    /**
-     * Sets the fast forward increment in milliseconds.
-     *
-     * @param fastForwardMs The fast forward increment in milliseconds. A non-positive value will
-     *                      cause the fast forward button to be disabled.
-     */
-    public void setFastForwardIncrementMs(int fastForwardMs) {
-        Assertions.checkState(controller != null);
-        controller.setFastForwardIncrementMs(fastForwardMs);
-    }
-
-    /**
-     * Sets which repeat toggle modes are enabled.
-     *
-     * @param repeatToggleModes A set of {@link RepeatModeUtil.RepeatToggleModes}.
-     */
-    public void setRepeatToggleModes(@RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
-        Assertions.checkState(controller != null);
-        controller.setRepeatToggleModes(repeatToggleModes);
-    }
-
-    /**
-     * Sets whether the time bar should show all windows, as opposed to just the current one.
-     *
-     * @param showMultiWindowTimeBar Whether to show all windows.
-     */
-    public void setShowMultiWindowTimeBar(boolean showMultiWindowTimeBar) {
-        Assertions.checkState(controller != null);
-        controller.setShowMultiWindowTimeBar(showMultiWindowTimeBar);
     }
 
     /**
@@ -544,57 +333,6 @@ public final class ExoPlayerView extends FrameLayout {
         return subtitleView;
     }
 
-//  @Override
-//  public boolean onTouchEvent(MotionEvent ev) {
-//    if (!useController || player == null || ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
-//      return false;
-//    }
-//    if (!controller.isVisible()) {
-//      maybeShowController(true);
-//    } else if (controllerHideOnTouch) {
-//      controller.hide();
-//    }
-//    return true;
-//  }
-
-    @Override
-    public boolean onTrackballEvent(MotionEvent ev) {
-        if (!useController || player == null) {
-            return false;
-        }
-        maybeShowController(true);
-        return true;
-    }
-
-    /**
-     * Shows the playback controls, but only if forced or shown indefinitely.
-     */
-    private void maybeShowController(boolean isForced) {
-        if (useController) {
-            boolean wasShowingIndefinitely = controller.isVisible() && controller.getShowTimeoutMs() <= 0;
-            boolean shouldShowIndefinitely = shouldShowControllerIndefinitely();
-            if (isForced || wasShowingIndefinitely || shouldShowIndefinitely) {
-                showController(shouldShowIndefinitely);
-            }
-        }
-    }
-
-    private boolean shouldShowControllerIndefinitely() {
-        if (player == null) {
-            return true;
-        }
-        int playbackState = player.getPlaybackState();
-        return controllerAutoShow && (playbackState == Player.STATE_IDLE
-                || playbackState == Player.STATE_ENDED || !player.getPlayWhenReady());
-    }
-
-    private void showController(boolean showIndefinitely) {
-        if (!useController) {
-            return;
-        }
-        controller.setShowTimeoutMs(showIndefinitely ? 0 : controllerShowTimeoutMs);
-        controller.show();
-    }
 
     private void updateForCurrentTrackSelections() {
         if (player == null) {
@@ -651,8 +389,6 @@ public final class ExoPlayerView extends FrameLayout {
 
     public void pause() {
         if (player != null) {
-            playBtn.setVisibility(VISIBLE);
-            pauseBtn.setVisibility(GONE);
             player.setPlayWhenReady(false);
         }
     }
@@ -787,7 +523,6 @@ public final class ExoPlayerView extends FrameLayout {
                 mLoadingProgressBar.setVisibility(GONE);
             }
             updateProgress();
-//            maybeShowController(false);
         }
 
         @Override
@@ -853,6 +588,38 @@ public final class ExoPlayerView extends FrameLayout {
         }
     }
 
+    private void shouldShowController(boolean show) {
+        if (show) {
+            mTopLayout.setVisibility(VISIBLE);
+            mBottomLayout.setVisibility(VISIBLE);
+            if (player.getPlayWhenReady()) {
+                pauseBtn.setVisibility(VISIBLE);
+            } else {
+                playBtn.setVisibility(VISIBLE);
+            }
+//            postDelayed(hideAction, 5000);
+        } else {
+            mTopLayout.setVisibility(GONE);
+            mBottomLayout.setVisibility(GONE);
+            pauseBtn.setVisibility(GONE);
+            playBtn.setVisibility(GONE);
+        }
+    }
+
+    private boolean getControllerVisibility() {
+        return mTopLayout.getVisibility() == VISIBLE;
+    }
+
+    @Override
+    public boolean performClick() {
+        if (!getControllerVisibility() && !isHorizontal && !isVertical) {
+            shouldShowController(true);
+        } else {
+            shouldShowController(false);
+        }
+        return super.performClick();
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // TODO 这里最好放在屏幕旋转那里
@@ -891,12 +658,21 @@ public final class ExoPlayerView extends FrameLayout {
                 }
                 if (absX > 0 && absX * 0.5f > (absY + 8) && !isVertical && mPlayerIsReady) {// 水平
                     isHorizontal = true;
+                    if (getControllerVisibility()) {
+                        shouldShowController(false);
+                    }
                 } else if (absY > 0 && absY * 0.5f > (absX + 8) && !isHorizontal && mPlayerIsReady) {// 竖直
                     isVertical = true;
+                    if (getControllerVisibility()) {
+                        shouldShowController(false);
+                    }
                 }
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                if (!isHorizontal && !isVertical) {
+                    performClick();
+                }
                 if (isHorizontal || isVertical) {
                     mCenterLayout.setVisibility(GONE);
                 }

@@ -34,9 +34,11 @@
 
         <!-- 顶部菜单 -->
         <LinearLayout
+            android:id="@+id/top_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:visibility="gone">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -61,7 +63,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:src="@drawable/ic_video_play" />
+            android:src="@drawable/ic_video_play"
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/exo_pause"
@@ -109,11 +112,13 @@
 
         <!-- 底部菜单 -->
         <LinearLayout
+            android:id="@+id/bottom_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_gravity="bottom"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
