@@ -91,7 +91,6 @@ public class VideoActivity extends NavBaseActivity {
         player.prepare(videoSource);
 //        player.setPlayWhenReady(true);
 //        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-        t();
     }
 
     @Override
@@ -102,77 +101,10 @@ public class VideoActivity extends NavBaseActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        // TODO 待完善
         if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-            int orientation = getResources().getConfiguration().orientation;
-            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-                return true;
-            }
+            return exoPlayerView.isLandscape() || super.onKeyDown(keyCode, event);
         }
         return super.onKeyDown(keyCode, event);
     }
 
-    private OrientationEventListener mOrientationListener;
-    private int oldScreenOrientation;
-    // TODO 处理屏幕旋转
-    private void t() {
-        // TODO 打开关闭屏幕常亮功能，ExoPlayerView需要对外暴露一个视频开始结束Listener
-        // TODO 配置一个是否常亮开关
-//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        mOrientationListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
-            @Override
-            public void onOrientationChanged(int orientation) {
-                try {
-                    int flag = Settings.System.getInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION);
-                    if (flag == 0) { // 0 表示手机自动旋转功能未打开 1：表示打开
-                        return;
-                    }
-                } catch (Settings.SettingNotFoundException e) {
-                    e.printStackTrace();
-                }
-                if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN) {
-                    return;  //手机平放时，检测不到有效的角度
-                }
-                //只检测是否有四个角度的改变
-                if (orientation > 350 || orientation < 10) { //0度
-                    orientation = 0;
-                } else if (orientation > 80 && orientation < 100) { //90度
-                    orientation = 90;
-                } else if (orientation > 170 && orientation < 190) { //180度
-                    orientation = 180;
-                } else if (orientation > 260 && orientation < 280) { //270度
-                    orientation = 270;
-                }
-                if (orientation == 90) {
-                    if (oldScreenOrientation != orientation) {
-                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-                        oldScreenOrientation = orientation;
-                    }
-                } else if (orientation == 270) {
-                    if (oldScreenOrientation != orientation) {
-                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-                        oldScreenOrientation = orientation;
-                    }
-                } else if (orientation == 0) {
-                    if (oldScreenOrientation != orientation) {
-                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-                        oldScreenOrientation = orientation;
-                    }
-                }
-            }
-        };
-        if (mOrientationListener.canDetectOrientation()) {
-            mOrientationListener.enable();
-        } else {
-            mOrientationListener.disable();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mOrientationListener.disable();
-    }
 }

@@ -63,6 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:padding="2dp"
             android:src="@drawable/ic_video_play"
             android:visibility="gone" />
 
@@ -71,6 +72,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:padding="2dp"
             android:src="@drawable/ic_video_pause"
             android:visibility="gone" />
 
@@ -121,6 +123,7 @@
             android:visibility="gone">
 
             <TextView
+                android:id="@+id/current_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
@@ -137,9 +140,10 @@
                 android:paddingEnd="8dp"
                 android:paddingStart="8dp"
                 android:progressDrawable="@drawable/seek_bar_bg"
-                android:thumb="@drawable/seek_bar_thumb" />
+                android:thumb="@drawable/seek_bar_thumb_normal" />
 
             <TextView
+                android:id="@+id/end_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="00:00"
@@ -147,13 +151,21 @@
                 android:textSize="16sp" />
 
             <ImageView
-                android:id="@+id/enter_full_screen"
+                android:id="@+id/screen_full"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:src="@drawable/ic_enter_fullscreen" />
 
+            <ImageView
+                android:id="@+id/screen_normal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:src="@drawable/ic_exist_fullscreen"
+                android:visibility="gone" />
         </LinearLayout>
 
     </FrameLayout>
