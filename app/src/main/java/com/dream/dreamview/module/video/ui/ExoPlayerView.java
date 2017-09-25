@@ -42,6 +42,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -104,6 +105,9 @@ public final class ExoPlayerView extends FrameLayout {
     private ImageView mScreenNormal;
     private TextView mEndTime;
     private TextView mCurrentTime;
+    private LinearLayout mTopLayout;
+    private LinearLayout mBottomLayout;
+    private TextView mSpeed;
 
     private boolean isAttachedToWindow;
     private boolean isPauseFromUser;// 是否手动暂停
@@ -116,7 +120,6 @@ public final class ExoPlayerView extends FrameLayout {
 
     private float startX;
     private float startY;
-    private WindowManager.LayoutParams mWindowParams;
     private Activity mActivity;
     private long duration;
     private long currentPosition;
@@ -130,8 +133,6 @@ public final class ExoPlayerView extends FrameLayout {
     private boolean isVertical;// 竖直滑动
     private boolean isHorizontal;// 水平滑动
     private boolean mPlayerIsReady;
-    private LinearLayout mTopLayout;
-    private LinearLayout mBottomLayout;
 
     // 屏幕旋转
     private OrientationEventListener mOrientationListener;
@@ -249,6 +250,8 @@ public final class ExoPlayerView extends FrameLayout {
         mCenterLayout = findViewById(R.id.layut_center);
         mTopLayout = findViewById(R.id.top_layout);
         mBottomLayout = findViewById(R.id.bottom_layout);
+        mSpeed = findViewById(R.id.speed);
+        mSpeed.setOnClickListener(componentListener);
 
         formatBuilder = new StringBuilder();
         formatter = new Formatter(formatBuilder, Locale.getDefault());
@@ -446,13 +449,6 @@ public final class ExoPlayerView extends FrameLayout {
         mMaxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         if (context instanceof Activity) {
             mActivity = (Activity) context;
-            mWindowParams = mActivity.getWindow().getAttributes();
-            try {
-                int brightness = Settings.System.getInt(mActivity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
-                mWindowParams.screenBrightness = brightness / 255.0f;
-            } catch (Settings.SettingNotFoundException e) {
-                e.printStackTrace();
-            }
             screenOrientationInit();
         }
         screenSizeInit();
@@ -467,7 +463,6 @@ public final class ExoPlayerView extends FrameLayout {
         mVolume = 0;
         mActivity = null;
         mCurrentBrightness = 0;
-        mWindowParams = null;
         if (player != null) {
             player.release();
         }
@@ -622,6 +617,8 @@ public final class ExoPlayerView extends FrameLayout {
                     changeOrientation(SCREEN_SENSOR_LANDSCAPE);
                 } else if (view == mScreenNormal) {
                     changeOrientation(SCREEN_PORTRAIT);
+                } else if (view == mSpeed) {
+                    showSpeedPop();
                 }
             }
         }
@@ -757,14 +754,15 @@ public final class ExoPlayerView extends FrameLayout {
         if (mActivity == null) {
             return;
         }
+        WindowManager.LayoutParams windowParams = mActivity.getWindow().getAttributes();
         mCenterIcon.setImageResource(R.drawable.ic_video_brightness);
         if (mStartBrightness == 0) {
-            mStartBrightness = mWindowParams.screenBrightness;
+            mStartBrightness = 0.5f;
         }
         mCurrentBrightness = mStartBrightness + brightness;
-        mCurrentBrightness = mWindowParams.screenBrightness = Math.min(Math.max(mCurrentBrightness, 0), 1);
-        int round = Math.round(mWindowParams.screenBrightness * 100);
-        mActivity.getWindow().setAttributes(mWindowParams);
+        mCurrentBrightness = windowParams.screenBrightness = Math.min(Math.max(mCurrentBrightness, 0), 1);
+        int round = Math.round(windowParams.screenBrightness * 100);
+        mActivity.getWindow().setAttributes(windowParams);
         mCenterText.setText(getResources().getString(R.string.brightness, round));
         mCenterLayout.setVisibility(VISIBLE);
     }
@@ -881,5 +879,53 @@ public final class ExoPlayerView extends FrameLayout {
             return true;
         }
         return false;
+    }
+
+    private void showSpeedPop() {
+        // 倍速弹窗出现的时候，控制条显示
+        removeCallbacks(hideAction);
+        final PopupWindow popupWindow = new PopupWindow(this);
+        popupWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.exo_player_speed_pop, null);
+//        popupWindow.setOutsideTouchable(false);
+        popupWindow.setFocusable(true);
+        popupWindow.setContentView(view);
+        popupWindow.showAsDropDown(mSpeed);
+        final TextView value = view.findViewById(R.id.speed_value);
+        value.setText(mSpeed.getText().toString());
+        view.findViewById(R.id.speed_less).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                double v = Double.parseDouble(value.getText().toString().substring(0, 4)) - 0.05;
+                value.setText(v >= 0.50 ? String.format("%.2f", v) + " X" : "0.00 X");
+            }
+        });
+        view.findViewById(R.id.speed_add).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                double v = Double.parseDouble(value.getText().toString().substring(0, 4)) + 0.05;
+                value.setText(v <= 2.50 ? String.format("%.2f", v) + " X" : "2.50 X");
+            }
+        });
+        view.findViewById(R.id.ok).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String speedText = value.getText().toString();
+                mSpeed.setText(speedText);
+                if (player != null) {
+                    Float speed = Float.valueOf(speedText.substring(0, 4));
+                    player.setPlaybackParameters(new PlaybackParameters(speed, 1));
+                }
+                popupWindow.dismiss();
+                shouldShowController(false);
+            }
+        });
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                shouldShowController(false);
+            }
+        });
     }
 }
