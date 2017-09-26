@@ -30,5 +30,6 @@
     <string name="insert_message">Insert Message</string>
 
     <string name="brightness">%1$d%%</string>
+    <string name="exo_player_speed">%1$.2f</string>
 
 </resources>

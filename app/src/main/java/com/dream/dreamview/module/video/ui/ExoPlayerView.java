@@ -21,13 +21,9 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -54,8 +50,6 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
@@ -110,8 +104,6 @@ public final class ExoPlayerView extends FrameLayout {
     private TextView mSpeed;
 
     private boolean isAttachedToWindow;
-    private boolean isPauseFromUser;// 是否手动暂停
-
     private AudioManager mAudioManager;
     private int mMaxVolume; // 系统亮度最大值
     private float mVolume;// 音量
@@ -258,30 +250,6 @@ public final class ExoPlayerView extends FrameLayout {
     }
 
     /**
-     * Switches the view targeted by a given {@link SimpleExoPlayer}.
-     *
-     * @param player        The player whose target view is being switched.
-     * @param oldPlayerView The old view to detach from the player.
-     * @param newPlayerView The new view to attach to the player.
-     */
-    public static void switchTargetView(@NonNull SimpleExoPlayer player,
-                                        @Nullable ExoPlayerView oldPlayerView, @Nullable ExoPlayerView newPlayerView) {
-        if (oldPlayerView == newPlayerView) {
-            return;
-        }
-        // We attach the new view before detaching the old one because this ordering allows the player
-        // to swap directly from one surface to another, without transitioning through a state where no
-        // surface is attached. This is significantly more efficient and achieves a more seamless
-        // transition when using platform provided video decoders.
-        if (newPlayerView != null) {
-            newPlayerView.setPlayer(player);
-        }
-        if (oldPlayerView != null) {
-            oldPlayerView.setPlayer(null);
-        }
-    }
-
-    /**
      * Returns the player currently set on this view, or null if no player is set.
      */
     public SimpleExoPlayer getPlayer() {
@@ -379,35 +347,6 @@ public final class ExoPlayerView extends FrameLayout {
             shutterView.setVisibility(VISIBLE);
         }
     }
-
-    private boolean setArtworkFromMetadata(Metadata metadata) {
-        for (int i = 0; i < metadata.length(); i++) {
-            Metadata.Entry metadataEntry = metadata.get(i);
-            if (metadataEntry instanceof ApicFrame) {
-                byte[] bitmapData = ((ApicFrame) metadataEntry).pictureData;
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
-                return setArtworkFromBitmap(bitmap);
-            }
-        }
-        return false;
-    }
-
-    private boolean setArtworkFromBitmap(Bitmap bitmap) {
-        if (bitmap != null) {
-            int bitmapWidth = bitmap.getWidth();
-            int bitmapHeight = bitmap.getHeight();
-            if (bitmapWidth > 0 && bitmapHeight > 0) {
-                if (contentFrame != null) {
-                    contentFrame.setAspectRatio((float) bitmapWidth / bitmapHeight);
-                }
-//        artworkView.setImageBitmap(bitmap);
-//        artworkView.setVisibility(VISIBLE);
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     @SuppressWarnings("ResourceType")
     private void setResizeModeRaw(AspectRatioFrameLayout aspectRatioFrame, int resizeMode) {
@@ -632,16 +571,20 @@ public final class ExoPlayerView extends FrameLayout {
         public void onStartTrackingTouch(SeekBar seekBar) {
             removeCallbacks(hideAction);// 避免滑动进度条的时候，进度条隐藏
             mSeekBar.setThumb(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb_pressed));
+            mSeekBar.setThumbOffset(0);
             mSeekBarDraging = true;
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             mSeekBarDraging = false;
-            player.seekTo(positionValue(seekBar.getProgress()));
+            long positionMs = positionValue(seekBar.getProgress());
+            long duration = player == null ? 0 : player.getDuration();
+            player.seekTo(positionMs == duration ? positionMs - 200 : positionMs);
             play();
             shouldShowController(false);
             mSeekBar.setThumb(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb_normal));
+            mSeekBar.setThumbOffset(0);
         }
     }
 
@@ -887,7 +830,7 @@ public final class ExoPlayerView extends FrameLayout {
         final PopupWindow popupWindow = new PopupWindow(this);
         popupWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
         popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.exo_player_speed_pop, null);
+        View view = View.inflate(getContext(), R.layout.exo_player_speed_pop, null);
 //        popupWindow.setOutsideTouchable(false);
         popupWindow.setFocusable(true);
         popupWindow.setContentView(view);
@@ -898,14 +841,14 @@ public final class ExoPlayerView extends FrameLayout {
             @Override
             public void onClick(View view) {
                 double v = Double.parseDouble(value.getText().toString().substring(0, 4)) - 0.05;
-                value.setText(v >= 0.50 ? String.format("%.2f", v) + " X" : "0.00 X");
+                value.setText(v >= 0.50 ? getResources().getString(R.string.exo_player_speed, v) + " X" : "0.00 X");
             }
         });
         view.findViewById(R.id.speed_add).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 double v = Double.parseDouble(value.getText().toString().substring(0, 4)) + 0.05;
-                value.setText(v <= 2.50 ? String.format("%.2f", v) + " X" : "2.50 X");
+                value.setText(v <= 2.50 ? getResources().getString(R.string.exo_player_speed, v) + " X" : "2.50 X");
             }
         });
         view.findViewById(R.id.ok).setOnClickListener(new OnClickListener() {
