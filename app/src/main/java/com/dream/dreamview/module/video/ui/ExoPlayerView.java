@@ -90,6 +90,7 @@ public final class ExoPlayerView extends FrameLayout {
     private boolean controllerHideOnTouch;
     private ImageView playBtn;
     private ImageView pauseBtn;
+    private ImageView replayBtn;
     private ProgressBar mLoadingProgressBar;
     private SeekBar mSeekBar;
     private TextView mCenterText;
@@ -223,6 +224,7 @@ public final class ExoPlayerView extends FrameLayout {
         /** 播放菜单 **/
         playBtn = findViewById(R.id.exo_play);
         pauseBtn = findViewById(R.id.exo_pause);
+        replayBtn = findViewById(R.id.exo_replay);
         mLoadingProgressBar = findViewById(R.id.loading_progress_bar);
         mScreenFull = findViewById(R.id.screen_full);
         mScreenNormal = findViewById(R.id.screen_normal);
@@ -231,6 +233,7 @@ public final class ExoPlayerView extends FrameLayout {
         mCurrentTime = findViewById(R.id.current_time);
         playBtn.setOnClickListener(componentListener);
         pauseBtn.setOnClickListener(componentListener);
+        replayBtn.setOnClickListener(componentListener);
         mSeekBar.setOnSeekBarChangeListener(componentListener);
         mScreenFull.setOnClickListener(componentListener);
         mScreenNormal.setOnClickListener(componentListener);
@@ -502,6 +505,11 @@ public final class ExoPlayerView extends FrameLayout {
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            if (playbackState == Player.STATE_ENDED) {
+                replayBtn.setVisibility(VISIBLE);
+            } else {
+                replayBtn.setVisibility(GONE);
+            }
             if (playbackState == Player.STATE_IDLE || playbackState == Player.STATE_BUFFERING) {
                 mLoadingProgressBar.setVisibility(VISIBLE);
             } else {
@@ -552,6 +560,10 @@ public final class ExoPlayerView extends FrameLayout {
                     playBtn.setVisibility(VISIBLE);
                     pauseBtn.setVisibility(GONE);
                     pause();
+                } else if (view == replayBtn) {
+                    replayBtn.setVisibility(GONE);
+                    player.seekTo(0);
+                    player.setPlayWhenReady(true);
                 } else if (view == mScreenFull) {
                     changeOrientation(SCREEN_SENSOR_LANDSCAPE);
                 } else if (view == mScreenNormal) {
@@ -592,10 +604,12 @@ public final class ExoPlayerView extends FrameLayout {
         if (show) {
             mTopLayout.setVisibility(VISIBLE);
             mBottomLayout.setVisibility(VISIBLE);
-            if (player.getPlayWhenReady()) {
-                pauseBtn.setVisibility(VISIBLE);
-            } else {
-                playBtn.setVisibility(VISIBLE);
+            if (replayBtn.getVisibility() == GONE) {
+                if (player.getPlayWhenReady()) {
+                    pauseBtn.setVisibility(VISIBLE);
+                } else {
+                    playBtn.setVisibility(VISIBLE);
+                }
             }
             postDelayed(hideAction, DEFAULT_SHOW_TIMEOUT_MS);
             updateProgress();

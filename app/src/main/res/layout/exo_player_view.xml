@@ -86,6 +86,15 @@
             android:src="@drawable/ic_video_pause"
             android:visibility="gone" />
 
+        <ImageView
+            android:id="@+id/exo_replay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="2dp"
+            android:src="@drawable/ic_video_replay"
+            android:visibility="gone" />
+
         <ProgressBar
             android:id="@+id/loading_progress_bar"
             style="?android:attr/progressBarStyle"
