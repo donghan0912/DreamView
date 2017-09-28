@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2016 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.dream.dreamview.module.video.ui;
 
 import android.annotation.TargetApi;
@@ -56,7 +41,6 @@ import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
-import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SubtitleView;
 import com.google.android.exoplayer2.util.Assertions;
 
@@ -77,17 +61,11 @@ public final class ExoPlayerView extends FrameLayout {
     private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
     private static final int PROGRESS_BAR_MAX = 1000;
 
-    private final AspectRatioFrameLayout contentFrame;
-    private final View shutterView;
-    private final View surfaceView;
-    private final SubtitleView subtitleView;
-    private final ComponentListener componentListener;
-    private final FrameLayout overlayFrameLayout;
-
-    private SimpleExoPlayer player;
-    private int controllerShowTimeoutMs;
-    private boolean controllerAutoShow;
-    private boolean controllerHideOnTouch;
+    private AspectRatioFrameLayout contentFrame;
+    private View shutterView;
+    private View surfaceView;
+    private SubtitleView subtitleView;
+    private FrameLayout overlayFrameLayout;
     private ImageView playBtn;
     private ImageView pauseBtn;
     private ImageView replayBtn;
@@ -104,7 +82,10 @@ public final class ExoPlayerView extends FrameLayout {
     private LinearLayout mBottomLayout;
     private TextView mSpeed;
 
+    private int controllerShowTimeoutMs;
+    private boolean playerAutoRotation;
     private boolean isAttachedToWindow;
+
     private AudioManager mAudioManager;
     private int mMaxVolume; // 系统亮度最大值
     private float mVolume;// 音量
@@ -113,7 +94,6 @@ public final class ExoPlayerView extends FrameLayout {
 
     private float startX;
     private float startY;
-    private Activity mActivity;
     private long duration;
     private long currentPosition;
     private float mStartVolume;// 初始音量
@@ -127,12 +107,14 @@ public final class ExoPlayerView extends FrameLayout {
     private boolean isHorizontal;// 水平滑动
     private boolean mPlayerIsReady;
 
+    private SimpleExoPlayer player;
+    private ComponentListener componentListener;
+    private Activity mActivity;
     // 屏幕旋转
     private OrientationEventListener mOrientationListener;
     private int oldScreenOrientation;
-
-    private final StringBuilder formatBuilder;
-    private final Formatter formatter;
+    private StringBuilder formatBuilder;
+    private Formatter formatter;
 
     private final Runnable updateProgressAction = new Runnable() {
         @Override
@@ -159,46 +141,45 @@ public final class ExoPlayerView extends FrameLayout {
     public ExoPlayerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
+        if (isInEditMode()) {
+            ImageView logo = new ImageView(context);
+            logo.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_launcher));
+            logo.setBackgroundColor(ContextCompat.getColor(context, R.color.white));
+            addView(logo);
+            return;
+        }
+
         int playerLayoutId = R.layout.exo_player_view;
         int surfaceType = SURFACE_TYPE_TEXTURE_VIEW;
         int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT;
-        int controllerShowTimeoutMs = PlaybackControlView.DEFAULT_SHOW_TIMEOUT_MS;
-        boolean controllerHideOnTouch = true;
-        boolean controllerAutoShow = true;
+        controllerShowTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
+        boolean controllerAutoShow = false;
         if (attrs != null) {
             TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
                     R.styleable.ExoPlayerView, 0, 0);
             try {
-                playerLayoutId = a.getResourceId(R.styleable.ExoPlayerView_player_layout_id,
-                        playerLayoutId);
                 surfaceType = a.getInt(R.styleable.ExoPlayerView_surface_type, surfaceType);
                 resizeMode = a.getInt(R.styleable.ExoPlayerView_resize_mode, resizeMode);
                 controllerShowTimeoutMs = a.getInt(R.styleable.ExoPlayerView_show_timeout,
                         controllerShowTimeoutMs);
-                controllerHideOnTouch = a.getBoolean(R.styleable.ExoPlayerView_hide_on_touch,
-                        controllerHideOnTouch);
-                controllerAutoShow = a.getBoolean(R.styleable.ExoPlayerView_auto_show,
-                        controllerAutoShow);
+                playerAutoRotation = a.getBoolean(R.styleable.ExoPlayerView_auto_rotation,
+                        false);
             } finally {
                 a.recycle();
             }
         }
-
         LayoutInflater.from(context).inflate(playerLayoutId, this);
         componentListener = new ComponentListener();
         // setDescendantFocusability()主要用于控制child View获取焦点的能力
         // 先分发给Child View进行处理，如果所有的Child View都没有处理，则自己再处理
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
-
         // Content frame.
         contentFrame = findViewById(R.id.exo_content_frame);
         if (contentFrame != null) {
             setResizeModeRaw(contentFrame, resizeMode);
         }
-
         // Shutter view.
         shutterView = findViewById(R.id.exo_shutter);
-
         // Create a surface view and insert it into the content frame, if there is one.
         if (contentFrame != null && surfaceType != SURFACE_TYPE_NONE) {
             ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
@@ -213,7 +194,6 @@ public final class ExoPlayerView extends FrameLayout {
 
         // Overlay frame layout.
         overlayFrameLayout = findViewById(R.id.exo_overlay);
-
         // Subtitle view. 字幕
         subtitleView = findViewById(R.id.exo_subtitles);
         if (subtitleView != null) {
@@ -221,7 +201,6 @@ public final class ExoPlayerView extends FrameLayout {
             subtitleView.setUserDefaultTextSize();
         }
 
-        /** 播放菜单 **/
         playBtn = findViewById(R.id.exo_play);
         pauseBtn = findViewById(R.id.exo_pause);
         replayBtn = findViewById(R.id.exo_replay);
@@ -231,30 +210,27 @@ public final class ExoPlayerView extends FrameLayout {
         mSeekBar = findViewById(R.id.seek_bar);
         mEndTime = findViewById(R.id.end_time);
         mCurrentTime = findViewById(R.id.current_time);
-        playBtn.setOnClickListener(componentListener);
-        pauseBtn.setOnClickListener(componentListener);
-        replayBtn.setOnClickListener(componentListener);
-        mSeekBar.setOnSeekBarChangeListener(componentListener);
-        mScreenFull.setOnClickListener(componentListener);
-        mScreenNormal.setOnClickListener(componentListener);
-
-        mSeekBar.setMax(PROGRESS_BAR_MAX);
-
         mCenterText = findViewById(R.id.text_center);
         mCenterIcon = findViewById(R.id.icon_center);
         mCenterLayout = findViewById(R.id.layut_center);
         mTopLayout = findViewById(R.id.top_layout);
         mBottomLayout = findViewById(R.id.bottom_layout);
         mSpeed = findViewById(R.id.speed);
+
+        playBtn.setOnClickListener(componentListener);
+        pauseBtn.setOnClickListener(componentListener);
+        replayBtn.setOnClickListener(componentListener);
+        mSeekBar.setOnSeekBarChangeListener(componentListener);
+        mScreenFull.setOnClickListener(componentListener);
+        mScreenNormal.setOnClickListener(componentListener);
         mSpeed.setOnClickListener(componentListener);
 
+        mSeekBar.setMax(PROGRESS_BAR_MAX);
         formatBuilder = new StringBuilder();
         formatter = new Formatter(formatBuilder, Locale.getDefault());
+        shouldShowController(controllerAutoShow);
     }
 
-    /**
-     * Returns the player currently set on this view, or null if no player is set.
-     */
     public SimpleExoPlayer getPlayer() {
         return player;
     }
@@ -388,7 +364,9 @@ public final class ExoPlayerView extends FrameLayout {
     private void init() {
         Context context = getContext();
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        mMaxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        if (mAudioManager != null) {
+            mMaxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        }
         if (context instanceof Activity) {
             mActivity = (Activity) context;
             screenOrientationInit();
@@ -519,6 +497,13 @@ public final class ExoPlayerView extends FrameLayout {
                 }
                 mPlayerIsReady = true;
                 mLoadingProgressBar.setVisibility(GONE);
+                if (getControllerVisibility()) {
+                    if (player.getPlayWhenReady()) {
+                        pauseBtn.setVisibility(VISIBLE);
+                    } else {
+                        playBtn.setVisibility(VISIBLE);
+                    }
+                }
             }
             updateProgress();
         }
@@ -592,7 +577,9 @@ public final class ExoPlayerView extends FrameLayout {
             mSeekBarDraging = false;
             long positionMs = positionValue(seekBar.getProgress());
             long duration = player == null ? 0 : player.getDuration();
-            player.seekTo(positionMs == duration ? positionMs - 200 : positionMs);
+            if (player != null) {
+                player.seekTo(positionMs == duration ? positionMs - 200 : positionMs);
+            }
             play();
             shouldShowController(false);
             mSeekBar.setThumb(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb_normal));
@@ -604,14 +591,14 @@ public final class ExoPlayerView extends FrameLayout {
         if (show) {
             mTopLayout.setVisibility(VISIBLE);
             mBottomLayout.setVisibility(VISIBLE);
-            if (replayBtn.getVisibility() == GONE) {
+            if (replayBtn.getVisibility() == GONE && mLoadingProgressBar.getVisibility() == GONE) {
                 if (player.getPlayWhenReady()) {
                     pauseBtn.setVisibility(VISIBLE);
                 } else {
                     playBtn.setVisibility(VISIBLE);
                 }
             }
-            postDelayed(hideAction, DEFAULT_SHOW_TIMEOUT_MS);
+            postDelayed(hideAction, controllerShowTimeoutMs);
             updateProgress();
         } else {
             mTopLayout.setVisibility(GONE);
@@ -758,7 +745,7 @@ public final class ExoPlayerView extends FrameLayout {
             public void onOrientationChanged(int orientation) {
                 try {
                     int flag = Settings.System.getInt(mActivity.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION);
-                    if (flag == 0) { // 0 表示手机自动旋转功能未打开 1：表示打开
+                    if (flag == 0 && !playerAutoRotation) { // 0 表示手机自动旋转功能未打开 1：表示打开
                         return;
                     }
                 } catch (Settings.SettingNotFoundException e) {

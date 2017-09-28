@@ -1,17 +1,10 @@
 package com.dream.dreamview.module.video;
 
-import android.app.KeyguardManager;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
-import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
-import android.view.OrientationEventListener;
-import android.view.WindowManager;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
@@ -27,7 +20,6 @@ import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
@@ -68,10 +60,8 @@ public class VideoActivity extends NavBaseActivity {
         // 2. Create the player
         player = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
 
-        SimpleExoPlayerView simpleExoPlayerView = findViewById(R.id.exoplayer_view);
-        exoPlayerView = findViewById(R.id.exoplayer_view2);
+        exoPlayerView = findViewById(R.id.exoplayer_view);
         exoPlayerView.setPlayer(player);
-//        simpleExoPlayerView.setPlayer(player);
 
         // Measures bandwidth during playback. Can be null if not required.
         DefaultBandwidthMeter bandwidthMeter1 = new DefaultBandwidthMeter();
