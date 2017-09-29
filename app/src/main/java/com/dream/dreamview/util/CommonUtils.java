@@ -1,6 +1,9 @@
 package com.dream.dreamview.util;
 
+import android.content.Context;
 import android.content.res.Resources;
+import android.util.DisplayMetrics;
+import android.view.WindowManager;
 
 import com.dream.dreamview.MyApplication;
 import com.dream.dreamview.R;
@@ -47,11 +50,17 @@ public class CommonUtils {
     }
 
     public static int getScreenWidth() {
-        return  MyApplication.getContext().getResources().getDisplayMetrics().widthPixels;
+        WindowManager wm = (WindowManager) MyApplication.getContext().getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics screen = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(screen);
+        return screen.widthPixels;
     }
 
     public static int getScreenHeight() {
-        return  MyApplication.getContext().getResources().getDisplayMetrics().heightPixels;
+        WindowManager wm = (WindowManager) MyApplication.getContext().getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics screen = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(screen);
+        return screen.heightPixels;
     }
 
 }

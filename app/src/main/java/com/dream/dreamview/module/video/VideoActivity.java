@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.module.video.ui.ExoPlayerView;
+import com.dream.dreamview.util.CommonUtils;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -25,6 +28,8 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+
+import static com.dream.dreamview.module.video.ui.ExoPlayerView.SCREEN_PORTRAIT;
 
 /**
  * Created by Administrator on 2017/7/5
@@ -81,6 +86,24 @@ public class VideoActivity extends NavBaseActivity {
         player.prepare(videoSource);
 //        player.setPlayWhenReady(true);
 //        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+
+        exoPlayerView.setOrientationChangeListener(new ExoPlayerView.OrientationChangeListener() {
+            @Override
+            public void onOrientationChange(int screenOrientation) {
+                if (screenOrientation == SCREEN_PORTRAIT) {
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) exoPlayerView.getLayoutParams();
+                    params.height = exoPlayerHeight;
+                    exoPlayerView.setLayoutParams(params);
+                } else {
+                    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                            WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) exoPlayerView.getLayoutParams();
+                    params.height = CommonUtils.getScreenHeight();
+                    exoPlayerView.setLayoutParams(params);
+                }
+            }
+        });
     }
 
     @Override
@@ -97,4 +120,10 @@ public class VideoActivity extends NavBaseActivity {
         return super.onKeyDown(keyCode, event);
     }
 
+    private int exoPlayerHeight;
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        exoPlayerHeight = exoPlayerView.getHeight();
+    }
 }

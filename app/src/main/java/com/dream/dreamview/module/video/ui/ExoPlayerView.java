@@ -9,6 +9,7 @@ import android.content.res.TypedArray;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.provider.Settings;
+import android.support.annotation.IntDef;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -44,6 +45,8 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.ui.SubtitleView;
 import com.google.android.exoplayer2.util.Assertions;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
@@ -52,9 +55,9 @@ import java.util.Locale;
 @TargetApi(16)
 public final class ExoPlayerView extends FrameLayout {
     private static final int DEFAULT_SHOW_TIMEOUT_MS = 5000;
-    private static final int SCREEN_REVERSE_LANDSCAPE = 11;
-    private static final int SCREEN_SENSOR_LANDSCAPE = 12;
-    private static final int SCREEN_PORTRAIT = 13;
+    public static final int SCREEN_REVERSE_LANDSCAPE = 11;
+    public static final int SCREEN_SENSOR_LANDSCAPE = 12;
+    public static final int SCREEN_PORTRAIT = 13;
 
     private static final int SURFACE_TYPE_NONE = 0;
     private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
@@ -112,6 +115,7 @@ public final class ExoPlayerView extends FrameLayout {
     private Activity mActivity;
     // 屏幕旋转
     private OrientationEventListener mOrientationListener;
+    private OrientationChangeListener mOrientationChangeListener;
     private int oldScreenOrientation;
     private StringBuilder formatBuilder;
     private Formatter formatter;
@@ -804,6 +808,9 @@ public final class ExoPlayerView extends FrameLayout {
             mScreenNormal.setVisibility(VISIBLE);
         }
         screenSizeInit();
+        if (mOrientationChangeListener != null) {
+            mOrientationChangeListener.onOrientationChange(screenOrientation);
+        }
     }
 
     private void screenSizeInit() {
@@ -871,5 +878,12 @@ public final class ExoPlayerView extends FrameLayout {
                 shouldShowController(false);
             }
         });
+    }
+
+    public void setOrientationChangeListener(OrientationChangeListener listener) {
+        this.mOrientationChangeListener = listener;
+    }
+    public interface OrientationChangeListener {
+        void onOrientationChange(int screenOrientation);
     }
 }
