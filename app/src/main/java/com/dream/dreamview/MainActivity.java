@@ -10,6 +10,7 @@ import android.view.View;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.module.rxbus.RxBus;
 import com.dream.dreamview.module.video.VideoActivity;
+import com.dream.dreamview.module.video.VideoListActivity;
 import com.dream.dreamview.util.ToastUtil;
 import com.dream.dreamview.widget.MultiStatusLayout;
 
@@ -62,7 +63,8 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
 //                startActivity(new Intent(this, RetrofitActivity.class));
 //                startActivity(new Intent(this, BeautyActivity.class));
 //                startActivity(new Intent(this, MultiTypeActivity.class));
-                startActivity(new Intent(this, VideoActivity.class));
+//                startActivity(new Intent(this, VideoActivity.class));
+                startActivity(new Intent(this, VideoListActivity.class));
 //                startActivity(new Intent(this, AnimationActivity.class));
 //                startActivity(new Intent(this, TestActivity.class));
 //                startActivity(new Intent(this, KotlinActivity.class));
