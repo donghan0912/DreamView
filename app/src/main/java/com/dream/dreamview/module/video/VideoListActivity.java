@@ -1,7 +1,9 @@
 package com.dream.dreamview.module.video;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.dream.dreamview.R;
@@ -17,6 +19,8 @@ import java.util.List;
 
 public class VideoListActivity extends NavBaseActivity {
 
+    private LinearLayoutManager manager;
+
     @Override
     protected int getContentView() {
         return R.layout.video_activity_video_list;
@@ -29,6 +33,17 @@ public class VideoListActivity extends NavBaseActivity {
         BaseRecyclerViewAdapter<VideoItem> adapter = new BaseRecyclerViewAdapter<>();
         recyclerView.setAdapter(adapter);
         adapter.setData(getData());
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                int firstVisibleItemPosition = manager.findFirstVisibleItemPosition();
+//                int firstCompletelyVisibleItemPosition = manager.findFirstCompletelyVisibleItemPosition();
+//                VideoItem item = adapter.getItem(firstVisibleItemPosition);
+//                Rect localRect = new Rect();
+//                boolean localVisibleRect1 = recyclerView.getChildAt(firstVisibleItemPosition).getLocalVisibleRect(localRect);
+//                boolean localVisibleRect = baseViewHolder.itemView.getLocalVisibleRect(localRect);
+            }
+        });
     }
 
     private List<VideoItem> getData() {

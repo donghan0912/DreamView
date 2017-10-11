@@ -13,4 +13,10 @@
         android:layout_height="260dp"
         app:resize_mode="fit" />
 
+    <Button
+        android:id="@+id/btn"
+        android:text="播放"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

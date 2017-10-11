@@ -8,9 +8,11 @@ import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.provider.Settings;
 import android.support.annotation.IntDef;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -32,18 +34,39 @@ import android.widget.TextView;
 import com.dream.dreamview.R;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.dash.DashMediaSource;
+import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
+import com.google.android.exoplayer2.source.hls.HlsMediaSource;
+import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
+import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.ui.SubtitleView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -239,7 +262,23 @@ public final class ExoPlayerView extends FrameLayout {
         return player;
     }
 
-    public void setPlayer(SimpleExoPlayer player) {
+    private MediaSource mediaSource;
+
+    public void setPlayer(Uri uri) {
+        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+        TrackSelection.Factory videoTrackSelectionFactory =
+                new AdaptiveTrackSelection.Factory(bandwidthMeter);
+        TrackSelector trackSelector =
+                new DefaultTrackSelector(videoTrackSelectionFactory);
+        SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector);
+        if (mediaDataSourceFactory == null) {
+            mediaDataSourceFactory = buildDataSourceFactory(true);
+        }
+        mediaSource = buildMediaSource(uri, null);
+        setPlayer(player);
+    }
+
+    private void setPlayer(SimpleExoPlayer player) {
         if (this.player == player) {
             return;
         }
@@ -268,6 +307,45 @@ public final class ExoPlayerView extends FrameLayout {
             player.addListener(componentListener);
             updateForCurrentTrackSelections();
         }
+    }
+
+    private DataSource.Factory mediaDataSourceFactory;
+
+    private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
+        int type = TextUtils.isEmpty(overrideExtension) ? Util.inferContentType(uri)
+                : Util.inferContentType("." + overrideExtension);
+
+        switch (type) {
+            case C.TYPE_SS:
+                return new SsMediaSource(uri, buildDataSourceFactory(false),
+                        new DefaultSsChunkSource.Factory(mediaDataSourceFactory), null, null);
+            case C.TYPE_DASH:
+                return new DashMediaSource(uri, buildDataSourceFactory(false),
+                        new DefaultDashChunkSource.Factory(mediaDataSourceFactory), null, null);
+            case C.TYPE_HLS:
+                return new HlsMediaSource(uri, mediaDataSourceFactory, null, null);
+            case C.TYPE_OTHER:
+                return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
+                        null, null);
+            default: {
+                throw new IllegalStateException("Unsupported type: " + type);
+            }
+        }
+    }
+
+    private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
+
+    private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
+        return buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
+    }
+
+    private DataSource.Factory buildDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
+        return new DefaultDataSourceFactory(getContext(), bandwidthMeter,
+                buildHttpDataSourceFactory(bandwidthMeter));
+    }
+
+    private HttpDataSource.Factory buildHttpDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
+        return new DefaultHttpDataSourceFactory(Util.getUserAgent(getContext(), "ExoPlayerView"), bandwidthMeter);
     }
 
     /**
@@ -343,8 +421,17 @@ public final class ExoPlayerView extends FrameLayout {
         }
     }
 
+    private boolean prepared = false;
+
     public void play() {
         if (player != null) {
+            if (!prepared) {
+                player.prepare(mediaSource);
+                prepared = true;
+            }
+            if (overlayFrameLayout.getVisibility() == VISIBLE) {
+                overlayFrameLayout.setVisibility(GONE);
+            }
             player.setPlayWhenReady(true);
             mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
@@ -388,9 +475,12 @@ public final class ExoPlayerView extends FrameLayout {
         mActivity = null;
         mCurrentBrightness = 0;
         if (player != null) {
-            player.release();
+            player.stop();
         }
         mOrientationListener.disable();
+        overlayFrameLayout.setVisibility(VISIBLE);
+        prepared = false;
+        shouldShowController(false);
     }
 
     private int progressBarValue(long position) {
@@ -883,6 +973,7 @@ public final class ExoPlayerView extends FrameLayout {
     public void setOrientationChangeListener(OrientationChangeListener listener) {
         this.mOrientationChangeListener = listener;
     }
+
     public interface OrientationChangeListener {
         void onOrientationChange(int screenOrientation);
     }

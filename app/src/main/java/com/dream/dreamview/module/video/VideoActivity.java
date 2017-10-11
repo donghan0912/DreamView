@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
@@ -66,7 +67,8 @@ public class VideoActivity extends NavBaseActivity {
         player = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
 
         exoPlayerView = findViewById(R.id.exoplayer_view);
-        exoPlayerView.setPlayer(player);
+//        exoPlayerView.setPlayer(player);
+        exoPlayerView.setPlayer(Uri.parse("http://video.jiecao.fm/8/17/bGQS3BQQWUYrlzP1K4Tg4Q__.mp4"));
 
         // Measures bandwidth during playback. Can be null if not required.
         DefaultBandwidthMeter bandwidthMeter1 = new DefaultBandwidthMeter();
@@ -83,7 +85,7 @@ public class VideoActivity extends NavBaseActivity {
                 dataSourceFactory, mainHandler, null);
 
         // Prepare the player with the source.
-        player.prepare(videoSource);
+//        player.prepare(videoSource);
 //        player.setPlayWhenReady(true);
 //        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
 
@@ -102,6 +104,13 @@ public class VideoActivity extends NavBaseActivity {
                     params.height = CommonUtils.getScreenHeight();
                     exoPlayerView.setLayoutParams(params);
                 }
+            }
+        });
+
+        findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                exoPlayerView.play();
             }
         });
     }
