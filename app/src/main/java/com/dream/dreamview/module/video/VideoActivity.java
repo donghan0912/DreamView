@@ -55,40 +55,11 @@ public class VideoActivity extends NavBaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         closeSwipe();
-        // 1. Create a default TrackSelector
-        Handler mainHandler = new Handler();
-        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        TrackSelection.Factory videoTrackSelectionFactory =
-                new AdaptiveTrackSelection.Factory(bandwidthMeter);
-        TrackSelector trackSelector =
-                new DefaultTrackSelector(videoTrackSelectionFactory);
-
-        // 2. Create the player
-        player = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
 
         exoPlayerView = findViewById(R.id.exoplayer_view);
 //        exoPlayerView.setPlayer(player);
         exoPlayerView.setPlayer(Uri.parse("http://video.jiecao.fm/8/17/bGQS3BQQWUYrlzP1K4Tg4Q__.mp4"));
-
-        // Measures bandwidth during playback. Can be null if not required.
-        DefaultBandwidthMeter bandwidthMeter1 = new DefaultBandwidthMeter();
-        // Produces DataSource instances through which media data is loaded.
-        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this,
-                Util.getUserAgent(this, "yourApplicationName"), bandwidthMeter1);
-        // Produces Extractor instances for parsing the media data.
-        ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-        // This is the MediaSource representing the media to be played.
-        MediaSource videoSource = new ExtractorMediaSource(Uri.parse("http://video.jiecao.fm/8/17/bGQS3BQQWUYrlzP1K4Tg4Q__.mp4"),
-                dataSourceFactory, extractorsFactory, null, null);
-
-        HlsMediaSource hlsMediaSource = new HlsMediaSource(Uri.parse("http://devimages.apple.com/samplecode/adDemo/ad.m3u8"),
-                dataSourceFactory, mainHandler, null);
-
-        // Prepare the player with the source.
-//        player.prepare(videoSource);
-//        player.setPlayWhenReady(true);
-//        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-
+//        exoPlayerView.setPlayer(Uri.parse("http://devimages.apple.com/samplecode/adDemo/ad.m3u8"));
         exoPlayerView.setOrientationChangeListener(new ExoPlayerView.OrientationChangeListener() {
             @Override
             public void onOrientationChange(int screenOrientation) {
@@ -130,9 +101,19 @@ public class VideoActivity extends NavBaseActivity {
     }
 
     private int exoPlayerHeight;
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
+        if (hasFocus) {
+            exoPlayerHeight = exoPlayerView.getHeight();
+            exoPlayerView.play();
+        }
         super.onWindowFocusChanged(hasFocus);
-        exoPlayerHeight = exoPlayerView.getHeight();
+    }
+
+    @Override
+    protected void onDestroy() {
+        exoPlayerView.release();
+        super.onDestroy();
     }
 }

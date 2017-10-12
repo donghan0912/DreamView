@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
+import com.dream.dreamview.module.video.ui.ExoPlayerView;
 import com.hpu.baserecyclerviewadapter.BaseRecyclerViewAdapter;
 
 import java.util.ArrayList;
@@ -18,8 +19,7 @@ import java.util.List;
  */
 
 public class VideoListActivity extends NavBaseActivity {
-
-    private LinearLayoutManager manager;
+    private BaseRecyclerViewAdapter<VideoItem> adapter;
 
     @Override
     protected int getContentView() {
@@ -30,7 +30,7 @@ public class VideoListActivity extends NavBaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        BaseRecyclerViewAdapter<VideoItem> adapter = new BaseRecyclerViewAdapter<>();
+        adapter = new BaseRecyclerViewAdapter<>();
         recyclerView.setAdapter(adapter);
         adapter.setData(getData());
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -96,5 +96,17 @@ public class VideoListActivity extends NavBaseActivity {
             list.add(new VideoItem(video, R.layout.video_activity_video_list_item, this));
         }
         return list;
+    }
+
+    @Override
+    protected void onDestroy() {
+        List<VideoItem> data = adapter.getData();
+        for (VideoItem item : data) {
+            ExoPlayerView exoPlayerView = item.getExoPlayerView();
+            if (exoPlayerView != null) {
+                exoPlayerView.release();
+            }
+        }
+        super.onDestroy();
     }
 }

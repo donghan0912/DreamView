@@ -10,7 +10,6 @@ import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.provider.Settings;
-import android.support.annotation.IntDef;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -40,7 +39,6 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -68,8 +66,6 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
@@ -111,6 +107,10 @@ public final class ExoPlayerView extends FrameLayout {
     private int controllerShowTimeoutMs;
     private boolean playerAutoRotation;
     private boolean isAttachedToWindow;
+    private boolean prepared = false;
+    private DataSource.Factory mediaDataSourceFactory;
+    private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
+    private MediaSource mediaSource;
 
     private AudioManager mAudioManager;
     private int mMaxVolume; // 系统亮度最大值
@@ -262,8 +262,6 @@ public final class ExoPlayerView extends FrameLayout {
         return player;
     }
 
-    private MediaSource mediaSource;
-
     public void setPlayer(Uri uri) {
         BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         TrackSelection.Factory videoTrackSelectionFactory =
@@ -309,12 +307,9 @@ public final class ExoPlayerView extends FrameLayout {
         }
     }
 
-    private DataSource.Factory mediaDataSourceFactory;
-
     private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
         int type = TextUtils.isEmpty(overrideExtension) ? Util.inferContentType(uri)
                 : Util.inferContentType("." + overrideExtension);
-
         switch (type) {
             case C.TYPE_SS:
                 return new SsMediaSource(uri, buildDataSourceFactory(false),
@@ -332,8 +327,6 @@ public final class ExoPlayerView extends FrameLayout {
             }
         }
     }
-
-    private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
 
     private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
         return buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
@@ -421,8 +414,6 @@ public final class ExoPlayerView extends FrameLayout {
         }
     }
 
-    private boolean prepared = false;
-
     public void play() {
         if (player != null) {
             if (!prepared) {
@@ -434,6 +425,12 @@ public final class ExoPlayerView extends FrameLayout {
             }
             player.setPlayWhenReady(true);
             mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+    }
+
+    public void release() {
+        if (player != null) {
+            this.player.release();
         }
     }
 
@@ -450,7 +447,6 @@ public final class ExoPlayerView extends FrameLayout {
         isAttachedToWindow = true;
         init();
     }
-
 
     private void init() {
         Context context = getContext();

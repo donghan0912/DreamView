@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import com.dream.dreamview.R;
 import com.dream.dreamview.module.video.ui.ExoPlayerView;
 import com.dream.dreamview.net.GlideApp;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.hpu.baserecyclerviewadapter.BaseItem;
 import com.hpu.baserecyclerviewadapter.BaseViewHolder;
 
@@ -20,15 +21,20 @@ import com.hpu.baserecyclerviewadapter.BaseViewHolder;
 public class VideoItem extends BaseItem<Video> {
 
     private final Context context;
+    private ExoPlayerView exoPlayerView;
 
     public VideoItem(Video video, int recourseId, Context context) {
         super(video, recourseId);
         this.context = context;
     }
 
+    public ExoPlayerView getExoPlayerView() {
+        return exoPlayerView;
+    }
+
     @Override
     public void onBindViewHolder(BaseViewHolder baseViewHolder, int position) {
-        final ExoPlayerView exoPlayerView = baseViewHolder.findViewById(R.id.exo_player);
+        exoPlayerView = baseViewHolder.findViewById(R.id.exo_player);
         exoPlayerView.setPlayer(Uri.parse(mData.url));
         final FrameLayout overlayLayout = exoPlayerView.getOverlayFrameLayout();
         View view = View.inflate(context, R.layout.video_activity_video_list_item_over_layout, null);
@@ -40,7 +46,6 @@ public class VideoItem extends BaseItem<Video> {
 //                .transform(new RoundedCorners(10)) // 圆角 4.0新增功能
                 .into(overImg);
         Button play = view.findViewById(R.id.play_btn);
-
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
