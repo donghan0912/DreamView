@@ -56,6 +56,7 @@ public class PlayerLoadControl implements LoadControl {
 
     private int targetBufferSize;
     private boolean isBuffering;
+    private boolean stopBuffering = false;
 
     /**
      * Constructs a new instance, using the {@code DEFAULT_*} constants defined in this class.
@@ -124,13 +125,26 @@ public class PlayerLoadControl implements LoadControl {
         return minBufferDurationUs <= 0 || bufferedDurationUs >= minBufferDurationUs;
     }
 
+    public boolean getStopBuffering() {
+        return this.stopBuffering;
+    }
+
+    public void setStopBuffering(boolean stopBuffering) {
+        this.stopBuffering = stopBuffering;
+    }
+
     @Override
     public boolean shouldContinueLoading(long bufferedDurationUs) {
+        if (stopBuffering) {
+            return false;
+        }
         int bufferTimeState = getBufferTimeState(bufferedDurationUs);
         boolean targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
         boolean wasBuffering = isBuffering;
         isBuffering = bufferTimeState == BELOW_LOW_WATERMARK
                 || (bufferTimeState == BETWEEN_WATERMARKS && isBuffering && !targetBufferSizeReached);
+//        isBuffering = bufferTimeState == BELOW_LOW_WATERMARK
+//                || (bufferTimeState == BETWEEN_WATERMARKS && !targetBufferSizeReached);
         if (priorityTaskManager != null && isBuffering != wasBuffering) {
             if (isBuffering) {
                 priorityTaskManager.add(C.PRIORITY_PLAYBACK);
@@ -138,7 +152,7 @@ public class PlayerLoadControl implements LoadControl {
                 priorityTaskManager.remove(C.PRIORITY_PLAYBACK);
             }
         }
-        LogUtil.e("bufferedDurationUs " + bufferedDurationUs + " isBuffering " + isBuffering + " TTTT " + (allocator.getTotalBytesAllocated()) + " targetBufferSize " + targetBufferSize);
+//        LogUtil.e( bufferedDurationUs + "==" + isBuffering + "==" + (allocator.getTotalBytesAllocated()) + "==" + targetBufferSize + "==" + targetBufferSizeReached);
         return isBuffering;
     }
 

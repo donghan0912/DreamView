@@ -108,6 +108,8 @@ public final class ExoPlayerView extends FrameLayout {
 
     private int controllerShowTimeoutMs;
     private boolean playerAutoRotation;
+    private boolean playerAutoPlay;
+    private boolean hasAutoPlayed;
     private boolean isAttachedToWindow;
     private boolean prepared = false;
     private DataSource.Factory mediaDataSourceFactory;
@@ -193,6 +195,8 @@ public final class ExoPlayerView extends FrameLayout {
                         controllerShowTimeoutMs);
                 playerAutoRotation = a.getBoolean(R.styleable.ExoPlayerView_auto_rotation,
                         false);
+                playerAutoPlay = a.getBoolean(R.styleable.ExoPlayerView_auto_play,
+                        false);
             } finally {
                 a.recycle();
             }
@@ -262,6 +266,11 @@ public final class ExoPlayerView extends FrameLayout {
 
     public SimpleExoPlayer getPlayer() {
         return player;
+    }
+
+    public void setPlayer(Uri uri, boolean autoPlay) {
+        this.playerAutoPlay = autoPlay;
+        setPlayer(uri);
     }
 
     public void setPlayer(Uri uri) {
@@ -413,7 +422,9 @@ public final class ExoPlayerView extends FrameLayout {
     public void pause() {
         if (player != null) {
             player.setPlayWhenReady(false);
-            mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            if (mActivity != null) {
+                mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            }
         }
     }
 
@@ -444,6 +455,18 @@ public final class ExoPlayerView extends FrameLayout {
         return getVisibility() == VISIBLE;
     }
 
+    /**
+     * auto play
+     */
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        if (hasWindowFocus && playerAutoPlay && !hasAutoPlayed) {
+            hasAutoPlayed = true;
+            play();
+        }
+        super.onWindowFocusChanged(hasWindowFocus);
+    }
+
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -467,15 +490,15 @@ public final class ExoPlayerView extends FrameLayout {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        if (player != null) {
+            player.stop();
+        }
         isAttachedToWindow = false;
         removeCallbacks(updateProgressAction);
         removeCallbacks(hideAction);
         mVolume = 0;
         mActivity = null;
         mCurrentBrightness = 0;
-        if (player != null) {
-            player.stop();
-        }
         mOrientationListener.disable();
         overlayFrameLayout.setVisibility(VISIBLE);
         prepared = false;

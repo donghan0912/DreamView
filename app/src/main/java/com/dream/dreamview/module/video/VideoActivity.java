@@ -2,7 +2,6 @@ package com.dream.dreamview.module.video;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
 import android.view.View;
@@ -13,22 +12,7 @@ import com.dream.dreamview.R;
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.module.video.ui.ExoPlayerView;
 import com.dream.dreamview.util.CommonUtils;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
 
 import static com.dream.dreamview.module.video.ui.ExoPlayerView.SCREEN_PORTRAIT;
 
@@ -58,7 +42,7 @@ public class VideoActivity extends NavBaseActivity {
 
         exoPlayerView = findViewById(R.id.exoplayer_view);
 //        exoPlayerView.setPlayer(player);
-        exoPlayerView.setPlayer(Uri.parse("http://video.jiecao.fm/8/17/bGQS3BQQWUYrlzP1K4Tg4Q__.mp4"));
+        exoPlayerView.setPlayer(Uri.parse("http://video.jiecao.fm/8/17/bGQS3BQQWUYrlzP1K4Tg4Q__.mp4"), true);
 //        exoPlayerView.setPlayer(Uri.parse("http://devimages.apple.com/samplecode/adDemo/ad.m3u8"));
         exoPlayerView.setOrientationChangeListener(new ExoPlayerView.OrientationChangeListener() {
             @Override
@@ -75,13 +59,6 @@ public class VideoActivity extends NavBaseActivity {
                     params.height = CommonUtils.getScreenHeight();
                     exoPlayerView.setLayoutParams(params);
                 }
-            }
-        });
-
-        findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                exoPlayerView.play();
             }
         });
     }
@@ -106,7 +83,7 @@ public class VideoActivity extends NavBaseActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         if (hasFocus) {
             exoPlayerHeight = exoPlayerView.getHeight();
-            exoPlayerView.play();
+//            exoPlayerView.play();
         }
         super.onWindowFocusChanged(hasFocus);
     }
