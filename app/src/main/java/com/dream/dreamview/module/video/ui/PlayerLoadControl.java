@@ -21,10 +21,12 @@ public class PlayerLoadControl implements LoadControl {
      * times, in milliseconds.
      */
     public static final int DEFAULT_MIN_BUFFER_MS = 15000;
+//    public static final int DEFAULT_MIN_BUFFER_MS = 100;
 
     /**
      * The default maximum duration of media that the player will attempt to buffer, in milliseconds.
      */
+//    public static final int DEFAULT_MAX_BUFFER_MS = 1000;
     public static final int DEFAULT_MAX_BUFFER_MS = 30000;
 
     /**
@@ -133,16 +135,24 @@ public class PlayerLoadControl implements LoadControl {
         this.stopBuffering = stopBuffering;
     }
 
+    //TODO bufferedDurationUs 缓存的时间，当该值大于最大值时，停止缓存 return false
+    // TODO 当小于最小值时，继续缓存 return true
+    // if you want to continue loading until the end, you can return true
     @Override
     public boolean shouldContinueLoading(long bufferedDurationUs) {
-        if (stopBuffering) {
-            return false;
-        }
+        LogUtil.e("缓存大小" + bufferedDurationUs);
+//        LogUtil.e("缓存 " + stopBuffering);
+//        if (stopBuffering) {
+//            return false;
+//        }
         int bufferTimeState = getBufferTimeState(bufferedDurationUs);
         boolean targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
         boolean wasBuffering = isBuffering;
+        LogUtil.e("??????" + isBuffering);
         isBuffering = bufferTimeState == BELOW_LOW_WATERMARK
                 || (bufferTimeState == BETWEEN_WATERMARKS && isBuffering && !targetBufferSizeReached);
+        LogUtil.e( isBuffering + "==" + (bufferTimeState == BELOW_LOW_WATERMARK) + "==" + (bufferTimeState == BETWEEN_WATERMARKS) + "==" + !targetBufferSizeReached);
+        // 可以调节缓存大小
 //        isBuffering = bufferTimeState == BELOW_LOW_WATERMARK
 //                || (bufferTimeState == BETWEEN_WATERMARKS && !targetBufferSizeReached);
         if (priorityTaskManager != null && isBuffering != wasBuffering) {
@@ -154,6 +164,7 @@ public class PlayerLoadControl implements LoadControl {
         }
 //        LogUtil.e( bufferedDurationUs + "==" + isBuffering + "==" + (allocator.getTotalBytesAllocated()) + "==" + targetBufferSize + "==" + targetBufferSizeReached);
         return isBuffering;
+//        return true; // 一直缓存，直到结束
     }
 
     private int getBufferTimeState(long bufferedDurationUs) {
