@@ -9,6 +9,8 @@ import android.content.res.TypedArray;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -30,14 +32,15 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.dream.dreamview.CommonHandler;
 import com.dream.dreamview.R;
+import com.dream.dreamview.util.NetworkUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -74,7 +77,7 @@ import java.util.Locale;
 
 
 @TargetApi(16)
-public final class ExoPlayerView extends FrameLayout {
+public final class ExoPlayerView extends FrameLayout implements CommonHandler.MessageHandler {
     private static final int DEFAULT_SHOW_TIMEOUT_MS = 5000;
     public static final int SCREEN_REVERSE_LANDSCAPE = 11;
     public static final int SCREEN_SENSOR_LANDSCAPE = 12;
@@ -85,11 +88,15 @@ public final class ExoPlayerView extends FrameLayout {
     private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
     private static final int PROGRESS_BAR_MAX = 1000;
 
+    private static final int UPDATE_MOBILE_NETWORK_UI = 30;
+    private static final int UPDATE_INVALID_NETWORK_UI = 31;
+
     private AspectRatioFrameLayout contentFrame;
     private View shutterView;
     private View surfaceView;
     private SubtitleView subtitleView;
     private FrameLayout overlayFrameLayout;
+    private FrameLayout networklayFrameLayout;
     private ImageView playBtn;
     private ImageView pauseBtn;
     private ImageView replayBtn;
@@ -146,6 +153,8 @@ public final class ExoPlayerView extends FrameLayout {
     private int oldScreenOrientation;
     private StringBuilder formatBuilder;
     private Formatter formatter;
+    private final CommonHandler handler = new CommonHandler(this);
+    private boolean continuePlay;
 
     private final Runnable updateProgressAction = new Runnable() {
         @Override
@@ -227,6 +236,7 @@ public final class ExoPlayerView extends FrameLayout {
 
         // Overlay frame layout.
         overlayFrameLayout = findViewById(R.id.exo_overlay);
+        networklayFrameLayout = findViewById(R.id.exo_network_lay);
         // Subtitle view. 字幕
         subtitleView = findViewById(R.id.exo_subtitles);
         if (subtitleView != null) {
@@ -275,12 +285,31 @@ public final class ExoPlayerView extends FrameLayout {
 
     public void setPlayer(Uri uri) {
         BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        TrackSelection.Factory videoTrackSelectionFactory =
+        final TrackSelection.Factory videoTrackSelectionFactory =
                 new AdaptiveTrackSelection.Factory(bandwidthMeter);
         TrackSelector trackSelector =
                 new DefaultTrackSelector(videoTrackSelectionFactory);
 //        SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector);
-        SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(getContext()), trackSelector, new PlayerLoadControl());
+        PlayerLoadControl loadControl = new PlayerLoadControl();
+        loadControl.setOnBufferUpdateListener(new PlayerLoadControl.OnBufferUpdateListener() {
+            @Override
+            public void onBufferUpdate() {
+                // 注意，缓存完成之后，不会调用
+                int networkType = NetworkUtils.getNetworkType();
+                if (networkType == NetworkUtils.NETWORKTYPE_WIFI) {
+                    // wifi
+//                    networklayFrameLayout.setVisibility(GONE);
+
+                } else if (networkType == NetworkUtils.NETWORKTYPE_MOBILE && !continuePlay) {
+                    // 移动网络
+                    handler.sendEmptyMessage(UPDATE_MOBILE_NETWORK_UI);
+                } else {
+                    // 网络未连接
+                    handler.sendEmptyMessage(UPDATE_INVALID_NETWORK_UI);
+                }
+            }
+        });
+        SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(getContext()), trackSelector, loadControl);
         if (mediaDataSourceFactory == null) {
             mediaDataSourceFactory = buildDataSourceFactory(true);
         }
@@ -556,6 +585,44 @@ public final class ExoPlayerView extends FrameLayout {
         return hours > 0L ? formatter.format("%d:%02d:%02d", hours, minutes, seconds).toString() : formatter.format("%02d:%02d", minutes, seconds).toString();
     }
 
+    @Override
+    public void handleMessage(Message msg) {
+        switch (msg.what) {
+            case UPDATE_MOBILE_NETWORK_UI:
+                // TODO 这里还是需要暂停视频，需解决缓存问题
+                player.stop();
+                prepared = false;
+                networklayFrameLayout.setVisibility(VISIBLE);
+                View mobileView = View.inflate(getContext(), R.layout.exo_player_network_mobile, null);
+                networklayFrameLayout.addView(mobileView);
+                mobileView.findViewById(R.id.continue_play).setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        continuePlay = true;
+                        networklayFrameLayout.setVisibility(GONE);
+                        play();
+                    }
+                });
+                break;
+            case UPDATE_INVALID_NETWORK_UI:
+                // TODO 这里还是需要暂停视频，需解决缓存问题
+                player.stop();
+                prepared = false;
+                networklayFrameLayout.setVisibility(VISIBLE);
+                View view = View.inflate(getContext(), R.layout.exo_player_network_invalid, null);
+                networklayFrameLayout.addView(view);
+                view.findViewById(R.id.retry_play).setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+//                        continuePlay = true;
+                        networklayFrameLayout.setVisibility(GONE);
+                        play();
+                    }
+                });
+                break;
+        }
+    }
+
     private final class ComponentListener implements SimpleExoPlayer.VideoListener,
             TextRenderer.Output, Player.EventListener, OnClickListener, SeekBar.OnSeekBarChangeListener {
 
@@ -742,6 +809,9 @@ public final class ExoPlayerView extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (networklayFrameLayout.getVisibility() == VISIBLE || overlayFrameLayout.getVisibility() == VISIBLE) {
+            return super.onTouchEvent(event);
+        }
         int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:

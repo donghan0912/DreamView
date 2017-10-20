@@ -1,6 +1,10 @@
 package com.dream.dreamview.module.video.ui;
 
+import android.media.MediaPlayer;
+import android.renderscript.Allocation;
+
 import com.dream.dreamview.util.LogUtil;
+import com.dream.dreamview.util.NetworkUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.Renderer;
@@ -59,6 +63,7 @@ public class PlayerLoadControl implements LoadControl {
     private int targetBufferSize;
     private boolean isBuffering;
     private boolean stopBuffering = false;
+    private OnBufferUpdateListener listener;
 
     /**
      * Constructs a new instance, using the {@code DEFAULT_*} constants defined in this class.
@@ -140,6 +145,9 @@ public class PlayerLoadControl implements LoadControl {
     // if you want to continue loading until the end, you can return true
     @Override
     public boolean shouldContinueLoading(long bufferedDurationUs) {
+       if (listener != null) {
+           listener.onBufferUpdate();
+       }
         LogUtil.e("缓存大小" + bufferedDurationUs);
 //        LogUtil.e("缓存 " + stopBuffering);
 //        if (stopBuffering) {
@@ -181,5 +189,13 @@ public class PlayerLoadControl implements LoadControl {
         if (resetAllocator) {
             allocator.reset();
         }
+    }
+
+    public void setOnBufferUpdateListener(OnBufferUpdateListener listener) {
+        this.listener = listener;
+    }
+
+    interface OnBufferUpdateListener {
+        void onBufferUpdate();
     }
 }

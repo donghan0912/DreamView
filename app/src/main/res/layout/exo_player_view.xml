@@ -193,8 +193,9 @@
 
     </FrameLayout>
 
-    <View
-        android:id="@+id/exo_controller_placeholder"
+    <FrameLayout
+        android:visibility="gone"
+        android:id="@+id/exo_network_lay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
