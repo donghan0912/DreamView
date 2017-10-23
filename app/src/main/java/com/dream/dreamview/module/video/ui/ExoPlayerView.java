@@ -34,6 +34,7 @@ import android.widget.TextView;
 
 import com.dream.dreamview.CommonHandler;
 import com.dream.dreamview.R;
+import com.dream.dreamview.util.LogUtil;
 import com.dream.dreamview.util.NetworkUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
@@ -155,6 +156,13 @@ public final class ExoPlayerView extends FrameLayout implements CommonHandler.Me
     private Formatter formatter;
     private final CommonHandler handler = new CommonHandler(this);
     private boolean continuePlay;
+
+    private final Runnable networkStateAction = new Runnable() {
+        @Override
+        public void run() {
+            updateNetworkState();
+        }
+    };
 
     private final Runnable updateProgressAction = new Runnable() {
         @Override
@@ -295,18 +303,18 @@ public final class ExoPlayerView extends FrameLayout implements CommonHandler.Me
             @Override
             public void onBufferUpdate() {
                 // 注意，缓存完成之后，不会调用
-                int networkType = NetworkUtils.getNetworkType();
-                if (networkType == NetworkUtils.NETWORKTYPE_WIFI) {
-                    // wifi
-//                    networklayFrameLayout.setVisibility(GONE);
-
-                } else if (networkType == NetworkUtils.NETWORKTYPE_MOBILE && !continuePlay) {
-                    // 移动网络
-                    handler.sendEmptyMessage(UPDATE_MOBILE_NETWORK_UI);
-                } else {
-                    // 网络未连接
-                    handler.sendEmptyMessage(UPDATE_INVALID_NETWORK_UI);
-                }
+//                int networkType = NetworkUtils.getNetworkType();
+//                if (networkType == NetworkUtils.NETWORKTYPE_WIFI) {
+//                    // wifi
+////                    networklayFrameLayout.setVisibility(GONE);
+//
+//                } else if (networkType == NetworkUtils.NETWORKTYPE_MOBILE && !continuePlay) {
+//                    // 移动网络
+//                    handler.sendEmptyMessage(UPDATE_MOBILE_NETWORK_UI);
+//                } else {
+//                    // 网络未连接
+//                    handler.sendEmptyMessage(UPDATE_INVALID_NETWORK_UI);
+//                }
             }
         });
         SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(getContext()), trackSelector, loadControl);
@@ -525,6 +533,7 @@ public final class ExoPlayerView extends FrameLayout implements CommonHandler.Me
         isAttachedToWindow = false;
         removeCallbacks(updateProgressAction);
         removeCallbacks(hideAction);
+        removeCallbacks(networkStateAction);
         mVolume = 0;
         mActivity = null;
         mCurrentBrightness = 0;
@@ -585,6 +594,33 @@ public final class ExoPlayerView extends FrameLayout implements CommonHandler.Me
         return hours > 0L ? formatter.format("%d:%02d:%02d", hours, minutes, seconds).toString() : formatter.format("%02d:%02d", minutes, seconds).toString();
     }
 
+    private void updateNetworkState() {
+        removeCallbacks(networkStateAction);
+        LogUtil.e("执行");
+        long duration = player == null ? 0 : player.getDuration();
+        long position = player == null ? 0 : player.getCurrentPosition();
+        long bufferedPosition = player == null ? 0 : player.getBufferedPosition();
+        if (duration == bufferedPosition) {
+            return;
+        }
+        int networkType = NetworkUtils.getNetworkType();
+        if (networkType == NetworkUtils.NETWORKTYPE_WIFI) {
+            // wifi
+//                    networklayFrameLayout.setVisibility(GONE);
+
+        } else if (networkType == NetworkUtils.NETWORKTYPE_MOBILE && !continuePlay) {
+            // 移动网络
+            handler.sendEmptyMessage(UPDATE_MOBILE_NETWORK_UI);
+        } else {
+            // 网络未连接
+            handler.sendEmptyMessage(UPDATE_INVALID_NETWORK_UI);
+        }
+        int playbackState = player == null ? Player.STATE_IDLE : player.getPlaybackState();
+        if (playbackState != Player.STATE_IDLE && playbackState != Player.STATE_ENDED) {
+            postDelayed(networkStateAction, 500);
+        }
+    }
+
     @Override
     public void handleMessage(Message msg) {
         switch (msg.what) {
@@ -606,8 +642,9 @@ public final class ExoPlayerView extends FrameLayout implements CommonHandler.Me
                 break;
             case UPDATE_INVALID_NETWORK_UI:
                 // TODO 这里还是需要暂停视频，需解决缓存问题
-                player.stop();
-                prepared = false;
+                pause();
+//                player.stop();
+//                prepared = false;
                 networklayFrameLayout.setVisibility(VISIBLE);
                 View view = View.inflate(getContext(), R.layout.exo_player_network_invalid, null);
                 networklayFrameLayout.addView(view);
@@ -689,6 +726,7 @@ public final class ExoPlayerView extends FrameLayout implements CommonHandler.Me
                 }
             }
             updateProgress();
+            updateNetworkState();
         }
 
         @Override
