@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xml:lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <title>父文本框案例4</title>
+    <script type="text/javascript"
+            src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.4.2.min.js"></script>
+    <style>#btnSend{position:absolute;display:none;}</style>
+    <input type="button" value="提交选中内容" onclick="ajaxSend()" id="btnSend"/>
+    <script type="text/javascript">
+    window.ontouchstart=function(){
+    document.documentElement.style.webkitTouchCallout='none';
+};
+	var selectedText;
+function ajaxSend(){alert(selectedText)
+$('#btnSend').attr('disabled',true)
+$.ajax({url:'xxxx.ashx',type:'POST',data:{s:selectedText},complete:function(xhr){
+  alert('ajax请求完毕，服务器返回内容：'+xhr.responseText);
+   $('#btnSend').hide();
+}});
+}
+document.onmousedown=function(){selectedText=false;}
+document.onmouseup=function(e){
+   e=e||window.event;
+   selectedText=window.getSelection?window.getSelection().toString():document.selection?document.selection.createRange().text:false;
+   if(selectedText){
+//判断页面是否有滚动，有的话还得加上滚动的距离，要不按钮定位不准
+var sl=Math.max(document.documentElement.scrollLeft,document.body.scrollLeft),
+st=Math.max(document.documentElement.scrollTop,document.body.scrollTop);
+       $('#btnSend').css({left:e.clientX+sl,top:e.clientY+st}).show().attr('disabled',false);
+   }
+        else $('#btnSend').hide();
+}
+        function GetNextLeaf (node) {
+            while (!node.nextSibling) {
+                node = node.parentNode;
+                if (!node) {
+                    return node;
+                }
+            }
+            var leaf = node.nextSibling;
+            while (leaf.firstChild) {
+                leaf = leaf.firstChild;
+            }
+            return leaf;
+        }
+
+        function GetPreviousLeaf (node) {
+            while (!node.previousSibling) {
+                node = node.parentNode;
+                if (!node) {
+                    return node;
+                }
+            }
+            var leaf = node.previousSibling;
+            while (leaf.lastChild) {
+                leaf = leaf.lastChild;
+            }
+            return leaf;
+        }
+
+            // If the text content of an element contains white-spaces only, then does not need to colorize
+        function IsTextVisible (text) {
+            for (var i = 0; i < text.length; i++) {
+                if (text[i] != ' ' && text[i] != '\t' && text[i] != '\r' && text[i] != '\n')
+                    return true;
+            }
+            return false;
+        }
+
+        function ColorizeLeaf (node, color) {
+            if (!IsTextVisible (node.textContent))
+                return;
+            
+            var parentNode = node.parentNode;
+                // if the node does not have siblings and the parent is a span element, then modify its color
+            if (!node.previousSibling && !node.nextSibling) {
+                if (parentNode.tagName.toLowerCase () == "span") {
+                    parentNode.style.color = color;
+                    return;
+                }
+            }
+
+                // Create a span element around the node
+            var span = document.createElement ("span");
+            span.style.color = color;
+            var nextSibling = node.nextSibling;
+            parentNode.removeChild (node);
+            span.appendChild (node);
+            parentNode.insertBefore (span, nextSibling);
+        }
+
+        function ColorizeLeafFromTo (node, color, from, to) {
+            var text = node.textContent;
+            if (!IsTextVisible (text))
+                return;
+            
+            if (from < 0)
+                from = 0;
+            if (to < 0)
+                to = text.length;
+
+            if (from == 0 && to >= text.length) {
+                    // to avoid unnecessary span elements
+                ColorizeLeaf (node, color);
+                return;
+            }
+
+            var part1 = text.substring (0, from);
+            var part2 = text.substring (from, to);
+            var part3 = text.substring (to, text.length);
+
+            var parentNode = node.parentNode;
+            var nextSibling = node.nextSibling;
+
+            parentNode.removeChild (node);
+            if (part1.length > 0) {
+                var textNode = document.createTextNode (part1);
+                parentNode.insertBefore (textNode, nextSibling);
+            }
+            if (part2.length > 0) {
+                var span = document.createElement ("span");
+                span.style.color = color;
+                var textNode = document.createTextNode (part2);
+                span.appendChild (textNode);
+                parentNode.insertBefore (span, nextSibling);
+            }
+            if (part3.length > 0) {
+                var textNode = document.createTextNode (part3);
+                parentNode.insertBefore (textNode, nextSibling);
+            }
+        }
+
+        function ColorizeNode (node, color) {
+            var childNode = node.firstChild;
+            if (!childNode) {
+                ColorizeLeaf (node, color);
+                return;
+            }
+
+            while (childNode) {
+                    // store the next sibling of the childNode, because colorizing modifies the DOM structure
+                var nextSibling = childNode.nextSibling;
+                ColorizeNode (childNode, color);
+                childNode = nextSibling;
+            }
+        }
+
+        function ColorizeNodeFromTo (node, color, from, to) {
+            var childNode = node.firstChild;
+            if (!childNode) {
+                ColorizeLeafFromTo (node, color, from, to);
+                return;
+            }
+
+            for (var i = from; i < to; i++) {
+                ColorizeNode (node.childNodes[i], color);
+            }
+        }
+
+        function ColorizeSelection (color) {
+        var sel = window.getSelection();
+
+	   	var oneWordCaret = document.caretRangeFromPoint(200, 1365);
+	   	oneWordCaret.expand("word");
+
+	   	sel.addRange(oneWordCaret);
+
+            if (window.getSelection) {  // all browsers, except IE before version 9
+                var selectionRange = window.getSelection ();
+
+                if (selectionRange.isCollapsed) {
+                    alert ("请先选择内容！");
+                }
+                else {
+                    var range = selectionRange.getRangeAt (0);
+                        // store the start and end points of the current selection, because the selection will be removed
+                    var startContainer = range.startContainer;
+                    var startOffset = range.startOffset;
+                    var endContainer = range.endContainer;
+                    var endOffset = range.endOffset;
+                        // because of Opera, we need to remove the selection before modifying the DOM hierarchy
+                    selectionRange.removeAllRanges ();
+                    
+                    if (startContainer == endContainer) {
+                        ColorizeNodeFromTo (startContainer, color, startOffset, endOffset);
+                    }
+                    else {
+                        if (startContainer.firstChild) {
+                            var startLeaf = startContainer.childNodes[startOffset];
+                        }
+                        else {
+                            var startLeaf = GetNextLeaf (startContainer);
+                            ColorizeLeafFromTo (startContainer, color, startOffset, -1);
+                        }
+                        
+                        if (endContainer.firstChild) {
+                            if (endOffset > 0) {
+                                var endLeaf = endContainer.childNodes[endOffset - 1];
+                            }
+                            else {
+                                var endLeaf = GetPreviousLeaf (endContainer);
+                            }
+                        }
+                        else {
+                            var endLeaf = GetPreviousLeaf (endContainer);
+                            ColorizeLeafFromTo (endContainer, color, 0, endOffset);
+                        }
+
+                        while (startLeaf) {
+                            var nextLeaf = GetNextLeaf (startLeaf);
+                            ColorizeLeaf (startLeaf, color);
+                            if (startLeaf == endLeaf) {
+                                break;
+                            }
+                            startLeaf = nextLeaf;
+                        }
+                    }
+                }
+            }
+            else {
+                    // Internet Explorer before version 9
+                alert ("您的浏览器不支持这个例子!");
+            }
+        }
+
+    </script>
+</head>
+<style>
+	#btnSend{position:absolute;display:none;}
+
+</style>
+<input type="button" value="提交选中内容" onclick="ajaxSend()" id="btnSend"/>
+<body>
+<div style="width:960px;margin:0 auto;display:block;">
+    下面的红色按钮和蓝色按钮可以用来选择文字一中的文字，使其变色啊！
+    <br/>
+    <br/>
+    <button onclick="ColorizeSelection ('#FF0000');">设置红色</button>
+    <button onclick="ColorizeSelection ('#0000FF');">设置蓝色</button>
+    <br/>
+    <br/>
+    <br/>
+    <div>
+        文字一：我是haorooms博客被选择用的文本，可以设置红色和蓝色哦！
+    </div>
+    <br/>
+    <br/>
+    <br/>
+    <div>
+        <b>我是haorooms博客被被用来加粗的文本啊！</b>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<html>
+
+<head>
+    <title>我的第一个 HTML 页面</title>
+</head>
+
+<body>
+<p id="p1">body 元素的内容会显示在浏览器中。</p>
+<p id="p2">title 元素的内容会显示在浏览器的标题栏中。汉代散文延续先秦而有再进一步的发展。先秦哲理散文在当代政治、
+    经济、社会各方面的具体条件之下而蓬勃兴盛，其所呈现的思想、所阐发的道理，
+    也都以现实为触发，两汉政论散文以此为基础，综合儒、道、法三家的思想，更进一步与时代紧密结合，
+    发挥经世济民的功能。汉代散文可分史传散文、政论散文和哲理散文三类。史传散文有《史记》及《汉书》；
+    政论散文有贾谊《治安策》、《过秦论》、晁错《言兵事疏》、《论贵粟疏》；哲理散文有刘安《淮南子》、
+    王充《论衡》等。</p>
+<p id="p3">汉代散文延续先秦而有再进一步的发展。先秦哲理散文在当代政治、
+    经济、社会各方面的具体条件之下而蓬勃兴盛，其所呈现的思想、所阐发的道理，
+    也都以现实为触发，两汉政论散文以此为基础，综合儒、道、法三家的思想，更进一步与时代紧密结合，
+    发挥经世济民的功能。汉代散文可分史传散文、政论散文和哲理散文三类。史传散文有《史记》及《汉书》；
+    政论散文有贾谊《治安策》、《过秦论》、晁错《言兵事疏》、《论贵粟疏》；哲理散文有刘安《淮南子》、
+    王充《论衡》等。</p>
+
+<p id="p4">贾谊的《论积贮疏》、《过秦论》、《治安策》，鼂错的《言兵事疏》、《论贵粟疏》，
+    邹阳的《狱中上梁王书》，桓宽的《盐铁论》，王符的《潜夫论》，
+    崔实的《政论》，仲长统的《昌言》，皆是内容丰富、立论精密，语言朴实[7]。
+    历史散文一脉，西汉司马迁的《史记》延续《左传》基础而有更宏观的视野[8]，
+    它不但是文学和史学的典范之作[9][10]，更是司马迁一生理想、热情的心血结晶[11]，
+    后代唐、宋以迄明、清的散文作品，都深受其人、其文的影响[12]，紧接着是东汉班固的《汉书》，
+    其书断取西汉一代，对于后代正史之体例有其影响[13]，另外在文字方面，《汉书》与《史记》比较起来，
+    喜用古字，尚藻饰，用排偶，已可看出六朝文风的开端，两者交相辉映，构成中国史书的最佳典范[13]。
+    其他政论性的散文有王充的《论衡》、仲长统《昌言》、刘邵《人物志》、桓宽《盐铁论》等[7]。</p>
+
+<P id="p5">先秦、汉代散文，记载、诠释历史，或针砭、议论当代，或为解决问题而出，或为陈述理想而著，
+    其动机、其目的本不在文，所以各家散文，各有其特色；这就是唐、宋以来散文作家孜孜以这两个
+    时代的散文为典范而大力提倡的基本原因[7]。魏晋[编辑]</p>
+</body>
+<p id="p6"><b>Hello</b> World</p>
+<input type="button" value="调用" onclick="testFun()">
+
+<script type="text/javascript">
+
+function init(startId, startOffset, endId, endOffset) {
+    var s = window.getSelection();
+    window.android.testInit(startId, startOffset, endId, endOffset);
+    var p1 = document.getElementById(startId);
+    var p2 = document.getElementById(endId);
+
+    var range = document.createRange();
+    range.setStart(p1.firstChild, startOffset);
+    range.setEnd(p2.firstChild, endOffset);
+
+    var text = range.toString();
+	var contents = p1.innerHTML;
+	p1.innerHTML = contents.split(text).join('<span style="background:red;color:white;">' + text + '</span>');
+
+
+
+    s.addRange(range);
+
+
+
+}
+
+</script>
+
+</html>

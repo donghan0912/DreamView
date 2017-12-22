@@ -14,6 +14,7 @@ import com.dream.dreamview.util.LogUtil;
 import com.facebook.stetho.Stetho;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
+import com.tencent.smtt.sdk.QbSdk;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -62,7 +63,18 @@ public class MyApplication extends Application implements Application.ActivityLi
             instance = this;
             registerActivityLifecycleCallbacks(this);
         }
+        // App 首次就可以加载 x5 内核
+        /*QbSdk.initX5Environment(this, new QbSdk.PreInitCallback() {
+            @Override
+            public void onCoreInitFinished() {
 
+            }
+
+            @Override
+            public void onViewInitFinished(boolean b) {
+                LogUtil.e(b + "========================================");
+            }
+        });*/
     }
 
     public String getProcessName() {
