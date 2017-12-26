@@ -84,25 +84,29 @@ s.addRange(oRange);
 
 var startRange1 = document.caretRangeFromPoint(81.6, 58.3);
 var endRange1 = document.caretRangeFromPoint(153.3, 162.0);
-var startRange2 = document.caretRangeFromPoint(163.6, 250.3);
-var endRange2 = document.caretRangeFromPoint(154.3, 284.3);
 
-var range1 = document.createRange();
-range1.setStart(startRange1.startContainer, startRange1.startOffset);
-range1.setEnd(endRange1.startContainer, endRange1.startOffset);
-s.removeAllRanges();
-s.addRange(range1);
+var startRange2 = document.caretRangeFromPoint(163.6, 250.3);
+<!--var endRange2 = document.caretRangeFromPoint(184.3, 584.3);// 3行-->
+<!--var endRange2 = document.caretRangeFromPoint(184.3, 384.3);// 2行-->
+var endRange2 = document.caretRangeFromPoint(184.3, 284.3);// 1行
+
+<!--var range1 = document.createRange();-->
+<!--range1.setStart(startRange1.startContainer, startRange1.startOffset);-->
+<!--range1.setEnd(endRange1.startContainer, endRange1.startOffset);-->
+<!--s.removeAllRanges();-->
+<!--s.addRange(range1);-->
 var range2 = document.createRange();
 range2.setStart(startRange2.startContainer, startRange2.startOffset);
 range2.setEnd(endRange2.startContainer, endRange2.startOffset);
+s.removeAllRanges();
 s.addRange(range2);
 
-var startContainer1 = range1.startContainer;
-var startOffset1 = range1.startOffset;
-var id1 = startContainer1.parentElement.id;
-var endContainer1 = range1.endContainer;
-var endOffset1 = range1.endOffset;
-var id3 = endContainer1.parentElement.id;
+<!--var startContainer1 = range1.startContainer;-->
+<!--var startOffset1 = range1.startOffset;-->
+<!--var id1 = startContainer1.parentElement.id;-->
+<!--var endContainer1 = range1.endContainer;-->
+<!--var endOffset1 = range1.endOffset;-->
+<!--var id3 = endContainer1.parentElement.id;-->
 
 var startContainer2 = range2.startContainer;
 var startOffset2 = range2.startOffset;
@@ -111,8 +115,9 @@ var endContainer2 = range2.endContainer;
 var endOffset2 = range2.endOffset;
 var id4 = endContainer2.parentElement.id;
 
-window.android.startFunction(id1, startOffset1, id3, endOffset1);
-    <!--window.android.testInit("d", 20, "s", 40);-->
+
+//window.android.startFunction(id1, startOffset1, id3, endOffset1);
+window.android.startFunction(id2, startOffset2, id4, endOffset2);
 </script>
 
 </html>

@@ -3,7 +3,8 @@
 <head>
     <title>我的第一个 HTML 页面</title>
 </head>
-
+<script
+        src="http://code.jquery.com/jquery-1.8.0.min.js"></script>
 <body>
 <p id="p1">body 元素的内容会显示在浏览器中。</p>
 <p id="p2">title 元素的内容会显示在浏览器的标题栏中。汉代散文延续先秦而有再进一步的发展。先秦哲理散文在当代政治、
@@ -39,25 +40,78 @@
 <script type="text/javascript">
 
 function init(startId, startOffset, endId, endOffset) {
-    var s = window.getSelection();
     window.android.testInit(startId, startOffset, endId, endOffset);
-    var p1 = document.getElementById(startId);
-    var p2 = document.getElementById(endId);
+    var startElement = document.getElementById(startId);
+    var endElement = document.getElementById(endId);
+
+    <!--var textLength = $('#' + startId).text().length;-->
+    <!--var range1 = document.createRange();-->
+    <!--range1.setStart(startElement.firstChild, startOffset);-->
+    <!--range1.setEnd(startElement.firstChild, textLength);-->
+    <!--var text1 = range1.toString();-->
+	<!--var contents1 = startElement.innerHTML;-->
+	<!--startElement.innerHTML = contents1.split(text1).join('<span style="background:red;color:white;">' + text1 + '</span>');-->
+
+    <!--var range2 = document.createRange();-->
+    <!--range2.setStart(endElement.firstChild, 0);-->
+    <!--range2.setEnd(endElement.firstChild, endOffset);-->
+    <!--var text2 = range2.toString();-->
+	<!--var contents2 = endElement.innerHTML;-->
+	<!--endElement.innerHTML = contents2.split(text2).join('<span style="background:red;color:white;">' + text2 + '</span>');-->
 
     var range = document.createRange();
-    range.setStart(p1.firstChild, startOffset);
-    range.setEnd(p2.firstChild, endOffset);
+	range.setStart(startElement.firstChild, startOffset);
+	range.setEnd(endElement.firstChild, endOffset);
 
-    var text = range.toString();
-	var contents = p1.innerHTML;
-	p1.innerHTML = contents.split(text).join('<span style="background:red;color:white;">' + text + '</span>');
+    if(startElement == endElement) {// 同一个段落
+		var text = range.toString();
+		var contents = startElement.innerHTML;
+		startElement.innerHTML = contents.split(text).join('<span style="background:red;color:white;">' + text + '</span>');
+	} else {
+		var clone = range.cloneContents();
+		var c = clone.children;
+		var count = 0;
+		var ids = new Array();
+		for (i = 0; i < c.length; i++) {
+			console.log(c[i].id);
+			if(c[i].id) {
+				ids[count] = c[i].id;
+				count++;
+			}
+		}
+		console.log('数量' + count + '/' + ids.length + '=======================' + c.length);
 
+		var textLength = $('#' + startId).text().length;
+        var range1 = document.createRange();
+        range1.setStart(startElement.firstChild, startOffset);
+        range1.setEnd(startElement.firstChild, textLength);
+        var text1 = range1.toString();
+        var contents1 = startElement.innerHTML;
+        startElement.innerHTML = contents1.split(text1).join('<span style="background:red;color:white;">' + text1 + '</span>');
 
+        var range2 = document.createRange();
+        range2.setStart(endElement.firstChild, 0);
+        range2.setEnd(endElement.firstChild, endOffset);
+        var text2 = range2.toString();
+        var contents2 = endElement.innerHTML;
+        endElement.innerHTML = contents2.split(text2).join('<span style="background:red;color:white;">' + text2 + '</span>');
 
-    s.addRange(range);
-
-
-
+		if (ids.length > 2) {
+			for(i = 1; i < ids.length -1; i++) {
+				// 中间的;
+				var id = ids[i];
+				var element = document.getElementById(id);
+				var textLength = $('#' + id).text().length;
+				var range = document.createRange();
+				range.setStart(element.firstChild, 0);
+				range.setEnd(element.firstChild, textLength);
+				var text = range.toString();
+				var contents = element.innerHTML;
+				element.innerHTML = contents.split(text).join('<span style="background:red;color:white;">' + text + '</span>');
+			}
+		}
+	}
+    
 }
 
 </script>

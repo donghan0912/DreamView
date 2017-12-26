@@ -94,7 +94,7 @@ public class WebActivity extends BaseActivity implements View.OnTouchListener{
 //        mCustomActionWebView.setWebViewClient(new CustomWebViewClient());
 
         //设置item
-        mCustomActionWebView.setActionList(list);
+        /*mCustomActionWebView.setActionList(list);
 
         //链接js注入接口，使能选中返回数据
         mCustomActionWebView.linkJSInterface();
@@ -129,7 +129,7 @@ public class WebActivity extends BaseActivity implements View.OnTouchListener{
 
 
 
-        registerForContextMenu(webview);
+        registerForContextMenu(webview);*/
 
     }
 
@@ -179,7 +179,7 @@ public class WebActivity extends BaseActivity implements View.OnTouchListener{
         float xPoint = getDensityIndependentValue(event.getX(), this) / getDensityIndependentValue(webview.getScale(), this);
         float yPoint = getDensityIndependentValue(event.getY(), this) / getDensityIndependentValue(webview.getScale(), this);
         LogUtil.e(xPoint + "/" + yPoint + " ####################");
-        webview.loadUrl("javascript:createRangeTextt(xPoint, yPoint)");
+//        webview.loadUrl("javascript:createRangeTextt(xPoint, yPoint)");
         return false;
     }
 
