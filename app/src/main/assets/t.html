@@ -3,7 +3,8 @@
 <head>
     <title>我的第一个 HTML 页面</title>
 </head>
-
+<script
+        src="http://code.jquery.com/jquery-1.8.0.min.js"></script>
 <body>
 <p id="p1">body 元素的内容会显示在浏览器中。</p>
 <p id="p2">title 元素的内容会显示在浏览器的标题栏中。汉代散文延续先秦而有再进一步的发展。先秦哲理散文在当代政治、
@@ -118,6 +119,95 @@ var id4 = endContainer2.parentElement.id;
 
 //window.android.startFunction(id1, startOffset1, id3, endOffset1);
 window.android.startFunction(id2, startOffset2, id4, endOffset2);
+
+// 开始长按标记范围初始化
+function startMark(x, y) {
+    var s = window.getSelection();
+    s.removeAllRanges();
+    var startRange = document.caretRangeFromPoint(x - 40, y);// 此处减去40是为了用户体验
+    var endRange = document.caretRangeFromPoint(x + 40, y);
+
+    var range = document.createRange();
+    range.setStart(startRange.startContainer, startRange.startOffset);
+    range.setEnd(endRange.startContainer, endRange.startOffset);
+    s.removeAllRanges();
+    s.addRange(range);
+}
+// 移动选择按钮，标记
+function endMark(startX, startY, endX, endY) {
+    var s = window.getSelection();
+
+    var startRange = document.caretRangeFromPoint(startX - 40, startY);
+    var endRange = document.caretRangeFromPoint(endX - 20, endY);
+
+    var range = document.createRange();
+    range.setStart(startRange.startContainer, startRange.startOffset);
+    range.setEnd(endRange.startContainer, endRange.startOffset);
+
+    s.removeAllRanges();
+    s.addRange(range);
+    moveCursor(endRange);
+}
+
+// 移动按钮
+function moveCursor(endRange) {
+    var sel = window.getSelection();
+	var x;
+	var y;
+	if (sel.rangeCount) {
+		<!--range = sel.getRangeAt(0).cloneRange();-->
+		range = endRange;
+		if (range.getClientRects) {
+			range.collapse(true);
+			rects = range.getClientRects();
+			if (rects.length > 0) {
+				rect = rects[0];
+			}
+			// 光标在行首时，rect为undefined
+			if(rect){
+				x = rect.left;
+				y = rect.top;
+			}
+		}
+		// Fall back to inserting a temporary element
+		if ((x == 0 && y == 0) || rect === undefined) {
+			var span = doc.createElement("span");
+			if (span.getClientRects) {
+				// Ensure span has dimensions and position by
+				// adding a zero-width space character
+				span.appendChild( doc.createTextNode("\u200b") );
+				range.insertNode(span);
+				rect = span.getClientRects()[0];
+				x = rect.left;
+				y = rect.top;
+				var spanParent = span.parentNode;
+				spanParent.removeChild(span);
+
+				// Glue any broken text nodes back together
+				spanParent.normalize();
+			}
+		}
+	}
+
+	var handleBounds = {"left": x,
+                         "top": y,
+                         "right": x,
+                         "bottom": y };
+    window.android.move(JSON.stringify(handleBounds));
+}
+
+// 移动选择按钮，标记
+function getRange() {
+    var s = window.getSelection();
+    var range = s.getRangeAt(0);
+    var startContainer = range.startContainer;
+    var startOffset = range.startOffset;
+    var startId = startContainer.parentElement.id;
+    var endContainer = range.endContainer;
+    var endOffset = range.endOffset;
+    var endId = endContainer.parentElement.id;
+    window.android.startActivity(startId, startOffset, endId, endOffset);
+}
 </script>
 
 </html>

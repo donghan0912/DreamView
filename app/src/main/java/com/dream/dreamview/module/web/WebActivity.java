@@ -3,9 +3,12 @@ package com.dream.dreamview.module.web;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.Display;
@@ -13,16 +16,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.BaseActivity;
+import com.dream.dreamview.util.CommonUtils;
+import com.dream.dreamview.util.DragViewUtil;
 import com.dream.dreamview.util.LogUtil;
 import com.dream.dreamview.util.ToastUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -35,6 +47,8 @@ import java.util.List;
 public class WebActivity extends BaseActivity implements View.OnTouchListener{
 
     private WebView webview;
+    private ImageButton imageView;
+    private RelativeLayout.LayoutParams imageParames;
 
     public static void start(Context context) {
         context.startActivity(new Intent(context, WebActivity.class));
@@ -45,6 +59,7 @@ public class WebActivity extends BaseActivity implements View.OnTouchListener{
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.web_activity_web);
+        RelativeLayout root = findViewById(R.id.root);
         webview = findViewById(R.id.web_view);
 //        webview.loadUrl("http://www.haorooms.com/uploads/example/execCommand/demo4.html");
 //        webview.loadUrl("file:///android_asset/demo.html");
@@ -55,7 +70,11 @@ public class WebActivity extends BaseActivity implements View.OnTouchListener{
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                webview.loadUrl("javascript:ColorizeSelection ('#FF0000')");
+                // TODO 标记
+                webview.loadUrl("javascript:getRange()");
+
+
+
             }
         });
 
@@ -76,9 +95,14 @@ public class WebActivity extends BaseActivity implements View.OnTouchListener{
             public boolean onLongClick(View view) {
 //                webview.loadUrl("javascript:longPress ()");
 
-                webview.loadUrl("javascript:createRangeTextt()");
-                webview.loadUrl("javascript:ColorizeSelection ('#FF0000')");
-                ToastUtil.showShortToast(WebActivity.this, "菜单该出来了");
+//                webview.loadUrl("javascript:createRangeTextt()");
+//                webview.loadUrl("javascript:ColorizeSelection ('#FF0000')");
+                ToastUtil.showShortToast(WebActivity.this, startX + "==========" + startY);
+                imageParames.leftMargin = (int) imageX;
+                imageParames.topMargin = (int) imageY - CommonUtils.getStatusBarHeight();
+                imageView.setLayoutParams(imageParames);
+                webview.loadUrl("javascript:startMark(\"" + startX + "\", \"" + startY + "\")");
+
 
                 return true;
             }
@@ -131,6 +155,18 @@ public class WebActivity extends BaseActivity implements View.OnTouchListener{
 
         registerForContextMenu(webview);*/
 
+//        imageView = new ImageButton(this);
+//        imageView.setBackgroundResource(R.drawable.gender_checked_bg);
+//        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//        imageView.setLayoutParams(params);
+//        root.addView(imageView, 3);
+//        imageView.setOnTouchListener(this);
+//        imageParames = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
+
+        imageView = findViewById(R.id.img);
+        imageView.setOnTouchListener(this);
+        imageParames = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
+
     }
 
     @Override
@@ -173,13 +209,46 @@ public class WebActivity extends BaseActivity implements View.OnTouchListener{
         return false;
     }
 
-
+    private float downX;
+    private float downY;
+    private float startX;
+    private float startY;
+    private float imageX;
+    private float imageY;
     @Override
     public boolean onTouch(View view, MotionEvent event) {
-        float xPoint = getDensityIndependentValue(event.getX(), this) / getDensityIndependentValue(webview.getScale(), this);
-        float yPoint = getDensityIndependentValue(event.getY(), this) / getDensityIndependentValue(webview.getScale(), this);
-        LogUtil.e(xPoint + "/" + yPoint + " ####################");
-//        webview.loadUrl("javascript:createRangeTextt(xPoint, yPoint)");
+        imageX = event.getRawX();
+        imageY = event.getRawY();
+        float xPoint = CommonUtils.px2dip(event.getRawX());
+        float yPoint = CommonUtils.px2dip(event.getRawY()) - CommonUtils.px2dip(CommonUtils.getStatusBarHeight());
+        if (view == imageView) {
+            float ttt = event.getX();
+            LogUtil.e(ttt + "----------------" +startX + "/" + startY + "/" + xPoint + "/" + yPoint);
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    downX = event.getX();
+                    downY = event.getY();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+//                    imageParames.leftMargin = (int) imageX;
+//                    imageParames.topMargin = (int) imageY - CommonUtils.getStatusBarHeight();
+//                    imageView.setLayoutParams(imageParames);
+                    webview.loadUrl("javascript:endMark(\"" + startX + "\", \"" + startY + "\", \"" + xPoint + "\", \"" + yPoint + "\")");
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+
+                    break;
+            }
+        } else {
+            LogUtil.e(xPoint + "/" + yPoint + " ####################");
+            startX = xPoint;
+            startY = yPoint;
+//            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
+//            params.leftMargin = x;
+//            params.topMargin = y;
+//            imageView.setLayoutParams(params);
+        }
         return false;
     }
 
@@ -250,4 +319,41 @@ public class WebActivity extends BaseActivity implements View.OnTouchListener{
             }
         });
     }
+
+    @JavascriptInterface
+    public void move(final String bounds) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject selectionBoundsObject = new JSONObject(bounds);
+                    int left = selectionBoundsObject.getInt("left");
+                    int top = selectionBoundsObject.getInt("top");
+                    int right = selectionBoundsObject.getInt("right");
+                    int bottom = selectionBoundsObject.getInt("bottom");
+                    LogUtil.e(right + "========" + bottom);
+                    imageParames.leftMargin = CommonUtils.dp2px(right);
+                    imageParames.topMargin = CommonUtils.dp2px(bottom) ;
+                    imageView.setLayoutParams(imageParames);
+
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    @JavascriptInterface
+    public void startActivity(final String startId, final String startOffset, final String endId, final String endOffset){
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                SyncWebActivity.start(WebActivity.this, startId, startOffset, endId, endOffset);
+            }
+        });
+    }
+
 }
