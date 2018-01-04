@@ -67,7 +67,7 @@ function init(startId, startOffset, endId, endOffset) {
 		var text = range.toString();
 		var contents = startElement.innerHTML;
 		//startElement.innerHTML = contents.split(text).join('<span style="background:red;color:white;">' + text + '</span>');
-		startElement.innerHTML = contents.split(text).join('<span style="background:red;color:white;"' + ' id=' + "\"" + startId + '_select;' + "\"" + '>' + text + '</span>');
+		startElement.innerHTML = contents.split(text).join('<span style="background:red;color:white;"' + 'id=' + "\"" + startId + "_select" + "\"" + '>' + text + '</span>');
 	} else {
 		var clone = range.cloneContents();
 		var c = clone.children;
@@ -89,7 +89,7 @@ function init(startId, startOffset, endId, endOffset) {
         var text1 = range1.toString();
         var contents1 = startElement.innerHTML;
         //startElement.innerHTML = contents1.split(text1).join('<span style="background:red;color:white;">' + text1 + '</span>');
-        startElement.innerHTML = contents1.split(text1).join('<span style="background:red;color:white;"' + ' id=' + "\"" + startId + '_select;' + "\"" + '>' + text1 + '</span>');
+        startElement.innerHTML = contents1.split(text1).join('<span style="background:red;color:white;"' + 'id=' + "\"" + startId + "_select" + "\"" + '>' + text1 + '</span>');
 
         var range2 = document.createRange();
         range2.setStart(endElement.firstChild, 0);
@@ -97,7 +97,7 @@ function init(startId, startOffset, endId, endOffset) {
         var text2 = range2.toString();
         var contents2 = endElement.innerHTML;
         //endElement.innerHTML = contents2.split(text2).join('<span style="background:red;color:white;">' + text2 + '</span>');
-        endElement.innerHTML = contents2.split(text2).join('<span style="background:red;color:white;"' + ' id=' + "\"" + endId + '_select;' + "\"" + '>' + text2 + '</span>');
+        endElement.innerHTML = contents2.split(text2).join('<span style="background:red;color:white;"' + 'id=' + "\"" + endId + "_select" + "\"" + '>' + text2 + '</span>');
 
 		if (ids.length > 2) {
 			for(i = 1; i < ids.length -1; i++) {
@@ -111,11 +111,10 @@ function init(startId, startOffset, endId, endOffset) {
 				var text = range.toString();
 				var contents = element.innerHTML;
 				//element.innerHTML = contents.split(text).join('<span style="background:red;color:white;">' + text + '</span>');
-				element.innerHTML = contents.split(text).join('<span style="background:red;color:white;"' + ' id=' + "\"" + id + '_select;' + "\"" + '>' + text + '</span>');
+				element.innerHTML = contents.split(text).join('<span style="background:red;color:white;"' + 'id=' + "\"" + id + "_select" + "\"" + '>' + text + '</span>');
 			}
 		}
 	}
-    
 }
 
 function isIncluded(x, y, startId, startOffset, endId, endOffset) {
@@ -130,7 +129,17 @@ function isIncluded(x, y, startId, startOffset, endId, endOffset) {
         console.log(ttt);
         window.android.showDeleteMenu();
         // TODO 这里弹出删除按钮
+        console.log("红色区域id个数" + $("[id$=select]").size());
 
+        // 删除标记
+        $("[id$=select]").each(function(){
+            //$(this).replaceWith($(this).html());
+            var parentHtml = $(this).parent().html();
+            var text = $(this).html();
+            var parentId = $(this).attr("id");
+            var content = '<span style="background:red;color:white;" ' + 'id=' + "\"" + parentId + "\"" + '>' + text + '</span>';
+            $(this).parent().html(parentHtml.split(content).join(text));
+        });
     }
 }
 
