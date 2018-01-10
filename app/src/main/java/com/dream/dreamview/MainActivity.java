@@ -11,6 +11,7 @@ import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.module.rxbus.RxBus;
 import com.dream.dreamview.module.video.VideoActivity;
 import com.dream.dreamview.module.video.VideoListActivity;
+import com.dream.dreamview.module.web.TencentWebActivity;
 import com.dream.dreamview.module.web.WebActivity;
 import com.dream.dreamview.util.ToastUtil;
 import com.dream.dreamview.widget.MultiStatusLayout;
@@ -71,7 +72,8 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
 //                startActivity(new Intent(this, KotlinActivity.class));
 //                RoomDBActivity.start(this);
 //                SecretActivity.start(this);
-                WebActivity.start(this);
+//                WebActivity.start(this);
+                TencentWebActivity.start(this);
                 break;
             case R.id.btn_2:
                 mLayout.showErrorView();

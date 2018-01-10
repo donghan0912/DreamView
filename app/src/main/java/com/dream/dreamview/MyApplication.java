@@ -64,7 +64,7 @@ public class MyApplication extends Application implements Application.ActivityLi
             registerActivityLifecycleCallbacks(this);
         }
         // App 首次就可以加载 x5 内核
-        /*QbSdk.initX5Environment(this, new QbSdk.PreInitCallback() {
+        QbSdk.initX5Environment(this, new QbSdk.PreInitCallback() {
             @Override
             public void onCoreInitFinished() {
 
@@ -74,7 +74,7 @@ public class MyApplication extends Application implements Application.ActivityLi
             public void onViewInitFinished(boolean b) {
                 LogUtil.e(b + "========================================");
             }
-        });*/
+        });
     }
 
     public String getProcessName() {

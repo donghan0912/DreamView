@@ -12,18 +12,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <WebView
-
+    <com.tencent.smtt.sdk.WebView
         app:layout_constraintTop_toBottomOf="@id/btn"
         android:id="@+id/web_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    --<com.dream.dreamview.module.web.CustomActionWebView
-    android:visibility="gone"
-        android:id="@+id/web_view_2"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
 
     <ImageButton
         android:src="@drawable/gender_checked_bg"

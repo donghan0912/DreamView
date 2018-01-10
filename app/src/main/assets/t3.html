@@ -21,19 +21,19 @@
     政论散文有贾谊《治安策》、《过秦论》、晁错《言兵事疏》、《论贵粟疏》；哲理散文有刘安《淮南子》、
     王充《论衡》等。</p>
 
-<p id="p4">贾谊的《论积贮疏》、《过秦论》、《治安策》，鼂错的《言兵事疏》、《论贵粟疏》，
-    邹阳的《狱中上梁王书》，桓宽的《盐铁论》，王符的《潜夫论》，
-    崔实的《政论》，仲长统的《昌言》，皆是内容丰富、立论精密，语言朴实[7]。
-    历史散文一脉，西汉司马迁的《史记》延续《左传》基础而有更宏观的视野[8]，
-    它不但是文学和史学的典范之作[9][10]，更是司马迁一生理想、热情的心血结晶[11]，
-    后代唐、宋以迄明、清的散文作品，都深受其人、其文的影响[12]，紧接着是东汉班固的《汉书》，
-    其书断取西汉一代，对于后代正史之体例有其影响[13]，另外在文字方面，《汉书》与《史记》比较起来，
-    喜用古字，尚藻饰，用排偶，已可看出六朝文风的开端，两者交相辉映，构成中国史书的最佳典范[13]。
-    其他政论性的散文有王充的《论衡》、仲长统《昌言》、刘邵《人物志》、桓宽《盐铁论》等[7]。</p>
+    <p id="p4">贾谊的《论积贮疏》、《过秦论》、《治安策》，鼂错的《言兵事疏》、《论贵粟疏》，
+        邹阳的《狱中上梁王书》，桓宽的《盐铁论》，王符的《潜夫论》，
+        崔实的《政论》，仲长统的《昌言》，皆是内容丰富、立论精密，语言朴实[7]。
+        历史散文一脉，西汉司马迁的《史记》延续《左传》基础而有更宏观的视野[8]，
+        它不但是文学和史学的典范之作[9][10]，更是司马迁一生理想、热情的心血结晶[11]，
+        后代唐、宋以迄明、清的散文作品，都深受其人、其文的影响[12]，紧接着是东汉班固的《汉书》，
+        其书断取西汉一代，对于后代正史之体例有其影响[13]，另外在文字方面，《汉书》与《史记》比较起来，
+        喜用古字，尚藻饰，用排偶，已可看出六朝文风的开端，两者交相辉映，构成中国史书的最佳典范[13]。
+        其他政论性的散文有王充的《论衡》、仲长统《昌言》、刘邵《人物志》、桓宽《盐铁论》等[7]。</p>
 
-<P id="p5">先秦、汉代散文，记载、诠释历史，或针砭、议论当代，或为解决问题而出，或为陈述理想而著，
-    其动机、其目的本不在文，所以各家散文，各有其特色；这就是唐、宋以来散文作家孜孜以这两个
-    时代的散文为典范而大力提倡的基本原因[7]。魏晋[编辑]</p>
+    <P id="p5">先秦、汉代散文，记载、诠释历史，或针砭、议论当代，或为解决问题而出，或为陈述理想而著，
+        其动机、其目的本不在文，所以各家散文，各有其特色；这就是唐、宋以来散文作家孜孜以这两个
+        时代的散文为典范而大力提倡的基本原因[7]。魏晋[编辑]</p>
 <P id="p8">先秦汉代散文记载诠释历史或针砭议论当代或为解决问题而出或为陈述理想而著
     其动机其目的本不在文所以各家散文各有其特色这就是唐宋以来散文作家孜孜以这两个
     时代的散文为典范而大力提倡的基本原因先秦汉代散文记载诠释历史或针砭议论当代或为解决问题而出或为陈述理想而著
@@ -49,25 +49,11 @@
 
 <script type="text/javascript">
 
+// 初始化选中区域
 function init(startId, startOffset, endId, endOffset) {
     window.android.testInit(startId, startOffset, endId, endOffset);
     var startElement = document.getElementById(startId);
     var endElement = document.getElementById(endId);
-
-    <!--var textLength = $('#' + startId).text().length;-->
-    <!--var range1 = document.createRange();-->
-    <!--range1.setStart(startElement.firstChild, startOffset);-->
-    <!--range1.setEnd(startElement.firstChild, textLength);-->
-    <!--var text1 = range1.toString();-->
-	<!--var contents1 = startElement.innerHTML;-->
-	<!--startElement.innerHTML = contents1.split(text1).join('<span style="background:red;color:white;">' + text1 + '</span>');-->
-
-    <!--var range2 = document.createRange();-->
-    <!--range2.setStart(endElement.firstChild, 0);-->
-    <!--range2.setEnd(endElement.firstChild, endOffset);-->
-    <!--var text2 = range2.toString();-->
-	<!--var contents2 = endElement.innerHTML;-->
-	<!--endElement.innerHTML = contents2.split(text2).join('<span style="background:red;color:white;">' + text2 + '</span>');-->
 
     var range = document.createRange();
 	range.setStart(startElement.firstChild, startOffset);
@@ -127,6 +113,65 @@ function init(startId, startOffset, endId, endOffset) {
 	}
 }
 
+// 开始长按标记范围初始化
+function startMark(x, y) {
+    var s = window.getSelection();
+    s.removeAllRanges();
+    var startRange = document.caretRangeFromPoint(x - 40, y);// 此处减去40是为了用户体验
+    var endRange = document.caretRangeFromPoint(x + 40, y);
+
+    var range = document.createRange();
+    range.setStart(startRange.startContainer, startRange.startOffset);
+    range.setEnd(endRange.startContainer, endRange.startOffset);
+    //s.removeAllRanges();
+    s.addRange(range);
+}
+
+// 开始标记
+function getRange() {
+    var s = window.getSelection();
+    if (s && s.rangeCount > 0) {
+        var range = s.getRangeAt(0);
+        var startContainer = range.startContainer;
+        var startOffset = range.startOffset;
+        var startId = startContainer.parentElement.id;
+        var endContainer = range.endContainer;
+        var endOffset = range.endOffset;
+        var endId = endContainer.parentElement.id;
+        console.log(startId + "==" + startOffset + "==" + endId + "==" + endOffset);
+        window.android.startActivity(startId, startOffset, endId, endOffset);
+    }
+}
+
+// 选中区域变化监听
+function selectionChangeListen() {
+    var s = window.getSelection();
+    if (s && s.rangeCount > 0) {
+        var range = s.getRangeAt(0);
+		if (range.getClientRects) {
+			range.collapse(true);
+			rects = range.getClientRects();
+			if (rects.length > 0) {
+				rect = rects[0];
+			}
+			// 光标在行首时，rect为undefined
+			if(rect){
+				x = rect.left;
+				y = rect.top;
+			}
+			console.log("开始执行了啊啊啊啊嗄" + x)
+            var handleBounds = {"left": x,
+                         "top": y,
+                         "right": x,
+                         "bottom": y };
+            window.android.move(JSON.stringify(handleBounds));
+        }
+   } else {
+     window.android.remove();
+   }
+}
+
+// 点击删除
 function isIncluded(x, y, startId, startOffset, endId, endOffset) {
     var selection = window.getSelection ();
     console.log("当前坐标：" + x + "/" + y);
@@ -152,7 +197,6 @@ function isIncluded(x, y, startId, startOffset, endId, endOffset) {
         });
     }
 }
-
 </script>
 
 </html>

@@ -3,49 +3,38 @@ package com.dream.dreamview.module.web;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.Display;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.BaseActivity;
 import com.dream.dreamview.util.CommonUtils;
-import com.dream.dreamview.util.DragViewUtil;
 import com.dream.dreamview.util.LogUtil;
 import com.dream.dreamview.util.ToastUtil;
+import com.tencent.smtt.sdk.WebSettings;
+import com.tencent.smtt.sdk.WebView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created on 2017/12/18.
  */
 
 public class WebActivity extends BaseActivity implements View.OnTouchListener{
-
     private WebView webview;
     private ImageButton imageView;
     private RelativeLayout.LayoutParams imageParames;
@@ -72,9 +61,6 @@ public class WebActivity extends BaseActivity implements View.OnTouchListener{
             public void onClick(View view) {
                 // TODO 标记
                 webview.loadUrl("javascript:getRange()");
-
-
-
             }
         });
 
@@ -86,74 +72,26 @@ public class WebActivity extends BaseActivity implements View.OnTouchListener{
         // TODO var startContainer2 = range2.startContainer;
         // TODO var id1 = startContainer1.parentElement.id;
         // TODO var id2 = startContainer2.parentElement.id;
-
         // TODO range.isPointInRange 判断是否点中选中区域(可以用来弹出删除菜单按钮)
-
 
         webview.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-//                webview.loadUrl("javascript:longPress ()");
-
-//                webview.loadUrl("javascript:createRangeTextt()");
-//                webview.loadUrl("javascript:ColorizeSelection ('#FF0000')");
                 ToastUtil.showShortToast(WebActivity.this, startX + "==========" + startY);
                 imageParames.leftMargin = (int) imageX;
                 imageParames.topMargin = (int) imageY - CommonUtils.getStatusBarHeight();
                 imageView.setLayoutParams(imageParames);
                 webview.loadUrl("javascript:startMark(\"" + startX + "\", \"" + startY + "\")");
-
-
                 return true;
             }
         });
+        webview.setLongClickable(true);
         webview.setOnTouchListener(this);
         webview.addJavascriptInterface(WebActivity.this, "android");
-
-        final CustomActionWebView mCustomActionWebView = findViewById(R.id.web_view_2);
-        List<String> list = new ArrayList<>();
-        list.add("复制");
-        list.add("搜索");
-        list.add("标记");
-//        mCustomActionWebView.setWebViewClient(new CustomWebViewClient());
-
-        //设置item
-        /*mCustomActionWebView.setActionList(list);
-
-        //链接js注入接口，使能选中返回数据
-        mCustomActionWebView.linkJSInterface();
-
-        mCustomActionWebView.getSettings().setBuiltInZoomControls(true);
-        mCustomActionWebView.getSettings().setDisplayZoomControls(false);
-        //使用javascript
-        mCustomActionWebView.getSettings().setJavaScriptEnabled(true);
-        mCustomActionWebView.getSettings().setDomStorageEnabled(true);
-
-
-        //增加点击回调
-        mCustomActionWebView.setActionSelectListener(new ActionSelectListener() {
-            @Override
-            public void onClick(String title, String selectText) {
-                if(title.equals("APIWeb")) {
-
-
-                    return;
-                }
-                Toast.makeText(WebActivity.this, "Click Item: " + title + "。\n\nValue: " + selectText, Toast.LENGTH_LONG).show();
-            }
-        });
-
-        //加载url
-        mCustomActionWebView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mCustomActionWebView.loadUrl("http://www.jianshu.com/p/6f55b90032ce");
-            }
-        }, 1000);
-
-
-
-        registerForContextMenu(webview);*/
+        WebSettings settings = webview.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setSupportZoom(false);
+        settings.setBuiltInZoomControls(false);
 
 //        imageView = new ImageButton(this);
 //        imageView.setBackgroundResource(R.drawable.gender_checked_bg);
@@ -166,7 +104,6 @@ public class WebActivity extends BaseActivity implements View.OnTouchListener{
         imageView = findViewById(R.id.img);
         imageView.setOnTouchListener(this);
         imageParames = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
-
     }
 
     @Override

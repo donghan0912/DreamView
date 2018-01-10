@@ -1,6 +1,7 @@
 <html>
 
 <head>
+    <meta charset="UTF-8"/>
     <title>我的第一个 HTML 页面</title>
 </head>
 <script
@@ -58,29 +59,29 @@ var range = selection.getRangeAt(0);
 var s2 = JSON.stringify(range);
 window.android.startFunction()
 }
+console.log("===========================================");
+//var oP1 = document.getElementById("p6");
 
-var oP1 = document.getElementById("p6");
-
-var oHello = oP1.firstChild.firstChild;
+//var oHello = oP1.firstChild.firstChild;
 
 //获取文本节点Hello
 
-var oWorld = oP1.lastChild;
+//var oWorld = oP1.lastChild;
 
 //获取文本节点 World,注意这里以空格开始
-var oRange = document.createRange();
+//var oRange = document.createRange();
 //创建空的Range对象
-oRange.setStart(oHello, 2);
+//oRange.setStart(oHello, 2);
 //设置Range对象的起始节点为oHello
 //设置Range对象的文本起始位置为节点oHello的第2个位置
-oRange.setEnd(oWorld, 3);
+//oRange.setEnd(oWorld, 3);
 //设置Range对象的结束节点为oWorld
 //设置Range对象的文本结束位置为节点oWorld的第3个位置
 var s = window.getSelection();
 //创建空Selection对象s
-s.removeAllRanges();
+//s.removeAllRanges();
 //删除当前Selection对象里其他Range对象
-s.addRange(oRange);
+//s.addRange(oRange);
 //将oRange对象添加到Selection对象s
 
 var startRange1 = document.caretRangeFromPoint(81.6, 58.3);
@@ -115,7 +116,7 @@ var id2 = startContainer2.parentElement.id;
 var endContainer2 = range2.endContainer;
 var endOffset2 = range2.endOffset;
 var id4 = endContainer2.parentElement.id;
-
+console.log("===========================================");
 
 //window.android.startFunction(id1, startOffset1, id3, endOffset1);
 window.android.startFunction(id2, startOffset2, id4, endOffset2);
@@ -123,7 +124,7 @@ window.android.startFunction(id2, startOffset2, id4, endOffset2);
 // 开始长按标记范围初始化
 function startMark(x, y) {
     var s = window.getSelection();
-    s.removeAllRanges();
+   // s.removeAllRanges();
     var startRange = document.caretRangeFromPoint(x - 40, y);// 此处减去40是为了用户体验
     var endRange = document.caretRangeFromPoint(x + 40, y);
 

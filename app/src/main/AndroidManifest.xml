@@ -49,6 +49,7 @@
         <activity android:name=".module.video.VideoListActivity" />
         <activity android:name=".module.web.WebActivity" />
         <activity android:name=".module.web.SyncWebActivity" />
+        <activity android:name=".module.web.TencentWebActivity" />
     </application>
 
 </manifest>

@@ -8,13 +8,15 @@ import android.support.annotation.Nullable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
+
 
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.BaseActivity;
 import com.dream.dreamview.util.CommonUtils;
 import com.dream.dreamview.util.LogUtil;
 import com.dream.dreamview.util.ToastUtil;
+import com.tencent.smtt.sdk.WebSettings;
+import com.tencent.smtt.sdk.WebView;
 
 /**
  * Created on 2017/12/21.
@@ -48,9 +50,11 @@ public class SyncWebActivity extends BaseActivity implements View.OnTouchListene
         setContentView(R.layout.web_activity_sync_web);
         webView = findViewById(R.id.web_view);
         webView.setOnTouchListener(this);
-        webView.loadUrl("file:///android_asset/t2.html");
+        webView.loadUrl("file:///android_asset/t3.html");
         webView.addJavascriptInterface(SyncWebActivity.this, "android");
-
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setSupportZoom(false);
 
         Intent intent = getIntent();
         startId = intent.getStringExtra(RANGE_START_ID);
