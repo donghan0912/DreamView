@@ -4,13 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
 import com.dream.dreamview.R;
@@ -42,7 +39,6 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
   };
 
   private WebView webView;
-  private boolean startMark;
   private RelativeLayout.LayoutParams imageParames;
   private Button button;
 
@@ -69,12 +65,7 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
     webView.setOnLongClickListener(new View.OnLongClickListener() {
       @Override
       public boolean onLongClick(View view) {
-
-//        imageParames.leftMargin = (int) imageX;
-//        imageParames.topMargin = (int) imageY - CommonUtils.getStatusBarHeight();
-//        imageView.setLayoutParams(imageParames);
         webView.loadUrl("javascript:startMark(\"" + startX + "\", \"" + startY + "\")");
-        startMark = true;
         button.postDelayed(selectionChangedAction, 200);
         return true;
       }
@@ -86,16 +77,6 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
     settings.setJavaScriptEnabled(true);
     settings.setSupportZoom(false);
     settings.setBuiltInZoomControls(false);
-    webView.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        if (startMark) {
-          ToastUtil.showShortToast(TencentWebActivity.this, "取消标记");
-          startMark = false;
-        }
-      }
-    });
-
   }
 
   private String startId;
@@ -141,14 +122,19 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
           int top = selectionBoundsObject.getInt("top");
           int right = selectionBoundsObject.getInt("right");
           int bottom = selectionBoundsObject.getInt("bottom");
-          imageParames.leftMargin = CommonUtils.dp2px(right);
+          imageParames.leftMargin = CommonUtils.dp2px(left);
           int height = button.getHeight();
-          int y = CommonUtils.dp2px(bottom) - height;
-          imageParames.topMargin = y < 0 ? 0 : y;
-          button.setLayoutParams(imageParames);
-          LogUtil.e(right + "=========" + bottom);
+          int y = CommonUtils.dp2px(top) - height;
+          int y2 = CommonUtils.dp2px(top) + CommonUtils.getStatusBarHeight() - CommonUtils.getScreenHeight();
+          if (CommonUtils.dp2px(bottom) <= 0 || y2 >= 0){
+            button.setVisibility(View.GONE);
+          } else {
+            button.setVisibility(View.VISIBLE);
+            imageParames.topMargin = (y < 0) ? 0 : y;
+            button.setLayoutParams(imageParames);
+          }
           button.post(selectionChangedAction);
-
+          LogUtil.e(left + "=========" + top + "=========" + right + "=========" + bottom);
         } catch (JSONException e) {
           e.printStackTrace();
         }
@@ -168,7 +154,6 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
 
   @JavascriptInterface
   public void startActivity(final String startId, final String startOffset, final String endId, final String endOffset){
-
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
@@ -186,7 +171,6 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
   public boolean onTouch(View view, MotionEvent event) {
     startX = CommonUtils.px2dip(event.getRawX());
     startY = CommonUtils.px2dip(event.getRawY()) - CommonUtils.px2dip(CommonUtils.getStatusBarHeight());
-    LogUtil.e("我在移动");
     return false;
   }
 }

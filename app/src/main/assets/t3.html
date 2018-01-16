@@ -148,22 +148,31 @@ function selectionChangeListen() {
     var s = window.getSelection();
     if (s && s.rangeCount > 0) {
         var range = s.getRangeAt(0);
-		if (range.getClientRects) {
-			range.collapse(true);
-			rects = range.getClientRects();
-			if (rects.length > 0) {
-				rect = rects[0];
+		if (range.getClientRects){
+		    // 起始位置坐标
+			//range.collapse(false);
+			startRects = range.getClientRects();
+			if (startRects.length > 0) {
+				rect = startRects[0];
 			}
-			// 光标在行首时，rect为undefined
 			if(rect){
-				x = rect.left;
-				y = rect.top;
+				l = rect.left;
+				t = rect.top;
 			}
-			console.log("开始执行了啊啊啊啊嗄" + x)
-            var handleBounds = {"left": x,
-                         "top": y,
-                         "right": x,
-                         "bottom": y };
+			// 结束位置坐标
+			range.collapse(false);
+			endRects = range.getClientRects();
+			if (endRects.length > 0) {
+				rect = endRects[0];
+			}
+			if(rect){
+				r = rect.right;
+				b = rect.bottom;
+			}
+            var handleBounds = {"left": l,
+                         "top": t,
+                         "right": r,
+                         "bottom": b };
             window.android.move(JSON.stringify(handleBounds));
         }
    } else {
