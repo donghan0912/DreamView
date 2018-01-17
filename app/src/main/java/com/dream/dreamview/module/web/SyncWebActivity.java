@@ -7,9 +7,12 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
+import android.widget.RelativeLayout;
 
 
+import com.dream.dreamview.MyApplication;
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.BaseActivity;
 import com.dream.dreamview.util.CommonUtils;
@@ -48,7 +51,12 @@ public class SyncWebActivity extends BaseActivity implements View.OnTouchListene
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.web_activity_sync_web);
-        webView = findViewById(R.id.web_view);
+        RelativeLayout rootView = findViewById(R.id.root);
+        webView = new WebView(MyApplication.getContext());
+        webView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        rootView.addView(webView);
+        //webView = findViewById(R.id.web_view);
         webView.setOnTouchListener(this);
         webView.loadUrl("file:///android_asset/t3.html");
         webView.addJavascriptInterface(SyncWebActivity.this, "android");
@@ -104,5 +112,28 @@ public class SyncWebActivity extends BaseActivity implements View.OnTouchListene
         LogUtil.e("当前坐标：" + xPoint + "/" + yPoint);
         webView.loadUrl("javascript:isIncluded(\"" + xPoint + "\", \"" + yPoint + "\", \"" + startId + "\", \"" + startOffset + "\", \"" + endId + "\", \"" + endOffset + "\")");
         return false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        clearWebViewResource();
+        super.onDestroy();
+    }
+
+    public void clearWebViewResource() {
+        if (webView != null) {
+            webView.removeAllViews();
+            // in android 5.1(sdk:21) we should invoke this to avoid memory leak
+            // see (https://coolpers.github.io/webview/memory/leak/2015/07/16/
+            // android-5.1-webview-memory-leak.html)
+            ViewGroup parent = (ViewGroup) webView.getParent();
+            if (parent != null) {
+                parent.removeView(webView);
+            }
+            webView.setTag(null);
+            webView.clearHistory();
+            webView.destroy();
+            webView = null;
+        }
     }
 }

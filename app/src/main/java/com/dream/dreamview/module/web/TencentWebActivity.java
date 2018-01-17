@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
+import com.dream.dreamview.MyApplication;
 import com.dream.dreamview.R;
 import com.dream.dreamview.base.BaseActivity;
 import com.dream.dreamview.util.CommonUtils;
@@ -26,6 +28,10 @@ import org.json.JSONObject;
  */
 
 public class TencentWebActivity extends BaseActivity implements View.OnTouchListener{
+  // TODO 网页生成注意事项：
+  // 1. 文字只能一层标签
+  // 2. 图片大小，不能超过屏幕！
+
   private final Runnable selectionChangedAction = new Runnable() {
     @Override
     public void run() {
@@ -50,6 +56,13 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.web_activity_tencent_web);
+
+    RelativeLayout rootView = findViewById(R.id.root);
+    webView = new WebView(MyApplication.getContext());
+    webView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT));
+    rootView.addView(webView);
+
     button = findViewById(R.id.btn);
     imageParames = (RelativeLayout.LayoutParams) button.getLayoutParams();
     button.setOnClickListener(new View.OnClickListener() {
@@ -60,7 +73,7 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
 
       }
     });
-    webView = findViewById(R.id.web_view);
+    //webView = findViewById(R.id.web_view);
     webView.loadUrl("file:///android_asset/t3.html");
     webView.setOnLongClickListener(new View.OnLongClickListener() {
       @Override
@@ -95,18 +108,6 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
         TencentWebActivity.this.endOffset = endOffset;
         ToastUtil.showShortToast(TencentWebActivity.this,
                 startId + "==" + startOffset + "==" + endId + "==" + endOffset);
-      }
-    });
-  }
-
-  @JavascriptInterface
-  public void startFunction(){
-
-    runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        // TODO 调转测试
-        SyncWebActivity.start(TencentWebActivity.this, startId, startOffset, endId, endOffset);
       }
     });
   }
@@ -172,5 +173,28 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
     startX = CommonUtils.px2dip(event.getRawX());
     startY = CommonUtils.px2dip(event.getRawY()) - CommonUtils.px2dip(CommonUtils.getStatusBarHeight());
     return false;
+  }
+
+  @Override
+  protected void onDestroy() {
+    clearWebViewResource();
+    super.onDestroy();
+  }
+
+  public void clearWebViewResource() {
+    if (webView != null) {
+      webView.removeAllViews();
+      // in android 5.1(sdk:21) we should invoke this to avoid memory leak
+      // see (https://coolpers.github.io/webview/memory/leak/2015/07/16/
+      // android-5.1-webview-memory-leak.html)
+      ViewGroup parent = (ViewGroup) webView.getParent();
+      if (parent != null) {
+        parent.removeView(webView);
+      }
+      webView.setTag(null);
+      webView.clearHistory();
+      webView.destroy();
+      webView = null;
+    }
   }
 }
