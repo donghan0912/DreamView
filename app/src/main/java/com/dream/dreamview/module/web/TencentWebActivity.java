@@ -3,7 +3,9 @@ package com.dream.dreamview.module.web;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,27 +25,28 @@ import com.tencent.smtt.sdk.WebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Action;
+
 /**
  * Created on 2018/1/9.
  */
 
-public class TencentWebActivity extends BaseActivity implements View.OnTouchListener{
+public class TencentWebActivity extends BaseActivity implements View.OnTouchListener {
   // TODO 网页生成注意事项：
   // 1. 文字只能一层标签
   // 2. 图片大小，不能超过屏幕！
-
-  private final Runnable selectionChangedAction = new Runnable() {
-    @Override
-    public void run() {
-      runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
-          webView.loadUrl("javascript:selectionChangeListen()");
-        }
-      });
-    }
-  };
-
+  private CompositeDisposable mDisposables = new CompositeDisposable();
+  private Observable<Object> observable = Observable.empty()
+          .subscribeOn(AndroidSchedulers.mainThread())
+          .doOnComplete(new Action() {
+            @Override
+            public void run() throws Exception {
+              webView.loadUrl("javascript:selectionChangeListen()");
+            }
+          });
   private WebView webView;
   private RelativeLayout.LayoutParams imageParames;
   private Button button;
@@ -79,7 +82,7 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
       @Override
       public boolean onLongClick(View view) {
         webView.loadUrl("javascript:startMark(\"" + startX + "\", \"" + startY + "\")");
-        button.postDelayed(selectionChangedAction, 200);
+        mDisposables.add(observable.subscribe());
         return true;
       }
     });
@@ -92,31 +95,12 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
     settings.setBuiltInZoomControls(false);
   }
 
-  private String startId;
-  private String startOffset;
-  private String endId;
-  private String endOffset;
-  @JavascriptInterface
-  public void startFunction(final String startId, final String startOffset, final String endId, final String endOffset){
-
-    runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        TencentWebActivity.this.startId = startId;
-        TencentWebActivity.this.startOffset = startOffset;
-        TencentWebActivity.this.endId = endId;
-        TencentWebActivity.this.endOffset = endOffset;
-        ToastUtil.showShortToast(TencentWebActivity.this,
-                startId + "==" + startOffset + "==" + endId + "==" + endOffset);
-      }
-    });
-  }
-
   @JavascriptInterface
   public void move(final String bounds) {
-    runOnUiThread(new Runnable() {
+    Observable.empty().doOnComplete(new Action() {
       @Override
-      public void run() {
+      public void run() throws Exception {
+        LogUtil.e("当前是否是主线程：" + isInMainThread());
         try {
           JSONObject selectionBoundsObject = new JSONObject(bounds);
           int left = selectionBoundsObject.getInt("left");
@@ -127,47 +111,50 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
           int height = button.getHeight();
           int y = CommonUtils.dp2px(top) - height;
           int y2 = CommonUtils.dp2px(top) + CommonUtils.getStatusBarHeight() - CommonUtils.getScreenHeight();
-          if (CommonUtils.dp2px(bottom) <= 0 || y2 >= 0){
+          if (CommonUtils.dp2px(bottom) <= 0 || y2 >= 0) {
             button.setVisibility(View.GONE);
           } else {
             button.setVisibility(View.VISIBLE);
             imageParames.topMargin = (y < 0) ? 0 : y;
             button.setLayoutParams(imageParames);
           }
-          button.post(selectionChangedAction);
+          mDisposables.add(observable.subscribe());
           LogUtil.e(left + "=========" + top + "=========" + right + "=========" + bottom);
         } catch (JSONException e) {
           e.printStackTrace();
         }
       }
-    });
+    }).subscribeOn(AndroidSchedulers.mainThread()).subscribe();
   }
 
   @JavascriptInterface
   public void remove() {
-    runOnUiThread(new Runnable() {
+    Observable.empty().doOnComplete(new Action() {
       @Override
-      public void run() {
-        button.removeCallbacks(selectionChangedAction);
+      public void run() throws Exception {
+        LogUtil.e("当前是否是主线程：" + isInMainThread());
+        mDisposables.clear();
       }
-    });
+    }).subscribeOn(AndroidSchedulers.mainThread()).subscribe();
   }
 
   @JavascriptInterface
-  public void startActivity(final String startId, final String startOffset, final String endId, final String endOffset){
-    runOnUiThread(new Runnable() {
+  public void startActivity(final String startId, final String startOffset, final String endId, final String endOffset) {
+    Observable.empty().doOnComplete(new Action() {
       @Override
-      public void run() {
-        button.removeCallbacks(selectionChangedAction);
+      public void run() throws Exception {
+        LogUtil.e("当前是否是主线程：" + isInMainThread());
+        mDisposables.clear();
         ToastUtil.showShortToast(TencentWebActivity.this,
-                startId + "==" + startOffset + "==" + endId + "==" + endOffset) ;
+                startId + "==" + startOffset + "==" + endId + "==" + endOffset);
         SyncWebActivity.start(TencentWebActivity.this, startId, startOffset, endId, endOffset);
       }
-    });
+    }).subscribeOn(AndroidSchedulers.mainThread()).subscribe();
   }
 
   private float startX;
   private float startY;
+
   @Override
   public boolean onTouch(View view, MotionEvent event) {
     startX = CommonUtils.px2dip(event.getRawX());
@@ -177,6 +164,7 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
 
   @Override
   protected void onDestroy() {
+    mDisposables.clear();
     clearWebViewResource();
     super.onDestroy();
   }
@@ -196,5 +184,9 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
       webView.destroy();
       webView = null;
     }
+  }
+
+  public static boolean isInMainThread() {
+    return Looper.myLooper() == Looper.getMainLooper();
   }
 }
