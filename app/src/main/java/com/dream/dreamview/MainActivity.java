@@ -10,6 +10,7 @@ import android.view.View;
 
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.module.anim.AnimationActivity;
+import com.dream.dreamview.module.anim.LottieActivity;
 import com.dream.dreamview.module.meinv.BeautyActivity;
 import com.dream.dreamview.module.multi.MultiTypeActivity;
 import com.dream.dreamview.module.multistatus.MultiStatusActivity;
@@ -61,7 +62,8 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
         BaseRecyclerViewAdapter<MainItem> adapter = new BaseRecyclerViewAdapter<>();
         String[] datas = {"多状态页面", "测试1", "测试2", "测试3", "自定义toolbar", "Retrofit"
                 , "瀑布流", "多类型RecyclerView", "视频", "视频列表", "动画", "页面全局滑动返回，手势冲突"
-                , "Kotlin", "数据库RoomDB", "加解密", "原生WebView实现网页选中同步", "腾讯内核WebView实现网页选中同步"};
+                , "Kotlin", "数据库RoomDB", "加解密", "原生WebView实现网页选中同步"
+                , "腾讯内核WebView实现网页选中同步", "lottie动画"};
         for (String data : datas) {
             MainItem mainItem = new MainItem(data);
             adapter.addData(mainItem);
@@ -104,6 +106,8 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
                     WebActivity.start(MainActivity.this);
                 } else if (i == 16) {
                     TencentWebActivity.start(MainActivity.this);
+                } else if (i == 17) {
+                    LottieActivity.start(MainActivity.this);
                 }
             }
         });
