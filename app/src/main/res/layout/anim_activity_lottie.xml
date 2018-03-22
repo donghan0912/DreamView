@@ -6,6 +6,7 @@
     android:background="@color/gray_50">
 
     <com.airbnb.lottie.LottieAnimationView
+        android:visibility="gone"
         android:layout_centerInParent="true"
         android:id="@+id/animation_view"
         android:layout_width="80dp"
@@ -13,5 +14,11 @@
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/pen_line" />
+
+    <Button
+        android:id="@+id/btn"
+        android:text="CLICK"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </RelativeLayout>
