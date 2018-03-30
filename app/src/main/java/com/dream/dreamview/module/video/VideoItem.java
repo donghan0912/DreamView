@@ -7,10 +7,10 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.dream.dreamview.R;
 import com.dream.dreamview.module.video.ui.ExoPlayerView;
-import com.dream.dreamview.net.GlideApp;
-import com.google.android.exoplayer2.SimpleExoPlayer;
+
 import com.hpu.baserecyclerviewadapter.BaseItem;
 import com.hpu.baserecyclerviewadapter.BaseViewHolder;
 
@@ -40,7 +40,7 @@ public class VideoItem extends BaseItem<Video> {
         View view = View.inflate(context, R.layout.video_activity_video_list_item_over_layout, null);
         overlayLayout.addView(view);
         ImageView overImg = view.findViewById(R.id.over_img);
-        GlideApp.with(context)
+        Glide.with(context)
                 .load(R.drawable.meinv)
 //                .circleCrop() //  圆形头像，v4.0新增功能
 //                .transform(new RoundedCorners(10)) // 圆角 4.0新增功能

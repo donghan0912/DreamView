@@ -7,8 +7,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
+import com.bumptech.glide.Glide;
 import com.dream.dreamview.R;
-import com.dream.dreamview.net.GlideApp;
+
 import com.github.chrisbanes.photoview.PhotoView;
 
 /**
@@ -32,6 +33,6 @@ public class FullScreenActivity extends AppCompatActivity {
         setContentView(R.layout.meinv_activity_large);
         PhotoView photoView = (PhotoView) findViewById(R.id.photo_view);
         String url = getIntent().getStringExtra(EXTRA_URL);
-        GlideApp.with(this).load(url).into(photoView);
+        Glide.with(this).load(url).into(photoView);
     }
 }

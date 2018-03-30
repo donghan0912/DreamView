@@ -52,6 +52,7 @@
         <activity android:name=".module.web.TencentWebActivity" />
         <activity android:name=".module.multistatus.MultiStatusActivity" />
         <activity android:name=".module.anim.LottieActivity" />
+        <activity android:name=".module.anim.CustomRefreshActivity" />
     </application>
 
 </manifest>
