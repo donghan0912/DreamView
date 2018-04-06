@@ -104,4 +104,11 @@ dependencies {
 
     implementation 'com.github.lzyzsd:jsbridge:1.0.4'
     implementation 'com.airbnb.android:lottie:2.5.1'
+
+    implementation 'com.jzxiang.pickerview:TimePickerDialog:1.0.1'
+    // Material Design 风格时间选择器
+    implementation ('com.wdullaer:materialdatetimepicker:3.5.1'){ // 解决重复引用包
+        exclude group: 'com.android.support', module: 'support-v13'
+        exclude group: 'com.android.support', module: 'design'
+    }
 }
