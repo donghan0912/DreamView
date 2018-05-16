@@ -72,7 +72,7 @@
     <color name="blue_a700">#2962FF</color>
 
     <!-- Red 红色 调色板 -->
-    <color name="red">#FF0000</color>
+    <color name="red">@color/red_500</color>
     <color name="red_50">#FFEBEE</color>
     <color name="red_100">#FFCDD2</color>
     <color name="red_200">#EF9A9A</color>
@@ -106,7 +106,7 @@
     <color name="pink_a700">#C51162</color>
 
     <!-- Purple 紫色 调色板 -->
-    <color name="purple">#9C27B0</color>
+    <color name="purple">@color/purple_500</color>
     <color name="purple_50">#F3E5F5</color>
     <color name="purple_100">#E1BEE7</color>
     <color name="purple_200">#CE93D8</color>

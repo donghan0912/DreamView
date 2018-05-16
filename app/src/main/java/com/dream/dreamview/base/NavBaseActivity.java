@@ -1,5 +1,7 @@
 package com.dream.dreamview.base;
 
+import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
@@ -10,8 +12,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.TextView;
-
 import com.dream.dreamview.R;
+import com.dream.dreamview.util.CommonUtils;
 
 /**
  * 带Toolbar的基础Activity
@@ -39,6 +41,7 @@ public abstract class NavBaseActivity extends SwipeBackActivity {
     @LayoutRes
     int getContentView();
 
+    @SuppressLint("ResourceType")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +71,15 @@ public abstract class NavBaseActivity extends SwipeBackActivity {
             // 去掉Toolbar标题
             actionBar.setDisplayShowTitleEnabled(false);
             setDisplayHomeAsUpEnabled(false);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            int paddingLeft = mToolbar.getPaddingLeft();
+            int paddingTop = mToolbar.getPaddingTop();
+            int paddingRight = mToolbar.getPaddingRight();
+            int paddingBottom = mToolbar.getPaddingBottom();
+            int statusBarHeight = CommonUtils.getStatusBarHeight();
+            paddingTop += statusBarHeight;
+            mToolbar.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
         }
     }
 

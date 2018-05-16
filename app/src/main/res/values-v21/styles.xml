@@ -9,7 +9,7 @@
         <item name="android:windowBackground">@color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
         <!-- 状态栏透明 8.0以上会导致状态栏白色-->
-        <!--<item name="android:statusBarColor">@android:color/transparent</item>-->
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="NoTranslucentTheme" parent="AppTheme">
