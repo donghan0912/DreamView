@@ -72,6 +72,9 @@ public abstract class NavBaseActivity extends SwipeBackActivity {
             actionBar.setDisplayShowTitleEnabled(false);
             setDisplayHomeAsUpEnabled(false);
         }
+        // TODO 当Toolbar设置 android:fitsSystemWindows="true"之后，
+        // TODO 1. 如果设置状态栏透明，toolbar会跑到状态栏下面，需要重新设置toolbar的paddingTop，需执行下面该方法
+        // TODO 1. 如果状态栏有颜色，非透明，系统会默认给toolbar设置paddingTop,不用执行下面该方法
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             int paddingLeft = mToolbar.getPaddingLeft();
             int paddingTop = mToolbar.getPaddingTop();
