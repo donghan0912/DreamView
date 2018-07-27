@@ -56,11 +56,11 @@ public class MyApplication extends Application implements Application.ActivityLi
         Stetho.initializeWithDefaults(this);
         refWatcher = LeakCanary.install(this);
         String processName = getProcessName();
+        instance = this;
         // 每新建一个进程Application 的onCreate(）方法都将被调用一次
         if (!TextUtils.isEmpty(processName) && processName.equals(this.getPackageName())) {//判断进程名，保证只有主进程运行
             //主进程初始化逻辑
             LogUtil.d("我被调用了");
-            instance = this;
             registerActivityLifecycleCallbacks(this);
         }
         // App 首次就可以加载 x5 内核

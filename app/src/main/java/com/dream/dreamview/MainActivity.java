@@ -53,7 +53,7 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
         closeSwipe();
         setTitle("首页");
         setDisplayHomeAsUpEnabled(true);
-        subscribe = RxBus.get().toObservable().subscribe(new Consumer<Object>() {
+        subscribe = RxBus.getInstance().toObservable().subscribe(new Consumer<Object>() {
             @Override
             public void accept(Object o) throws Exception {
                 ToastUtil.showShortToast(MainActivity.this, String.valueOf(o));

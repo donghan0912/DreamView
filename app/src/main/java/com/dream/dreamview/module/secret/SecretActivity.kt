@@ -42,7 +42,7 @@ class SecretActivity : NavBaseActivity(), View.OnClickListener {
         val decryptBtn: Button = findViewById(R.id.decrypt_btn)
         encryptBtn.setOnClickListener(this)
         decryptBtn.setOnClickListener(this)
-        val rxBus = RxBus.get()
+        val rxBus = RxBus.getInstance()
         if (rxBus.hasObservers()) {
             rxBus.post("ssss")
         }
