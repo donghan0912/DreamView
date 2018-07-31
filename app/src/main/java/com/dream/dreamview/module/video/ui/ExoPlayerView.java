@@ -521,7 +521,7 @@ public final class ExoPlayerView extends FrameLayout implements CommonHandler.Me
             mActivity = (Activity) context;
             screenOrientationInit();
         }
-        screenSizeInit();
+        screenSizeInit(true);
     }
 
     @Override
@@ -1018,6 +1018,7 @@ public final class ExoPlayerView extends FrameLayout implements CommonHandler.Me
             mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
             mScreenFull.setVisibility(VISIBLE);
             mScreenNormal.setVisibility(GONE);
+            screenSizeInit(true);
         } else {
             if (screenOrientation == SCREEN_REVERSE_LANDSCAPE) {
                 mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
@@ -1026,21 +1027,31 @@ public final class ExoPlayerView extends FrameLayout implements CommonHandler.Me
             }
             mScreenFull.setVisibility(GONE);
             mScreenNormal.setVisibility(VISIBLE);
+            screenSizeInit(false);
         }
-        screenSizeInit();
         if (mOrientationChangeListener != null) {
             mOrientationChangeListener.onOrientationChange(screenOrientation);
         }
     }
 
-    private void screenSizeInit() {
+    /**
+     *
+     * @param portrait true 竖屏，false 横屏
+     */
+    private void screenSizeInit(boolean portrait) {
         // when screen orientation changed , should get screen size again
         WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics screen = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(screen);
-        mScreenWidth = screen.widthPixels;
-        int heightPixels = screen.heightPixels;
-        mSlidingRange = Math.min(heightPixels, mScreenWidth);
+        int screenWidth = screen.widthPixels;
+        int screenHeight = screen.heightPixels;
+        // 某些手机(Mix2s)，横屏状态下获取的宽高不准确，需加判断
+        if (portrait) {
+            mScreenWidth = screenWidth;
+        } else {
+            mScreenWidth = Math.max(screenWidth, screenHeight);
+        }
+        mSlidingRange = Math.min(screenWidth, screenHeight);
     }
 
     public boolean isLandscape() {
