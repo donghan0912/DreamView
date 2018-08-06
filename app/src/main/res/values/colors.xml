@@ -25,10 +25,6 @@
     <color name="gray_700">#616161</color>
     <color name="gray_800">#424242</color>
     <color name="gray_900">#212121</color>
-    <!--<color name="gray_a100">#595959</color>-->
-    <!--<color name="gray_a200">#FFFFFF</color>-->
-    <!--<color name="gray_a400">#C1C1C1</color>-->
-    <!--<color name="gray_a700">#939393</color>-->
 
     <!-- 黑色，调色板 -->
     <color name="black">@color/black_500</color>

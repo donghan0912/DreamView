@@ -1,0 +1,58 @@
+Activity 生命周期
+1. onCreate()
+2. onStart() Activity可见状态，但没有焦点不能交互
+3. onResume() Activity可见，获得焦点，可以交互
+4. onPause() Activity可见，但失去焦点不可与用户交互
+5. onStop() Activity不可见，但失去焦点
+6. onDestroy()
+
+Activity四种启动模式
+1. standard 模式
+    默认模式，每次激活Activity时都会创建Activity实例，并放入任务栈中
+2. singleTop 模式
+    如果在任务的栈顶正好存在该Activity的实例，就重用该实例( 会调用实例的 onNewIntent() )，
+    否则就会创建新的实例并放入栈顶，即使栈中已经存在该Activity的实例，只要不在栈顶，都会创建新的实例
+3. singleTask 模式
+    如果在栈中已经有该Activity的实例，就重用该实例(会调用实例的 onNewIntent() )。
+    重用时，会让该实例回到栈顶，因此在它上面的实例将会被移出栈。
+    如果栈中不存在该实例，将会创建新的实例放入栈中
+4. singleInstance 模式
+    Activity会单独占用一个Task栈，具有全局唯一性，即整个系统中就这么一个实例
+
+自定义View (Measure -> Layout -> Draw)
+1. onMeasure() 测量大小
+2. onLayout()   如何摆放(子)View
+3. onDraw() 绘制View
+
+Touch事件传递机制
+    public boolean dispatchTouchEvent(MotionEventev);
+    //用来分派event
+    public boolean onInterceptTouchEvent(MotionEventev);
+    //用来拦截event
+    public boolean onTouchEvent(MotionEventev);
+    //用来处理event
+
+    其中Activity和View控件（TextView）拥有分派和处理事件方法，
+    View容器（LinearLayout）具有分派，拦截，处理事件方法。
+
+Android 动画
+    FrameAnimation（逐帧动画）：将多张图片组合起来进行播放，
+    TweenAnimation（补间动画）：是对某个View进行一系列的动画的操作，包括淡入淡出（Alpha），缩放（Scale），平移（Translate），旋转（Rotate）四种模式。
+    PropertyAnimation（属性动画）：通过改变View属性，得到动画效果。
+
+非静态内部类，匿名内部类，持有外部类对象，注意内存泄漏
+
+RxJava
+Observable(被观察者)  Observer(观察者) 通过 subscribe() 方法产生订阅关系
+Scheduler(调度器) 线程控制
+    SubscribeOn 只调用一次，多余调用无效。如需多次切换线程，使用doOnSubscribe()
+        指定Observable自身在哪个调度器上执行（事件产生的线程）
+    ObserveOn 可多次调用，控制的是它后面的线程。
+        指定一个观察者在哪个调度器上观察这个Observable（事件消费的线程）
+
+RxBus实现原理
+    public abstract class Subject<T> extends Observable<T> implements Observer<T>
+    Subject继承了Observable也实现了Observer接口，所以它既是发布者，也是订阅者。
+    １.创建全局的可发送可接收消息的Subject实例
+    ２.通过subject.subscribe()给自己添加订阅者(subscriber/observaber)
+    ３.通过subject.onNext()调用所有订阅者的执行方法，即所谓的”发送消息”。
