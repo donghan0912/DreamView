@@ -84,7 +84,7 @@ public class LottieActivity extends BaseActivity {
 
   private void dialog() {
     showProgressDialog("加载中...", false);
-    Observable.timer(60000, TimeUnit.MILLISECONDS)
+    Observable.timer(3000, TimeUnit.MILLISECONDS)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(new Consumer<Long>() {

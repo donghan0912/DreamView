@@ -2,6 +2,7 @@ package com.dream.dreamview.test;
 
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 /**
  * Created on 2018/8/9.
@@ -29,7 +30,11 @@ public class Demo {
     int[] ints2 = {1, 11, 22, 33, 44, 55, 66, 77, 88};
 //    funBubbleSort(ints);
 //    selectSort(ints);
-    search(ints2, 88);
+//    search(ints2, 88);
+//    int[] arr = {8, 2, 1, 4,6,7, 3, 5, 9, 6,11,19,13,55,67,32,22};
+    int[] arr = {8, 2, 1, 9, 4};
+//    quickSort(arr, 0, ints2.length);
+    funQuickSort(arr, 0, arr.length - 1);
   }
 
   private static void init(Node node) {
@@ -106,23 +111,89 @@ public class Demo {
   }
 
   // 二分查找
-  static void search(int[] array, int value) {
-    int low = 0;
-    int high = array.length - 1;
-    int tttt = -1;
-    while (low <= high) {
-      int mid = (low + high) / 2;
+  static boolean search(int[] array, int value) {
+    int start = 0;
+    int end = array.length - 1;
+    while (start <= end) {
+      int mid = (start + end) / 2;
       if (value == array[mid]) {
-        tttt = mid;
-        break;
+        return true;
       } else if (value < array[mid]) {
-        high = mid - 1;
+        end = mid - 1;
       } else {
-        low = mid + 1;
+        start = mid + 1;
       }
     }
-    System.out.print(tttt + "======");
+    return false;
   }
+
+  static void quickSort(int[] array, int start, int end) {
+    for (int i = 0; i < array.length; i++) {
+
+    }
+    quick(array, 0, array.length - 1);
+    System.out.println("快速排序算法：" + Arrays.toString(array));
+  }
+
+  static void quick(int[] array, int start, int end) {
+    int base = array[start];
+    int n = start;
+    for (int i = start + 1; i < array.length; i++) {
+      if (array[i] < base) {
+        int temp = array[i];
+        array[i] = array[n];
+        array[n] = temp;
+        n++;
+      }
+    }
+  }
+
+  // 快速排序
+  static void funQuickSort(int[] mdata, int start, int end) {
+    if (end > start) {
+      int pivotIndex = quickSortPartition(mdata, start, end);
+      System.out.println("快速排序算法：" + Arrays.toString(mdata));
+      funQuickSort(mdata, start, pivotIndex - 1);
+      funQuickSort(mdata, pivotIndex + 1, end);
+    }
+  }
+
+  // 快速排序前的划分
+  static int quickSortPartition(int[] list, int first, int last) {
+    // {8, 2, 9, 4,10} {8, 2, 4, 9,10}
+    int pivot = list[first];
+    int low = first + 1;
+    int high = last;
+
+    while (high > low) {
+      while (low <= high && list[low] <= pivot) {
+        low++;
+      }
+
+      while (low <= high && list[high] > pivot) {
+        high--;
+      }
+
+      if (high > low) {
+        int temp = list[high];
+        list[high] = list[low];
+        list[low] = temp;
+      }
+    }
+
+    while (high > first && list[high] >= pivot) {
+      high--;
+    }
+
+    if (pivot > list[high]) {
+      list[first] = list[high];
+      list[high] = pivot;
+      return high;
+    } else {
+      return first;
+    }
+  }
+
 
 }
 
