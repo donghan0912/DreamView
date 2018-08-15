@@ -611,7 +611,7 @@ public final class ExoPlayerView extends FrameLayout implements CommonHandler.Me
         } else if (networkType == NetworkUtils.NETWORKTYPE_MOBILE && !continuePlay) {
             // 移动网络
             handler.sendEmptyMessage(UPDATE_MOBILE_NETWORK_UI);
-        } else {
+        } else if (networkType == NetworkUtils.NETWORKTYPE_INVALID){
             // 网络未连接
             handler.sendEmptyMessage(UPDATE_INVALID_NETWORK_UI);
         }

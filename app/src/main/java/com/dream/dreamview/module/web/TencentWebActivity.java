@@ -44,7 +44,9 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
           .doOnComplete(new Action() {
             @Override
             public void run() throws Exception {
-              webView.loadUrl("javascript:selectionChangeListen()");
+              if (webView != null) {
+                webView.loadUrl("javascript:selectionChangeListen()");
+              }
             }
           });
   private WebView webView;
@@ -100,7 +102,7 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
     Observable.empty().doOnComplete(new Action() {
       @Override
       public void run() throws Exception {
-        LogUtil.e("当前是否是主线程：" + isInMainThread());
+//        LogUtil.e("当前是否是主线程：" + isInMainThread());
         try {
           JSONObject selectionBoundsObject = new JSONObject(bounds);
           int left = selectionBoundsObject.getInt("left");
@@ -119,7 +121,7 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
             button.setLayoutParams(imageParames);
           }
           mDisposables.add(observable.subscribe());
-          LogUtil.e(left + "=========" + top + "=========" + right + "=========" + bottom);
+//          LogUtil.e(left + "=========" + top + "=========" + right + "=========" + bottom);
         } catch (JSONException e) {
           e.printStackTrace();
         }
@@ -132,7 +134,7 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
     Observable.empty().doOnComplete(new Action() {
       @Override
       public void run() throws Exception {
-        LogUtil.e("当前是否是主线程：" + isInMainThread());
+//        LogUtil.e("当前是否是主线程：" + isInMainThread());
         mDisposables.clear();
       }
     }).subscribeOn(AndroidSchedulers.mainThread()).subscribe();
@@ -143,7 +145,7 @@ public class TencentWebActivity extends BaseActivity implements View.OnTouchList
     Observable.empty().doOnComplete(new Action() {
       @Override
       public void run() throws Exception {
-        LogUtil.e("当前是否是主线程：" + isInMainThread());
+//        LogUtil.e("当前是否是主线程：" + isInMainThread());
         mDisposables.clear();
         ToastUtil.showShortToast(TencentWebActivity.this,
                 startId + "==" + startOffset + "==" + endId + "==" + endOffset);

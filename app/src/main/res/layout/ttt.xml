@@ -8,10 +8,11 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="200dp"
         android:background="@color/gray_200" />
 
     <Button
+        android:visibility="gone"
         android:id="@+id/btn"
         android:layout_width="match_parent"
         android:layout_height="80dp"
@@ -20,10 +21,9 @@
     <android.support.v4.view.ViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
+        android:layout_height="160dp" />
 
-    <Button
+    <!--<Button
         android:id="@+id/btn1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -70,6 +70,6 @@
         app:suffix_text="次"
         app:suffix_text_color="@color/gray_700"
         app:suffix_text_padding="0dp"
-        app:text_size="14sp" />
+        app:text_size="14sp" />-->
 
 </LinearLayout>

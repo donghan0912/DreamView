@@ -52,14 +52,14 @@ public class TestActivity extends NavBaseActivity {
 //        setContentView(R.layout.ttt);
 //        closeSwipe();
         viewPager = findViewById(R.id.view_pager);
-        btn = findViewById(R.id.btn);
+       /* btn = findViewById(R.id.btn);
         final CircleProgress circleProgress = findViewById(R.id.circle);
         findViewById(R.id.btn1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 circleProgress.setProgress(50);
             }
-        });
+        });*/
 
         final List<View> list = new ArrayList<>();
         View view1 = getLayoutInflater().inflate(R.layout.item_view_pager_fir, null);
@@ -103,13 +103,13 @@ public class TestActivity extends NavBaseActivity {
         int width = viewPager.getWidth();
         this.mSwipeBackLayout.setUnInterceptPos(x, y, x + width, y + height);
 
-        int[] location2 = new int[2];
-        btn.getLocationInWindow(location2); //获取在当前窗口内的绝对坐标
-        int x2 = location2[0];
-        int y2 = location2[1];
-        int height2 = btn.getHeight();
-        int width2 = btn.getWidth();
-        this.mSwipeBackLayout.setUnInterceptPos(x2, y2, x2 + width2, y2 + height2);
+//        int[] location2 = new int[2];
+//        btn.getLocationInWindow(location2); //获取在当前窗口内的绝对坐标
+//        int x2 = location2[0];
+//        int y2 = location2[1];
+//        int height2 = btn.getHeight();
+//        int width2 = btn.getWidth();
+//        this.mSwipeBackLayout.setUnInterceptPos(x2, y2, x2 + width2, y2 + height2);
     }
 
 

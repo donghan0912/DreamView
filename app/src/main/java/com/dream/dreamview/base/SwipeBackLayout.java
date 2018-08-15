@@ -178,7 +178,10 @@ public class SwipeBackLayout extends FrameLayout {
         if (action == MotionEvent.ACTION_MOVE) {
             if (isHorizontal) {
                 LogUtil.e("处理水平");
-                viewDragHelper.processTouchEvent(event);
+                // 多点触控暂未处理，参考：https://juejin.im/entry/5a901e97f265da4e9016c323
+                if (event.getPointerId(event.getActionIndex()) == 0) {// 判断是否是第一个手指
+                    viewDragHelper.processTouchEvent(event);
+                }
                 return true;
             }
             if (isVertical) {
