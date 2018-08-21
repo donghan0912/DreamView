@@ -54,6 +54,7 @@
         <activity android:name=".module.anim.LottieActivity" />
         <activity android:name=".module.anim.CustomRefreshActivity" />
         <activity android:name=".module.common.DatePickerActivity" />
+        <activity android:name=".module.common.TabActivity" />
     </application>
 
 </manifest>

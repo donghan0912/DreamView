@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      android:id="@+id/tab_classroom_tv"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:lines="1"
+      android:includeFontPadding="false"
+      android:background="@color/transparent"
+      android:textColor="@color/gray_900"
+      android:textSize="16sp" />

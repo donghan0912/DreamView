@@ -67,4 +67,14 @@
         <!--<item name="android:backgroundDimAmount">0.1</item>-->
     </style>
 
+    <style name="CommonTabLayout"
+        parent="Widget.Design.TabLayout">
+        <item name="tabGravity">center</item>
+        <item name="tabMode">fixed</item>
+        <item name="tabIndicatorHeight">2dp</item>
+        <item name="tabPaddingStart">0dp</item>
+        <item name="tabPaddingEnd">0dp</item>
+        <item name="tabIndicatorColor">@color/purple_700</item>
+    </style>
+
 </resources>
