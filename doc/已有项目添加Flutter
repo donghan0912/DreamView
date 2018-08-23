@@ -1,0 +1,2 @@
+1. flutter channel master 切换到主分支
+2. 在项目目录下，打开终端命令窗口，执行 flutter create -t module flutter_library（需要访问外部网络）

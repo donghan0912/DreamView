@@ -55,6 +55,7 @@
         <activity android:name=".module.anim.CustomRefreshActivity" />
         <activity android:name=".module.common.DatePickerActivity" />
         <activity android:name=".module.common.TabActivity" />
+        <activity android:name=".module.flutter.FlutterDemoActivity" />
     </application>
 
 </manifest>

@@ -5,4 +5,29 @@
         <item>@color/blue_400</item>
         <item>@color/blue_800</item>
     </array>
+
+    <string-array name="main_card">
+        <item>多状态页面</item>
+        <item>测试1</item>
+        <item>测试2</item>
+        <item>测试3</item>
+        <item>自定义toolbar</item>
+        <item>Retrofit</item>
+        <item>瀑布流</item>
+        <item>多类型RecyclerView</item>
+        <item>视频</item>
+        <item>视频列表</item>
+        <item>动画</item>
+        <item>页面全局滑动返回，手势冲突</item>
+        <item>Kotlin</item>
+        <item>数据库RoomDB</item>
+        <item>加解密</item>
+        <item>原生WebView实现网页选中同步</item>
+        <item>腾讯内核WebView实现网页选中同步</item>
+        <item>lottie动画</item>
+        <item>自定义下拉刷新</item>
+        <item>时间选择器</item>
+        <item>TabLayout</item>
+        <item>Flutter</item>
+    </string-array>
 </resources>
