@@ -4,15 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
-import android.view.View;
 import android.widget.FrameLayout;
 
-import com.dream.dreamview.R;
 import com.dream.dreamview.base.BaseActivity;
 
 import io.flutter.facade.Flutter;
-import io.flutter.plugin.common.EventChannel;
 import io.flutter.view.FlutterView;
 
 /**
@@ -30,17 +26,8 @@ public class FlutterDemoActivity extends BaseActivity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    final FlutterView flutterView = Flutter.createView(this, getLifecycle(), "route1");
-    flutterView.addFirstFrameListener(new FlutterView.FirstFrameListener() {
-      @Override
-      public void onFirstFrame() {
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-        flutterView.setLayoutParams(params);
-        flutterView.removeFirstFrameListener(this);
-      }
-    });
-//    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(1, 1);
+    FlutterView flutterView = Flutter.createView(this, getLifecycle(), "route1");
+    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
     addContentView(flutterView,
             params);
 

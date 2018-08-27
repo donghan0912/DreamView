@@ -7,6 +7,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 
 import com.dream.dreamview.base.NavBaseActivity;
 import com.dream.dreamview.module.anim.AnimationActivity;
@@ -38,6 +40,8 @@ import com.hpu.baserecyclerviewadapter.BaseViewHolder;
 
 import butterknife.BindArray;
 import butterknife.ButterKnife;
+import io.flutter.facade.Flutter;
+import io.flutter.view.FlutterView;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
@@ -124,6 +128,9 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
                 }
             }
         });
+        if (!BuildConfig.DEBUG) {
+            flutterInit();// 正式机优化
+        }
     }
 
     class MainItem extends BaseItem<String> {
@@ -180,5 +187,28 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
             subscribe.dispose();
         }
         super.onDestroy();
+    }
+
+    private void flutterInit() {
+        final WindowManager wm = getWindowManager();
+        final FrameLayout root = new FrameLayout(this);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(1, 1);
+        final FlutterView flutterView = Flutter.createView(this, getLifecycle(), "route1");
+        root.addView(flutterView,params);
+        WindowManager.LayoutParams wlp = new WindowManager.LayoutParams();
+        wlp.width = 1;
+        wlp.height = 1;
+        wlp.flags |= WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        wlp.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+        wm.addView(root,wlp);
+        // 首帧渲染监听
+        flutterView.addFirstFrameListener(new FlutterView.FirstFrameListener() {
+            @Override
+            public void onFirstFrame() {
+                //首帧渲染完后取消窗口
+                wm.removeView(root);
+                flutterView.removeFirstFrameListener(this);
+            }
+        });
     }
 }
