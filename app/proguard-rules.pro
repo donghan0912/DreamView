@@ -27,6 +27,7 @@
 #retrofit
 -dontwarn okio.**
 -dontwarn javax.annotation.**
+-dontwarn org.codehaus.**
 
 #glide
 -keep public class * implements com.bumptech.glide.module.GlideModule
@@ -35,6 +36,7 @@
   **[] $VALUES;
   public *;
 }
+-dontwarn com.bumptech.glide.load.resource.bitmap.VideoDecoder
 
 #flutter
 -keep class io.flutter.app.** { *; }
@@ -43,3 +45,7 @@
 -keep class io.flutter.view.**  { *; }
 -keep class io.flutter.**  { *; }
 -keep class io.flutter.plugins.**  { *; }
+
+
+#腾讯浏览器内核
+-dontwarn com.tencent.smtt.export.external.**
