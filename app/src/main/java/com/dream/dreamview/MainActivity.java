@@ -129,7 +129,7 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
             }
         });
         if (!BuildConfig.DEBUG) {
-            flutterInit();// 正式机优化
+//            flutterInit();
         }
     }
 
@@ -190,6 +190,7 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
     }
 
     private void flutterInit() {
+      // flutter 优化方案
         final WindowManager wm = getWindowManager();
         final FrameLayout root = new FrameLayout(this);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(1, 1);
