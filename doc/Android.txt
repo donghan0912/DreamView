@@ -94,3 +94,56 @@ HashMap的底层实现主要是借助数组+链表+红黑树来实现。
         debug版   采用JIT模式
         release版 采用AOT模式
 
+
+Android中子线程真的不能更新UI吗？
+    在OnCreate()方法中，子线程是可以更新UI的
+        原理：ViewRootImpl是在onResume()调用之后才创建，检测是否是UI线程，
+
+ViewRootImpl
+    视图绘制、事件分发作用
+
+Window、Activity、DecorView以及ViewRoot之间的错综关系，以及如何创建并显示DecorView。
+Activity就像个控制器，不负责视图部分。
+Window像个承载器，装着内部视图。
+DecorView就是个顶层视图，是所有View的最外层布局。
+ViewRoot像个连接器，负责沟通，通过硬件的感知来通知视图，进行用户之间的交互。
+
+一个Activity只有一个DecorView（ViewRoot），也只有一个Window。
+
+WindowManager:
+    对 Window 的访问必须通过 WindowManager。
+    WindowManager 提供的三个接口方法 addView、updateViewLayout 以及 removeView
+    WindowManager 是一个接口，它的真正实现是 WindowManagerImpl 类：
+    WindowManagerImpl 并没有直接实现 Window 的三大操作，而是交给了 WindowManagerGlobal(一个进程就只有一个WindowManagerGlobal对象) 来处理
+        ：创建ViewRootImpl，view操作（添加、更新、删除）
+    ViewRootImpl：
+        将window添加到windowManagerService
+
+Activity的Window创建
+    Activity 的 Window 创建就发生在 attach 方法里
+        DecorView 创建 发生在PhoneWindow中
+
+PopupWindow
+    1.设置背景Background
+        有背景则会在传入的contentView外面包一层PopupViewContainer 之后作为mPopupView
+        PopupViewContainer，继承FrameLayout，这个类中，处理了返回键和点击外部事件，popupwindow会消失
+    2.没有设置背景
+        点击Back返回键和点击PopupWindow以外的区域,PopupWindow不会消失
+
+Window 类型：
+    分三种类型：应用窗口，子窗口，系统窗口
+    其中，Activity与Dialog属于应用窗口、PopupWindow属于子窗口，必须依附到其他非子窗口才能存在，而Toast属于系统窗口，
+    Dialog可能比较特殊，从表现上来说偏向于子窗口，必须依附Activity才能存在，但是从性质上来说，仍然是应用窗口，有自己的WindowToken。
+
+Binder机制
+Handle机制
+
+1、我们先说下什么是Android消息处理机制？
+    消息处理机制本质：一个线程开启循环模式持续监听并依次处理其他线程给它发的消息。
+    简单的说：一个线程开启一个无限循环模式，不断遍历自己的消息列表，如果有消息就挨个拿出来做处理，
+        如果列表没消息，自己就堵塞（相当于wait，让出cpu资源给其他线程），其他线程如果想让该线程做什么事，
+        就往该线程的消息队列插入消息，该线程会不断从队列里拿出消息做处理。
+
+1、Looper
+对于Looper主要是prepare()和loop()两个方法。
+一个线程中只有一个Looper实例
