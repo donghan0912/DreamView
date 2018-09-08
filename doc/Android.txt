@@ -146,4 +146,49 @@ Handle机制
 
 1、Looper
 对于Looper主要是prepare()和loop()两个方法。
+    perpare() 首先检查当前线程是否有looper对象，有的话会抛出异常。没有的话，会创建looper对象，并与当前线程绑定。同时创建MessageQueue对象
+    所以，一个线程是有一个Looper对象、一个MessageQueue（消息队列）对象
 一个线程中只有一个Looper实例
+Looper,在构造方法中会创建MessageQueue（消息队列）对象，
+MessageQueue，通过next()方法取出Message（消息）对象。
+    for (;;) {} 无限循环
+Message recycle()释放消息占用的资源
+
+Looper主要作用：
+1、	与当前线程绑定，保证一个线程只会有一个Looper实例，同时一个Looper实例也只有一个MessageQueue。
+2、	loop()方法，不断从MessageQueue中去取消息，交给消息的target属性的dispatchMessage去处理。
+
+Handler
+通过Hander构造方法，拿到当前线程中保存的Looper、MessageQueue对象
+Handler的sendMessage方法
+    作用：会给msg的target(也就是Hander对象)赋值为当前Handler自身，然后将Message(消息)对象放到MessageQueue(消息队列)中
+    然后由于调用Loop.loop()方法，该方法中有一个无限循环体，会一直查询是否有消息，
+    一有消息，它就会调用hander的handleMessage方法，来处理消息。
+Handler的Post(Runnable r)方法：
+    handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // TODO 更新UI
+                    }
+                });
+    将Runable对象作为callback属性，赋值给了此message，并不会创建线程
+Handler中的Callback 接口，一般为null,会直接调用Handler的handleMessage()来处理消息
+   但是Handler的post()方法，则会将runable对象赋值给callback,最终调用runnablede run方法
+
+ActivityThread(主线程) main 方法中，会初始化 Looper.prepareMainLooper();Looper.loop();
+
+Handler的两大用法：1）在子线程中更新主线程；2）延迟处理
+
+Handler内存泄漏
+    原因：非静态内部类，默认持有外部类引用。Message持有Handler引用，
+        Handler持有Activity引用，如果发射延迟消息，会导致内存泄漏。
+
+    解决：
+        1. static声明Handler
+        2. 弱引用
+        3. ondestroy中取消所有任务，并置空；
+
+Activity的生命周期函数是谁调用的？
+    是ActivityThread调度的， 具体逻辑封装在Instrumentation类里
+
+ActivityMonitor

@@ -3,6 +3,7 @@ package com.dream.dreamview;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -70,6 +71,7 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
                 ToastUtil.showShortToast(MainActivity.this, String.valueOf(o));
             }
         });
+        Looper.loop();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         BaseRecyclerViewAdapter<MainItem> adapter = new BaseRecyclerViewAdapter<>();
