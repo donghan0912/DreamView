@@ -3,8 +3,13 @@ Activity 生命周期
 2. onStart() Activity可见状态，但没有焦点不能交互
 3. onResume() Activity可见，获得焦点，可以交互
 4. onPause() Activity可见，但失去焦点不可与用户交互
-5. onStop() Activity不可见，但失去焦点
+5. onStop() Activity不可见，但失去焦点（透明主题，并不会执行onStop()方法）
 6. onDestroy()
+
+ActivityA跳转到ActivityB，生命周期调用顺序
+    onPause(A) -> onCreate(B) -> onStart(B) -> onResume(B) -> onStop(A)
+ActivityB返回ActivityA，生命周期调用顺序
+    onPause(B) -> onRestart(A) -> onStart(A) -> onResume(A) -> onStop(B) -> onDestory(B)
 
 Activity四种启动模式
 1. standard 模式
@@ -190,5 +195,51 @@ Handler内存泄漏
 
 Activity的生命周期函数是谁调用的？
     是ActivityThread调度的， 具体逻辑封装在Instrumentation类里
+Fragment的生命周期函数是谁调用的？
+    FragmentController 调度的
 
-ActivityMonitor
+FragmentActivity
+    常用的AppCompatActivity也是继承自它，在FragmentActivity中有一个重要的成员变量mFragments，
+    它的类型是FragmentController
+
+
+
+FragmentManager
+    是一个抽象类，它定义了对一个 Activity/Fragment 中 添加进来的 Fragment 列表、Fragment 回退栈的操作、管理。
+FragmentTransaction
+    定义了一系列对 Fragment 的操作方法：
+
+getSupportFragmentManager().beginTransaction()
+                .replace(R.id.monitor_frame_layout, mProgressFragment)
+                .addToBackStack(null)
+                .commit();
+在调用commint()之前，你可以用addToBackStack()把事务添加到一个后退栈中，这个后退栈属于所在的activity。
+有了它，就可以在用户按下返回键时，返回到fragment们执行事务之前的状态。
+
+commit() 需要在宿主 Activity 保存状态之前（Activity onSaveInstanceState()方法调用之前调用）调用，否则会报错
+
+Activity 横竖屏切换
+通过Activity setRequestedOrientation()方法，设置方向
+1. 配置了configChanges，Activity不会重建，会调用onConfigurationChanged()，android:configChanges="orientation|keyboardHidden|screenSize"
+2. 没有配置configChanges，Activity声明周期
+    onPause
+    onSaveInstanceState
+    onStop
+    onDestroy
+    onCreate - orientation
+    onStart
+    onRestoreInstanceState
+    onResume
+
+LeakCanary原理
+    LeakCanary的原理非常简单。正常情况下一个Activity在执行Destroy之后就要销毁，
+    LeakCanary做的就是在一个Activity Destroy之后(通过Application.ActivityLifecycleCallbacks监听，Activity OnDestory()销毁)
+    将它放在一个WeakReference中，然后将这个WeakReference关联到一个ReferenceQueue，
+    查看ReferenceQueue是否存在Activity的引用，如果不在这个队列中，执行一些GC清洗操作，再次查看。
+    如果不存在则证明该Activity泄漏了。
+    接着 LeakCanary 会使用 Square 开源库 haha 来分析Android heap dump文件，并把最终结果通过通知的方式显示在通知栏。
+
+Android 跨进程通讯
+    AIDL
+
+    

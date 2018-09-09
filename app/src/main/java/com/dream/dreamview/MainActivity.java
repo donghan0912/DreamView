@@ -3,7 +3,7 @@ package com.dream.dreamview;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.os.Looper;
+import android.os.PersistableBundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,6 +34,7 @@ import com.dream.dreamview.sample.NavFoldSampleActivity;
 import com.dream.dreamview.test.KotlinActivity;
 import com.dream.dreamview.test.RetrofitActivity;
 import com.dream.dreamview.test.TestActivity;
+import com.dream.dreamview.util.LogUtil;
 import com.dream.dreamview.util.ToastUtil;
 import com.hpu.baserecyclerviewadapter.BaseItem;
 import com.hpu.baserecyclerviewadapter.BaseRecyclerViewAdapter;
@@ -71,7 +72,6 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
                 ToastUtil.showShortToast(MainActivity.this, String.valueOf(o));
             }
         });
-        Looper.loop();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         BaseRecyclerViewAdapter<MainItem> adapter = new BaseRecyclerViewAdapter<>();
@@ -213,5 +213,11 @@ public class MainActivity extends NavBaseActivity implements View.OnClickListene
                 flutterView.removeFirstFrameListener(this);
             }
         });
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        LogUtil.e("主页面状态保存");
     }
 }
