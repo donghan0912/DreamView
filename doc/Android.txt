@@ -24,6 +24,59 @@ Activity四种启动模式
 4. singleInstance 模式
     Activity会单独占用一个Task栈，具有全局唯一性，即整个系统中就这么一个实例
 
+Fragment生命周期：
+1.onAttach()
+2.onCreate()
+3.onCreateView()
+4.onActivityCreated()
+5.onStart()
+6.onResume()
+
+7.onPause()
+8.onStop()
+9.onDestoryView()
+10.onDestory()
+11.onDetach()
+
+Activity的生命周期函数是谁调用的？
+    是ActivityThread调度的， 具体逻辑封装在Instrumentation类里
+Fragment的生命周期函数是谁调用的？
+    FragmentController 调度的
+
+FragmentActivity
+    常用的AppCompatActivity也是继承自它，在FragmentActivity中有一个重要的成员变量mFragments，
+    它的类型是FragmentController
+
+
+
+FragmentManager
+    是一个抽象类，它定义了对一个 Activity/Fragment 中 添加进来的 Fragment 列表、Fragment 回退栈的操作、管理。
+FragmentTransaction
+    定义了一系列对 Fragment 的操作方法：
+
+getSupportFragmentManager().beginTransaction()
+                .replace(R.id.monitor_frame_layout, mProgressFragment)
+                .addToBackStack(null)
+                .commit();
+在调用commint()之前，你可以用addToBackStack()把事务添加到一个后退栈中，这个后退栈属于所在的activity。
+有了它，就可以在用户按下返回键时，返回到fragment们执行事务之前的状态。
+
+commit() 需要在宿主 Activity 保存状态之前（Activity onSaveInstanceState()方法调用之前调用）调用，否则会报错
+
+Activity 横竖屏切换
+通过Activity setRequestedOrientation()方法，设置方向
+1. 配置了configChanges，Activity不会重建，会调用onConfigurationChanged()，android:configChanges="orientation|keyboardHidden|screenSize"
+2. 没有配置configChanges，Activity声明周期
+    onPause
+    onSaveInstanceState
+    onStop
+    onDestroy
+    onCreate - orientation
+    onStart
+    onRestoreInstanceState
+    onResume
+
+
 自定义View (Measure -> Layout -> Draw)
 1. onMeasure() 测量大小
 2. onLayout()   如何摆放(子)View;
@@ -200,44 +253,6 @@ Handler内存泄漏
         1. static声明Handler
         2. 弱引用
         3. ondestroy中取消所有任务，并置空；
-
-Activity的生命周期函数是谁调用的？
-    是ActivityThread调度的， 具体逻辑封装在Instrumentation类里
-Fragment的生命周期函数是谁调用的？
-    FragmentController 调度的
-
-FragmentActivity
-    常用的AppCompatActivity也是继承自它，在FragmentActivity中有一个重要的成员变量mFragments，
-    它的类型是FragmentController
-
-
-
-FragmentManager
-    是一个抽象类，它定义了对一个 Activity/Fragment 中 添加进来的 Fragment 列表、Fragment 回退栈的操作、管理。
-FragmentTransaction
-    定义了一系列对 Fragment 的操作方法：
-
-getSupportFragmentManager().beginTransaction()
-                .replace(R.id.monitor_frame_layout, mProgressFragment)
-                .addToBackStack(null)
-                .commit();
-在调用commint()之前，你可以用addToBackStack()把事务添加到一个后退栈中，这个后退栈属于所在的activity。
-有了它，就可以在用户按下返回键时，返回到fragment们执行事务之前的状态。
-
-commit() 需要在宿主 Activity 保存状态之前（Activity onSaveInstanceState()方法调用之前调用）调用，否则会报错
-
-Activity 横竖屏切换
-通过Activity setRequestedOrientation()方法，设置方向
-1. 配置了configChanges，Activity不会重建，会调用onConfigurationChanged()，android:configChanges="orientation|keyboardHidden|screenSize"
-2. 没有配置configChanges，Activity声明周期
-    onPause
-    onSaveInstanceState
-    onStop
-    onDestroy
-    onCreate - orientation
-    onStart
-    onRestoreInstanceState
-    onResume
 
 LeakCanary原理
     LeakCanary的原理非常简单。正常情况下一个Activity在执行Destroy之后就要销毁，
