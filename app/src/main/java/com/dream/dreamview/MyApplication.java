@@ -55,7 +55,7 @@ public class MyApplication extends Application implements Application.ActivityLi
         super.onCreate();
         Stetho.initializeWithDefaults(this);
         refWatcher = LeakCanary.install(this);
-        String processName = getProcessName();
+        String processName = getProcessName1();
         instance = this;
         // 每新建一个进程Application 的onCreate(）方法都将被调用一次
         if (!TextUtils.isEmpty(processName) && processName.equals(this.getPackageName())) {//判断进程名，保证只有主进程运行
@@ -77,7 +77,7 @@ public class MyApplication extends Application implements Application.ActivityLi
         });
     }
 
-    public String getProcessName() {
+    public String getProcessName1() {
         try {
             File file = new File("/proc/" + android.os.Process.myPid() + "/" + "cmdline");
             BufferedReader mBufferedReader = new BufferedReader(new FileReader(file));
